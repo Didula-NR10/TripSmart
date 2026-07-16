@@ -1,0 +1,32 @@
+# --- Python / Backend Dependencies ---
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+db.sqlite3
+
+# --- Node / Frontend Dependencies ---
+node_modules/
+.expo/
+dist/
+web-build/
+
+# --- Environment Variables & Secrets ---
+.env
+.env.local
+.env.*.local
+
+# --- IDE & Tooling ---
+.claude/
+.vscode/
+.idea/
+
+# --- OS Files & Archives ---
+*.zip
+*.tar.gz
+.DS_Store
+Thumbs.db
+# --- Temporary / Miscellaneous ---
+dd.txt

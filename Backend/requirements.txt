@@ -1,0 +1,29 @@
+# Trip Smart — forecast backend
+# Python 3.10 – 3.12
+
+fastapi>=0.110.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.7.0
+pydantic-settings>=2.2.0
+python-dotenv>=1.0.0
+
+# Database — Supabase is plain Postgres; SQLAlchemy connects directly and
+# creates the tables on startup (optional: forecasts work without it,
+# caching/history just switch off)
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.9
+
+# Upstream weather (async)
+httpx>=0.27.0
+
+# Auth
+pyjwt>=2.8.0
+
+# ---- Model serving ----
+# TensorFlow is the heavy one (~500 MB). It is imported lazily inside
+# ModelRepository, so worker boot stays fast.
+tensorflow>=2.16.0
+scikit-learn>=1.4.0      # the scaler was pickled by sklearn; joblib needs it to unpickle
+joblib>=1.4.0
+numpy>=1.26.0
+pandas>=2.2.0

@@ -1,0 +1,362 @@
+{
+  "meta": {
+    "title": "Sri Lanka District Specialties Dataset",
+    "purpose": "Location-triggered notification content and Culture-tab listing for the Tripsmart / Rawana Ceylon app. Categories: food, drink, dessert, craft, gem_mineral, agri_produce, textile. notification_text is ready-to-send push copy (<=140 chars).",
+    "total_items": 202,
+    "district_count": 25
+  },
+  "districts": [
+    {
+      "district": "Colombo",
+      "province": "Western",
+      "items": [
+        { "category": "food", "name": "Short eats (kade snacks)", "description": "Savory bites like pol roti, fish buns, and cutlets sold at street-corner 'kades' across the capital.", "notification_text": "You're in Colombo! Grab some short eats — the city's iconic street-corner snack culture." },
+        { "category": "food", "name": "Kottu roti", "description": "Chopped roti stir-fried with vegetables, egg, and meat on a hot griddle, a Colombo street-food icon.", "notification_text": "Craving something sizzling? Colombo is kottu roti's home turf — find a night-time kottu stall nearby." },
+        { "category": "food", "name": "Isso wade (prawn fritters)", "description": "Deep-fried lentil fritters topped with a whole prawn, classic evening snack at Galle Face Green.", "notification_text": "Evening walk on Galle Face Green? Don't miss isso wade — Colombo's beachside prawn fritters." },
+        { "category": "food", "name": "Lamprais", "description": "Dutch Burgher rice parcel with mixed meat curry, baked in a banana leaf; a Colombo Burgher-community classic.", "notification_text": "Try lamprais — a Dutch-Burgher rice specialty baked in banana leaf, rooted in old Colombo." },
+        { "category": "craft", "name": "Colombo boutique batik", "description": "City boutiques and Barefoot-style stores sell hand-dyed batik textiles from island-wide artisans.", "notification_text": "Colombo's boutiques are a great stop for hand-dyed Sri Lankan batik textiles." },
+        { "category": "gem_mineral", "name": "Colombo gem & jewellery district", "description": "Sea Street and the World Trade Center house Sri Lanka's biggest gem and jewellery trading hub.", "notification_text": "Near Sea Street? It's Colombo's historic gem and jewellery trading quarter." },
+        { "category": "food", "name": "Pettah market produce", "description": "Sri Lanka's largest open-air bazaar, famous for spices, dried goods, and fresh produce stalls.", "notification_text": "Pettah Market nearby — wander the spice and dried-goods stalls of Colombo's oldest bazaar." },
+        { "category": "dessert", "name": "Colombo-style milk toffee & wattalapam", "description": "Coconut-milk toffee and cardamom custard pudding widely sold in the capital's sweet shops.", "notification_text": "Pick up milk toffee or wattalapam from a Colombo sweet shop before you go." },
+        { "category": "food", "name": "Devon Avenue biryani", "description": "Colombo's biryani houses, many run by long-standing Muslim families, are famous for rich, spiced rice biryani.", "notification_text": "Colombo has some of the island's best biryani houses — worth a detour if you're nearby." },
+        { "category": "drink", "name": "Elephant House ginger beer", "description": "A Colombo-founded soft drink brand whose ginger beer has been a Sri Lankan household staple since colonial times.", "notification_text": "Try a classic Elephant House ginger beer — a Colombo soft-drink institution since colonial times." },
+        { "category": "food", "name": "Wellawatte Tamil food street", "description": "Colombo's Wellawatte area is known for South Indian and Jaffna Tamil eateries, dosa, and filter coffee.", "notification_text": "Wellawatte is Colombo's go-to strip for South Indian dosa and filter coffee." },
+        { "category": "dessert", "name": "Indian sweet shops of Sea Street", "description": "Colombo's Sea Street and Bambalapitiya areas host long-running Indian sweet shops popular with locals.", "notification_text": "Colombo's older neighborhoods have long-running Indian sweet shops worth a stop." },
+        { "category": "craft", "name": "Colombo antique & curio shops", "description": "The city's Galle Road antique shops trade in colonial-era furniture, brass, and curios sourced island-wide.", "notification_text": "Colombo's Galle Road antique shops are a good hunting ground for colonial-era curios." },
+        { "category": "food", "name": "Colombo hoppers & string hoppers", "description": "Local hopper shops across the city serve egg hoppers and string hoppers with a variety of curries.", "notification_text": "Colombo's hopper shops are a great evening stop for egg hoppers and string hoppers." }
+      ]
+    },
+    {
+      "district": "Gampaha",
+      "province": "Western",
+      "items": [
+        { "category": "food", "name": "Negombo lagoon crab curry", "description": "Rich, spicy crab curry using mud crabs caught fresh from the Negombo lagoon.", "notification_text": "You're near Negombo Lagoon — try the crab curry made from crabs caught right here." },
+        { "category": "food", "name": "Negombo prawns", "description": "Jumbo lagoon and sea prawns, a signature catch of Negombo's fishing fleet.", "notification_text": "Negombo is prawn country — look for jumbo prawns fresh off the day's catch." },
+        { "category": "food", "name": "Dried fish (karawala)", "description": "Sun-dried fish prepared by Negombo's fishing communities, a staple flavor booster in local curries.", "notification_text": "Negombo's fish markets are known for sun-dried fish (karawala) — a local pantry staple." },
+        { "category": "drink", "name": "Coconut toddy (ra)", "description": "Fermented sap tapped from coconut palms in the 'Coconut Triangle' spanning Gampaha.", "notification_text": "You're in the Coconut Triangle — ask about toddy (ra), the traditional palm-tapped drink." },
+        { "category": "craft", "name": "Cane furniture (Weweldeniya)", "description": "The Weweldeniya area of Gampaha District is a traditional center for handwoven cane furniture.", "notification_text": "Weweldeniya nearby — a traditional hub for handwoven cane furniture." },
+        { "category": "food", "name": "Negombo Fish Market catch", "description": "One of Sri Lanka's largest fish markets, where the day's ocean catch is auctioned each morning.", "notification_text": "Negombo's fish market is buzzing at dawn — one of the island's biggest seafood auctions." },
+        { "category": "food", "name": "Ja-Ela / Katunayake seafood", "description": "Coastal towns near the airport serve fresh lagoon and sea catch to travelers passing through.", "notification_text": "Near the airport, Ja-Ela's coastal eateries serve fresh lagoon and sea catch." },
+        { "category": "agri_produce", "name": "Minuwangoda cinnamon", "description": "Parts of Gampaha District cultivate cinnamon as an extension of the island's coastal cinnamon belt.", "notification_text": "Gampaha's Minuwangoda area grows cinnamon as part of the island's coastal cinnamon belt." },
+        { "category": "food", "name": "Gampaha king coconut", "description": "The district's coconut-triangle plantations are a strong source of the sweet orange-shelled king coconut.", "notification_text": "Gampaha's plantations are a great place to grab a fresh king coconut." },
+        { "category": "food", "name": "Ja-Ela cashew snacks", "description": "Local shops around Ja-Ela sell roasted and spiced cashew nut snacks.", "notification_text": "Ja-Ela's local shops sell roasted, spiced cashew snacks worth trying." }
+      ]
+    },
+    {
+      "district": "Kalutara",
+      "province": "Western",
+      "items": [
+        { "category": "craft", "name": "Beruwala batik", "description": "Beruwala is one of Sri Lanka's oldest centers for hand-dyed batik cloth production.", "notification_text": "Beruwala nearby — one of the island's original batik-making towns." },
+        { "category": "food", "name": "Kalutara rambutan", "description": "The district is well known for its rambutan orchards, especially in season (June-August).", "notification_text": "In season, Kalutara's roadside stalls sell some of the island's best rambutan." },
+        { "category": "food", "name": "Kalutara mangosteen & durian", "description": "Home gardens around Kalutara commonly grow mangosteen and durian alongside rubber estates.", "notification_text": "Kalutara's gardens are known for mangosteen and durian — worth a roadside stop." },
+        { "category": "agri_produce", "name": "Rubber estates", "description": "Kalutara sits in Sri Lanka's rubber belt, with plantations visible along the Colombo-Galle route.", "notification_text": "You're passing through Sri Lanka's rubber belt — Kalutara's plantations line the coastal route." },
+        { "category": "food", "name": "Wadduwa & Beruwala seafood", "description": "Coastal towns in Kalutara District serve fresh reef and lagoon seafood at beachside eateries.", "notification_text": "Beachside in Wadduwa or Beruwala? Fresh seafood is the local specialty." },
+        { "category": "food", "name": "Kalutara Bodhiya sweetmeats", "description": "Vendors near the Kalutara Bodhiya stupa sell traditional Sinhala sweets to pilgrims.", "notification_text": "Visiting Kalutara Bodhiya? Try the traditional sweets sold by nearby vendors." },
+        { "category": "food", "name": "Panadura seafood curries", "description": "The coastal town of Panadura is known for its lagoon and sea fish curries.", "notification_text": "Panadura is known for its lagoon and sea fish curries — a coastal Kalutara specialty." },
+        { "category": "food", "name": "Kalutara cinnamon oil", "description": "Small distilleries in Kalutara process cinnamon leaf and bark into cinnamon oil.", "notification_text": "Kalutara has small distilleries producing cinnamon oil from local bark and leaf." },
+        { "category": "food", "name": "Beruwala fish market catch", "description": "Beruwala's fishing harbor is one of the busiest on the west coast, supplying fresh reef and deep-sea fish.", "notification_text": "Beruwala's harbor is one of the busiest fishing ports on the west coast." }
+      ]
+    },
+    {
+      "district": "Kandy",
+      "province": "Central",
+      "items": [
+        { "category": "craft", "name": "Kandyan brass & silverware", "description": "Kandy is Sri Lanka's historic center for brass and silver metalwork — lamps, trays, and jewellery.", "notification_text": "You're in Kandy — the island's classic destination for handcrafted brass and silverware." },
+        { "category": "craft", "name": "Dumbara mats (Henawala)", "description": "Woven wall-hanging mats from Henawala village in the Dumbara Valley, made by the Kinnara community from plant fiber.", "notification_text": "Near the Dumbara Valley — home of the Henawala weavers' famous Dumbara mats." },
+        { "category": "craft", "name": "Kandyan lacquerware", "description": "Lathe-turned wooden items finished with colored lac, a craft historically centered on the Kandyan hills.", "notification_text": "Kandy's lacquerware — colorful lac-finished boxes and ornaments — makes a classic souvenir." },
+        { "category": "craft", "name": "Kandyan wood carving", "description": "Intricately carved wooden furniture, masks, and figurines from Kandy-area workshops.", "notification_text": "Look out for Kandyan wood carving — an intricate craft tradition rooted in the old capital." },
+        { "category": "dessert", "name": "Kalu dodol", "description": "A dense, dark coconut-and-jaggery sweet, traditionally associated with Kandyan festive tables.", "notification_text": "Try kalu dodol — a rich coconut-jaggery sweet from the Kandyan tradition." },
+        { "category": "food", "name": "Betel leaf (bulath)", "description": "Kandy District farms produce betel leaf, traditionally offered as a mark of respect in Sinhalese culture.", "notification_text": "Betel leaf farming is part of Kandy's agricultural heritage — a symbol of respect in local custom." },
+        { "category": "drink", "name": "High-grown Kandy tea", "description": "Kandy District mid-elevation estates produce a distinct 'mid-grown' Ceylon tea grade.", "notification_text": "You're in tea country — Kandy's mid-grown estates produce a distinct Ceylon tea style." },
+        { "category": "craft", "name": "Pujapitiya brassware village", "description": "A village near Kandy specializing for generations in cast and hammered brass items.", "notification_text": "Pujapitiya nearby — generations of brass-casting craftsmanship." },
+        { "category": "food", "name": "Kandyan milk rice & sweetmeats", "description": "Traditional Kandyan New Year sweets — kevum, kokis, and mung kavum — are strongly associated with the region.", "notification_text": "Kandy is known for traditional New Year sweets like kevum and kokis — worth seeking out." },
+        { "category": "food", "name": "Kandy jaggery", "description": "Palm jaggery from the surrounding hill country is a common local sweetener sold in Kandy's markets.", "notification_text": "Kandy's markets sell hill-country palm jaggery — a natural local sweetener." },
+        { "category": "craft", "name": "Kandy gem jewellery setting", "description": "Kandy's jewellers are known for setting Sri Lankan gemstones into traditional Kandyan-style jewellery.", "notification_text": "Kandy's jewellers specialize in setting local gems into traditional Kandyan-style jewellery." },
+        { "category": "food", "name": "Kandy area coffee & spices", "description": "Small hillside plots around Kandy grow coffee and spices alongside the region's tea.", "notification_text": "Hillsides around Kandy grow small-batch coffee and spices alongside its famous tea." },
+        { "category": "food", "name": "Kandy area passion fruit cordial", "description": "Small plantations in the Kandy hills also produce passion fruit for local cordial makers.", "notification_text": "Kandy's hills also grow passion fruit, used in local cordial." }
+      ]
+    },
+    {
+      "district": "Matale",
+      "province": "Central",
+      "items": [
+        { "category": "agri_produce", "name": "Matale spice gardens", "description": "Cinnamon, pepper, cardamom, cloves, and nutmeg are grown and processed in Matale's famous spice gardens.", "notification_text": "You're in Sri Lanka's spice heartland — Matale's gardens grow cinnamon, pepper, cardamom, and more." },
+        { "category": "craft", "name": "Pallehapuwita lacquer work", "description": "This Matale village is renowned island-wide for traditional lac-turned handicrafts.", "notification_text": "Pallehapuwita nearby — a village famous for traditional lacquerware craftsmanship." },
+        { "category": "food", "name": "Matale cocoa & spice arrack", "description": "Local cocoa cultivation and spice-infused arrack are specialties tied to the district's plantations.", "notification_text": "Matale grows cocoa and flavors arrack with local spices — worth seeking out." },
+        { "category": "food", "name": "Dambulla economic center produce", "description": "Dambulla hosts Sri Lanka's largest wholesale vegetable and fruit market, supplying the whole island.", "notification_text": "Dambulla's wholesale market is the island's biggest produce hub — a working slice of Sri Lankan agriculture." },
+        { "category": "food", "name": "Matale mangosteen & durian", "description": "The district's fertile hill country supports mangosteen and durian orchards similar to the wet zone south.", "notification_text": "Matale's orchards are known for mangosteen and durian in season." },
+        { "category": "food", "name": "Matale curry powder", "description": "The district's spice-processing tradition has made it a historic source of roasted Sri Lankan curry powder blends.", "notification_text": "Matale has long been a source of roasted Sri Lankan curry powder blends — a spice-trade legacy." },
+        { "category": "craft", "name": "Matale cane basket weaving", "description": "Villages in Matale District also practice cane and reed basket weaving as a household craft.", "notification_text": "Matale's villages practice cane and reed basket weaving as a traditional household craft." },
+        { "category": "food", "name": "Sigiriya-area rice fields", "description": "The paddy fields surrounding Sigiriya, within Matale District, are part of the ancient dry-zone irrigation network.", "notification_text": "The paddy fields around Sigiriya are part of an ancient dry-zone irrigation network." }
+      ]
+    },
+    {
+      "district": "Nuwara Eliya",
+      "province": "Central",
+      "items": [
+        { "category": "drink", "name": "High-grown Ceylon tea", "description": "Nuwara Eliya's high-elevation estates produce Ceylon's most prized, delicately flavored tea.", "notification_text": "You're in Nuwara Eliya — home of Ceylon's finest high-grown tea. Visit an estate factory nearby." },
+        { "category": "food", "name": "Nuwara Eliya strawberries", "description": "The cool climate makes this district Sri Lanka's main strawberry-growing region.", "notification_text": "Nuwara Eliya's cool climate grows the island's best strawberries — look for roadside farms." },
+        { "category": "food", "name": "Ambewela buffalo curd & dairy", "description": "The Ambewela farm area produces well-known buffalo curd and fresh dairy products.", "notification_text": "Near Ambewela — try the farm-fresh buffalo curd this area is known for." },
+        { "category": "food", "name": "Upcountry vegetables (leeks, carrots, cabbage)", "description": "Nuwara Eliya's temperate climate supports large-scale cultivation of temperate vegetables rare elsewhere on the island.", "notification_text": "Nuwara Eliya grows Sri Lanka's leeks, carrots, and cabbage — a cool-climate farming hub." },
+        { "category": "food", "name": "Ambewela rainbow trout", "description": "Cold mountain streams around Ambewela support Sri Lanka's small rainbow trout farming industry.", "notification_text": "This is trout country — Ambewela's cold streams support Sri Lanka's rare trout farms." },
+        { "category": "food", "name": "Passion fruit & roses", "description": "Nuwara Eliya's gardens are known for passion fruit cordial and cut-flower rose cultivation.", "notification_text": "Nuwara Eliya's gardens are famous for passion fruit and roses — a legacy of its colonial hill-station past." },
+        { "category": "food", "name": "Nuwara Eliya honey", "description": "Cool-climate apiaries around Nuwara Eliya produce a distinct highland honey.", "notification_text": "Nuwara Eliya's cool-climate apiaries produce a distinct highland honey — worth tasting." },
+        { "category": "food", "name": "Nuwara Eliya blackberries & plums", "description": "Cool-climate orchards near Nuwara Eliya grow temperate fruit rare elsewhere in Sri Lanka.", "notification_text": "Nuwara Eliya's cool orchards grow blackberries and plums — rare fruit for this tropical island." },
+        { "category": "drink", "name": "Nuwara Eliya bottled spring water", "description": "The district's high-elevation springs are a source of several bottled mineral water brands.", "notification_text": "Nuwara Eliya's mountain springs supply several of Sri Lanka's bottled water brands." }
+      ]
+    },
+    {
+      "district": "Galle",
+      "province": "Southern",
+      "items": [
+        { "category": "gem_mineral", "name": "Meetiyagoda moonstone mines", "description": "Meetiyagoda, near Ambalangoda, is Sri Lanka's principal source of blue moonstone.", "notification_text": "Meetiyagoda nearby — this is where Sri Lanka's famous blue moonstone is mined." },
+        { "category": "craft", "name": "Ambalangoda traditional masks", "description": "Ambalangoda is the historic home of Sri Lankan devil-dance and folk theatre mask carving.", "notification_text": "You're in Ambalangoda — the birthplace of Sri Lanka's traditional devil-dance masks." },
+        { "category": "textile", "name": "Beeralu lace", "description": "Bobbin lace-making (beeralu), introduced by the Portuguese, is a household craft along the Galle coast.", "notification_text": "Look for beeralu lace-makers along the Galle coast — a Portuguese-era craft still practiced by hand." },
+        { "category": "craft", "name": "Galle ebony carvings", "description": "For centuries, Galle District artisans have carved ebony wood into elephants and figurines.", "notification_text": "Galle's craftsmen have carved ebony elephants and figurines for centuries — a classic souvenir here." },
+        { "category": "food", "name": "Koggala / Ahangama cinnamon peeling", "description": "This stretch of the Galle coast is part of Sri Lanka's historic 'Cinnamon Coast' cultivation belt.", "notification_text": "You're on the Cinnamon Coast — Koggala and Ahangama have peeled cinnamon for generations." },
+        { "category": "food", "name": "Koggala stilt-fishing catch", "description": "Iconic stilt fishermen near Koggala and Weligama catch small reef fish using a traditional technique.", "notification_text": "Watch for Galle's iconic stilt fishermen — a centuries-old fishing tradition unique to this coast." },
+        { "category": "food", "name": "Galle Fort short eats & bakeries", "description": "Dutch and colonial-era bakeries inside Galle Fort sell distinctive short eats and pastries.", "notification_text": "Inside Galle Fort? Its old Dutch-era bakeries serve some distinctive local short eats." },
+        { "category": "food", "name": "Galle Fort seafood platters", "description": "Restaurants inside the fortified old town specialize in grilled reef fish and prawn platters.", "notification_text": "Galle Fort's restaurants are known for grilled reef fish and prawn platters." },
+        { "category": "craft", "name": "Hikkaduwa drum making", "description": "Hikkaduwa, on the Galle coast, is also a center for traditional drum crafting alongside Kandy.", "notification_text": "Hikkaduwa is also known for traditional drum-making, alongside its famous reef and surf." },
+        { "category": "food", "name": "Unawatuna seafood shacks", "description": "The beach town of Unawatuna, in Galle District, is known for casual beachfront seafood dining.", "notification_text": "Unawatuna's beach shacks are a great spot for casual fresh seafood." },
+        { "category": "craft", "name": "Galle jewellery & gem cutting", "description": "Galle city has a long tradition of gem cutting and jewellery trade tied to its port history.", "notification_text": "Galle has a long gem-cutting and jewellery trade tradition tied to its old port history." },
+        { "category": "food", "name": "Galle spice-market blends", "description": "Shops near the Fort sell curated Sri Lankan spice blends aimed at visitors.", "notification_text": "Shops near Galle Fort sell curated Sri Lankan spice blends worth taking home." }
+      ]
+    },
+    {
+      "district": "Matara",
+      "province": "Southern",
+      "items": [
+        { "category": "textile", "name": "Weligama beeralu lace", "description": "Weligama is one of the main household centers for handmade bobbin lace on the south coast.", "notification_text": "Weligama is a beeralu lace-making hub — watch artisans work by hand along the coast road." },
+        { "category": "food", "name": "Matara buffalo curd", "description": "Clay-pot buffalo curd is widely sold along Matara's coastal roads, a classic south-coast dessert.", "notification_text": "South-coast clay-pot buffalo curd is a Matara classic — pair it with kithul treacle." },
+        { "category": "food", "name": "Cinnamon (Matara belt)", "description": "Matara forms part of the southern cinnamon-growing belt that gave Ceylon cinnamon its global reputation.", "notification_text": "You're in Ceylon cinnamon country — Matara has cultivated it for centuries." },
+        { "category": "craft", "name": "Coir & coconut-fiber products", "description": "Matara's coastal coconut groves support a coir rope and coconut-fiber craft industry.", "notification_text": "Matara's coconut groves feed a local coir craft industry — ropes, mats, and brushes." },
+        { "category": "food", "name": "Dondra-area seafood", "description": "Waters off Dondra, Sri Lanka's southernmost point, yield a strong daily catch of reef and deep-sea fish.", "notification_text": "Near Dondra Head, the island's southern tip — expect a strong daily seafood catch." },
+        { "category": "food", "name": "Matara curd & treacle sets", "description": "Roadside stalls along the Matara coastal highway sell clay-pot curd paired with kithul treacle.", "notification_text": "Matara's coastal highway stalls sell clay-pot curd with treacle — a classic road-trip stop." },
+        { "category": "food", "name": "Matara coconut treacle", "description": "Coconut flower sap treacle, distinct from kithul treacle, is produced in parts of Matara District.", "notification_text": "Matara produces coconut-flower treacle, a lesser-known cousin of kithul treacle." },
+        { "category": "food", "name": "Dikwella / Mirissa fresh tuna", "description": "Fishing harbors at Dikwella and Mirissa land large quantities of fresh tuna daily.", "notification_text": "Dikwella and Mirissa's harbors land fresh tuna daily — a south-coast fishing hub." }
+      ]
+    },
+    {
+      "district": "Hambantota",
+      "province": "Southern",
+      "items": [
+        { "category": "food", "name": "Buffalo curd (meekiri) & buffalo milk", "description": "Hambantota's dry-zone buffalo herds make it one of Sri Lanka's premier buffalo curd and milk sources.", "notification_text": "You've reached Hambantota — famed island-wide for buffalo milk and clay-pot curd. Worth the taste test!" },
+        { "category": "food", "name": "Hambantota salt (Bundala salterns)", "description": "Coastal salt pans near Bundala have supplied Sri Lanka with sea salt for generations.", "notification_text": "Bundala's salt pans nearby — this stretch of coast has produced sea salt for generations." },
+        { "category": "food", "name": "Tissamaharama rice", "description": "The ancient Tissa tank irrigation system supports extensive paddy cultivation around Tissamaharama.", "notification_text": "Tissamaharama's ancient tanks still irrigate the rice paddies around you." },
+        { "category": "food", "name": "Yala-area wild honey", "description": "Communities bordering Yala National Park harvest wild forest honey from the surrounding scrubland.", "notification_text": "Near Yala? Local villages harvest wild forest honey from the surrounding scrub — a rare treat." },
+        { "category": "food", "name": "Dried fish (Hambantota coast)", "description": "The district's fishing villages produce sun-dried fish, a dry-zone staple ingredient.", "notification_text": "Hambantota's coast is known for sun-dried fish, a staple of dry-zone cooking." },
+        { "category": "food", "name": "Hambantota chena cultivation produce", "description": "Traditional slash-and-burn chena farming around Hambantota produces millet, maize, and pulses.", "notification_text": "Hambantota's chena farmers grow traditional millet, maize, and pulses using an age-old method." },
+        { "category": "food", "name": "Kirinda / Bundala dried seafood", "description": "Fishing hamlets near Kirinda and Bundala process and sell dried seafood along the coast road.", "notification_text": "Kirinda and Bundala's fishing hamlets sell dried seafood along the coast road." },
+        { "category": "food", "name": "Hambantota onion & chili farms", "description": "Dry-zone irrigation around Hambantota supports onion and chili cultivation alongside rice.", "notification_text": "Hambantota's dry-zone farms grow onion and chili alongside its famous rice paddies." },
+        { "category": "drink", "name": "Tissamaharama toddy", "description": "Coconut and palmyrah toddy tapping is practiced in parts of the Tissamaharama area.", "notification_text": "Tissamaharama has its own toddy-tapping tradition using coconut and palmyrah palms." },
+        { "category": "craft", "name": "Hambantota mat weaving", "description": "Coastal villages here practice traditional pandanus-leaf mat weaving.", "notification_text": "Hambantota's coastal villages practice traditional pandanus-leaf mat weaving." }
+      ]
+    },
+    {
+      "district": "Jaffna",
+      "province": "Northern",
+      "items": [
+        { "category": "food", "name": "Jaffna crab curry", "description": "A fiery, tamarind-and-chili-forward crab curry considered one of the peninsula's signature dishes.", "notification_text": "You've reached Jaffna — home of the peninsula's legendary fiery crab curry." },
+        { "category": "food", "name": "Odiyal kool", "description": "A thick seafood-and-palmyrah-root soup unique to Jaffna Tamil cuisine.", "notification_text": "Try odiyal kool — a rich seafood soup thickened with palmyrah root, unique to Jaffna." },
+        { "category": "drink", "name": "Palmyrah toddy & hakuru jaggery", "description": "The palmyrah palm, the symbol of the north, yields toddy, jaggery (hakuru), and fruit pulp across Jaffna District.", "notification_text": "Jaffna is palmyrah country — try hakuru jaggery or fresh palmyrah fruit, the region's signature palm." },
+        { "category": "food", "name": "Karuthakolomban mango", "description": "A prized, intensely sweet mango variety native to the Jaffna Peninsula.", "notification_text": "In season, look for karuthakolomban — Jaffna's famously sweet native mango." },
+        { "category": "agri_produce", "name": "Jaffna red onions & chili", "description": "The dry sandy soil of the peninsula is ideal for red onion and chili cultivation, supplying much of the island.", "notification_text": "Jaffna's sandy soil grows much of Sri Lanka's red onions and chili — a farming backbone of the north." },
+        { "category": "food", "name": "Jaffna mutton curry", "description": "A rich, deeply spiced curry reflecting the strong South Indian Tamil influence on the region's cuisine.", "notification_text": "Jaffna's mutton curry carries strong South Indian Tamil spicing — a north-coast must-try." },
+        { "category": "agri_produce", "name": "Jaffna pomegranate & grapes", "description": "Home gardens in the peninsula are known for pomegranate and one of the island's few grape-growing traditions.", "notification_text": "Jaffna's home gardens are known for pomegranate and grapes — unusual for Sri Lanka's climate." },
+        { "category": "food", "name": "Vadai & Jaffna short eats", "description": "Lentil vadai and other Tamil-style short eats are a defining street-food category in Jaffna town.", "notification_text": "Grab a vadai in Jaffna town — the north's take on the island's short-eats tradition." },
+        { "category": "food", "name": "Jaffna palmyrah fruit pulp (panampazha)", "description": "Ripe palmyrah fruit pulp is turned into a sweet seasonal treat unique to the north.", "notification_text": "In season, try panampazha — sweet palmyrah fruit pulp unique to the Jaffna region." },
+        { "category": "drink", "name": "Palmyrah root drink (odiyal)", "description": "A traditional Jaffna drink and flour made from the starchy root of the palmyrah palm.", "notification_text": "Odiyal, made from palmyrah root, is a traditional Jaffna specialty drink and flour." },
+        { "category": "food", "name": "Jaffna banana (Seeni Kesel)", "description": "A small, very sweet banana variety cultivated widely across the peninsula.", "notification_text": "Try seeni kesel — Jaffna's small, extra-sweet banana variety." },
+        { "category": "food", "name": "Jaffna curd", "description": "Jaffna's own version of buffalo curd, often paired with palmyrah jaggery instead of kithul treacle.", "notification_text": "Jaffna's curd is often paired with palmyrah jaggery instead of the south's kithul treacle." },
+        { "category": "food", "name": "Jaffna palmyrah ice cream / drinks", "description": "Modern vendors have adapted palmyrah fruit into ice cream and cold drinks popular with visitors.", "notification_text": "Try modern palmyrah-flavored ice cream or drinks — a fresh twist on a traditional Jaffna crop." }
+      ]
+    },
+    {
+      "district": "Kilinochchi",
+      "province": "Northern",
+      "items": [
+        { "category": "agri_produce", "name": "Kilinochchi paddy rice", "description": "Post-resettlement agriculture has made Kilinochchi a growing rice-producing district in the Vanni.", "notification_text": "Kilinochchi's paddy fields are part of the Vanni region's rice-growing revival." },
+        { "category": "agri_produce", "name": "Palmyrah products", "description": "Like the rest of the north, Kilinochchi's landscape is dotted with palmyrah palms used for jaggery and crafts.", "notification_text": "Palmyrah palms define this Vanni landscape — look for local jaggery and woven crafts." },
+        { "category": "food", "name": "Chili cultivation", "description": "Dry-zone farmland around Kilinochchi supports significant chili cultivation.", "notification_text": "Kilinochchi's dry-zone farms are a notable chili-growing area." },
+        { "category": "food", "name": "Vanni forest honey", "description": "The forested Vanni region around Kilinochchi is a source of wild forest honey.", "notification_text": "The Vanni forests around Kilinochchi are a source of wild honey." },
+        { "category": "food", "name": "Kilinochchi banana cultivation", "description": "Resettled farmland in Kilinochchi District has expanded banana cultivation in recent years.", "notification_text": "Kilinochchi's resettled farmland has expanded banana cultivation in recent years." },
+        { "category": "food", "name": "Kilinochchi dry chili", "description": "Sun-dried chili processing is a common small-scale trade in the district's farming villages.", "notification_text": "Kilinochchi's farming villages commonly process sun-dried chili." }
+      ]
+    },
+    {
+      "district": "Mannar",
+      "province": "Northern",
+      "items": [
+        { "category": "agri_produce", "name": "Mannar palmyrah & grapes", "description": "Mannar Island shares the north's palmyrah tradition and also grows grapes in its arid soil.", "notification_text": "Mannar's arid soil supports both palmyrah palms and one of Sri Lanka's few grape-growing patches." },
+        { "category": "food", "name": "Mannar dried fish & mullet", "description": "The island's fishing communities are known for mullet fishing and sun-dried fish production.", "notification_text": "Mannar's fishing villages are known for mullet catches and sun-dried fish." },
+        { "category": "food", "name": "Mannar salt pans", "description": "Shallow lagoons around Mannar support traditional salt-pan harvesting.", "notification_text": "Mannar's shallow lagoons feed traditional salt-pan harvesting — worth a look near the coast." },
+        { "category": "food", "name": "Mannar baobab fruit", "description": "Mannar is home to Sri Lanka's rare baobab trees, whose tangy fruit pulp is a local curiosity.", "notification_text": "Mannar has Sri Lanka's rare baobab trees — their tangy fruit pulp is a local curiosity worth trying." },
+        { "category": "food", "name": "Mannar prawns", "description": "Mannar's lagoon and coastal waters are a source of wild-caught prawns.", "notification_text": "Mannar's lagoon waters are a source of wild-caught prawns." },
+        { "category": "agri_produce", "name": "Mannar cashew", "description": "Sandy scrubland on Mannar Island also supports small-scale cashew cultivation.", "notification_text": "Mannar's sandy scrubland also supports small-scale cashew cultivation." }
+      ]
+    },
+    {
+      "district": "Vavuniya",
+      "province": "Northern",
+      "items": [
+        { "category": "agri_produce", "name": "Vavuniya cashew", "description": "The Vanni's dry-zone scrubland supports cashew cultivation around Vavuniya.", "notification_text": "Vavuniya's dry-zone farms are known for cashew cultivation." },
+        { "category": "agri_produce", "name": "Vavuniya mango & rice", "description": "The district produces mango and paddy rice as part of the wider Vanni agricultural belt.", "notification_text": "Vavuniya's farmland grows mango and rice — a key part of the Vanni's agriculture." },
+        { "category": "agri_produce", "name": "Vavuniya banana", "description": "Vanni farmland around Vavuniya includes notable banana cultivation.", "notification_text": "Vavuniya's Vanni farmland is also known for banana cultivation." },
+        { "category": "food", "name": "Vavuniya dairy", "description": "Cattle farming around Vavuniya supports a regional dairy and curd trade.", "notification_text": "Vavuniya's cattle farms supply a regional dairy and curd trade." },
+        { "category": "craft", "name": "Vavuniya palmyrah handicrafts", "description": "As part of the Vanni, Vavuniya shares the north's palmyrah-leaf basket and mat weaving tradition.", "notification_text": "Vavuniya shares the Vanni's palmyrah-leaf basket and mat weaving tradition." }
+      ]
+    },
+    {
+      "district": "Mullaitivu",
+      "province": "Northern",
+      "items": [
+        { "category": "food", "name": "Mullaitivu lagoon fish & prawns", "description": "The district's undeveloped lagoons and coastline yield abundant fish and prawns.", "notification_text": "Mullaitivu's quiet lagoons are known for fresh fish and prawns." },
+        { "category": "food", "name": "Wild forest honey", "description": "Communities near Mullaitivu's forested interior harvest wild honey.", "notification_text": "Mullaitivu's forested interior is a source of wild forest honey." },
+        { "category": "food", "name": "Mullaitivu dried fish", "description": "Coastal villages process sun-dried fish from the district's rich lagoon and sea catch.", "notification_text": "Mullaitivu's coastal villages are known for sun-dried fish from their lagoon catch." },
+        { "category": "agri_produce", "name": "Mullaitivu paddy fields", "description": "Post-war agricultural recovery has expanded paddy cultivation in Mullaitivu District.", "notification_text": "Mullaitivu's paddy fields reflect the district's ongoing post-war agricultural recovery." },
+        { "category": "food", "name": "Mullaitivu cashew", "description": "Inland scrubland in Mullaitivu District supports small-scale cashew farming.", "notification_text": "Mullaitivu's inland scrubland supports small-scale cashew farming." }
+      ]
+    },
+    {
+      "district": "Trincomalee",
+      "province": "Eastern",
+      "items": [
+        { "category": "food", "name": "Trincomalee seer fish", "description": "The deep natural harbor of Trincomalee yields prized seer fish, popular grilled or curried.", "notification_text": "Trincomalee's harbor is famous for seer fish — try it grilled or in a coastal curry." },
+        { "category": "food", "name": "Mud crab", "description": "Trincomalee's coastal waters and lagoons are a major source of large mud crabs.", "notification_text": "Trincomalee's lagoons produce some of the island's biggest mud crabs." },
+        { "category": "agri_produce", "name": "Trincomalee cashew & mango", "description": "Dry-zone farmland inland from Trincomalee grows cashew and mango.", "notification_text": "Inland Trincomalee grows cashew and mango in its dry-zone farmland." },
+        { "category": "food", "name": "Nilaveli / Uppuveli seafood", "description": "The beach towns north of Trincomalee are known for fresh grilled seafood at beachside cafes.", "notification_text": "Nilaveli and Uppuveli are known for fresh grilled seafood right on the beach." },
+        { "category": "food", "name": "Trincomalee dried fish", "description": "The harbor town's fishing communities produce sun-dried fish as a local specialty.", "notification_text": "Trincomalee's fishing communities are known for sun-dried fish." },
+        { "category": "agri_produce", "name": "Trincomalee sea salt", "description": "Coastal salterns near Trincomalee harvest natural sea salt.", "notification_text": "Trincomalee's coast has traditional sea-salt harvesting operations." },
+        { "category": "food", "name": "Trincomalee cashew snacks", "description": "Local vendors process and sell roasted cashew from the district's inland plantations.", "notification_text": "Trincomalee's inland plantations supply the roasted cashew sold by local vendors." },
+        { "category": "food", "name": "Trincomalee king coconut", "description": "Coastal groves around Trincomalee are a good source of fresh king coconut.", "notification_text": "Trincomalee's coastal groves are a great spot to grab a fresh king coconut." }
+      ]
+    },
+    {
+      "district": "Batticaloa",
+      "province": "Eastern",
+      "items": [
+        { "category": "food", "name": "Batticaloa lagoon prawns & mud crab", "description": "The large Batticaloa lagoon is a major source of prawns and mud crab for the region.", "notification_text": "Batticaloa's famous lagoon is a major source of prawns and mud crab." },
+        { "category": "agri_produce", "name": "Batticaloa cashew", "description": "The Eastern Province's dry-zone conditions make Batticaloa a notable cashew-growing district.", "notification_text": "Batticaloa's dry-zone farms are known for cashew cultivation." },
+        { "category": "food", "name": "Batticaloa rice & curd", "description": "Paddy cultivation and buffalo curd production are both significant in the district's agriculture.", "notification_text": "Batticaloa's countryside is known for both paddy rice and buffalo curd." },
+        { "category": "food", "name": "Batticaloa milk toffee", "description": "Local sweet shops in Batticaloa are known for their version of coconut milk toffee.", "notification_text": "Batticaloa's sweet shops have their own take on classic coconut milk toffee." },
+        { "category": "craft", "name": "Batticaloa mat weaving", "description": "Coastal villages around the Batticaloa lagoon practice traditional reed and pandanus mat weaving.", "notification_text": "Villages around Batticaloa lagoon practice traditional reed and pandanus mat weaving." },
+        { "category": "food", "name": "Batticaloa king coconut", "description": "Lagoon-side groves around Batticaloa also grow king coconut for local sale.", "notification_text": "Batticaloa's lagoon-side groves grow king coconut for local sale." }
+      ]
+    },
+    {
+      "district": "Ampara",
+      "province": "Eastern",
+      "items": [
+        { "category": "agri_produce", "name": "Ampara paddy rice", "description": "Fed by the Gal Oya irrigation scheme, Ampara is one of Sri Lanka's largest rice-producing districts — the island's 'rice bowl'.", "notification_text": "You're in the 'rice bowl of Sri Lanka' — Ampara's Gal Oya-fed paddies supply rice island-wide." },
+        { "category": "agri_produce", "name": "Ampara cashew & mango", "description": "Alongside rice, the district's dry-zone farmland supports cashew and mango cultivation.", "notification_text": "Ampara's farms also grow cashew and mango alongside its famous rice paddies." },
+        { "category": "food", "name": "Arugam Bay seafood", "description": "The surf town of Arugam Bay serves fresh-caught reef fish and prawns at its beachfront eateries.", "notification_text": "Arugam Bay's beachfront cafes serve fresh reef fish — a surf-town seafood tradition." },
+        { "category": "food", "name": "Ampara coconut", "description": "Coastal parts of Ampara District contribute to Sri Lanka's coconut cultivation belt.", "notification_text": "Ampara's coastal belt also contributes to Sri Lanka's coconut cultivation." },
+        { "category": "food", "name": "Ampara honey", "description": "Forest fringes near Ampara's paddy lands support small-scale wild honey harvesting.", "notification_text": "Ampara's forest fringes support small-scale wild honey harvesting alongside its rice fields." },
+        { "category": "craft", "name": "Ampara reed mat weaving", "description": "Villages near Ampara's wetlands practice traditional reed mat weaving.", "notification_text": "Villages near Ampara's wetlands practice traditional reed mat weaving." }
+      ]
+    },
+    {
+      "district": "Kurunegala",
+      "province": "North Western",
+      "items": [
+        { "category": "food", "name": "Coconut Triangle coconut products", "description": "Kurunegala anchors Sri Lanka's 'Coconut Triangle', producing coconut oil, milk, and desiccated coconut.", "notification_text": "You're in the Coconut Triangle — Kurunegala is a heartland of Sri Lanka's coconut industry." },
+        { "category": "craft", "name": "Traditional drum making", "description": "Communities around Kurunegala and Hodiyadeniya are known for handcrafting jack-wood traditional drums.", "notification_text": "This area is known for traditional drum-making — jack-wood drums crafted by hand." },
+        { "category": "agri_produce", "name": "Kurunegala cashew & king coconut", "description": "The district's plantations also produce cashew and the orange-shelled king coconut.", "notification_text": "Kurunegala's plantations grow cashew and the sweet, orange-shelled king coconut." },
+        { "category": "food", "name": "Ethagala-area betel & curd", "description": "Farms near the landmark Ethagala rock grow betel leaf and produce local curd.", "notification_text": "Near Ethagala rock, local farms grow betel leaf and produce fresh curd." },
+        { "category": "food", "name": "Kurunegala curd", "description": "Dairy farms around Kurunegala produce curd sold widely across the North Western Province.", "notification_text": "Kurunegala's dairy farms produce curd sold widely across the North Western Province." },
+        { "category": "food", "name": "Kurunegala mango", "description": "Orchards around Kurunegala grow several popular local mango varieties.", "notification_text": "Kurunegala's orchards grow several of the island's popular local mango varieties." },
+        { "category": "food", "name": "Kurunegala jackfruit dishes", "description": "Home kitchens in the district commonly prepare young and ripe jackfruit curries and desserts.", "notification_text": "Kurunegala's home kitchens are known for both savory and sweet jackfruit dishes." }
+      ]
+    },
+    {
+      "district": "Puttalam",
+      "province": "North Western",
+      "items": [
+        { "category": "food", "name": "Kalpitiya seafood & dried fish", "description": "Kalpitiya's fishing fleet is known for fresh catch and traditional dried fish preparation.", "notification_text": "Kalpitiya's fishing fleet is famous for fresh seafood and traditional sun-dried fish." },
+        { "category": "food", "name": "Puttalam salt", "description": "The Puttalam lagoon area hosts some of Sri Lanka's largest commercial salt-pan operations.", "notification_text": "Puttalam's lagoon salt pans are among the island's largest — a striking sight along the coast." },
+        { "category": "agri_produce", "name": "Puttalam cashew & coconut", "description": "The district's sandy soils support extensive cashew and coconut cultivation.", "notification_text": "Puttalam's sandy soils are well suited to cashew and coconut farming." },
+        { "category": "food", "name": "Puttalam prawns", "description": "Puttalam Lagoon is a significant source of farmed and wild-caught prawns.", "notification_text": "Puttalam Lagoon is a major source of prawns — both farmed and wild-caught." },
+        { "category": "food", "name": "Puttalam cashew snacks", "description": "Local processors roast and package cashew from the district's coastal plantations.", "notification_text": "Puttalam's coastal plantations supply locally roasted cashew snacks." },
+        { "category": "food", "name": "Puttalam mango", "description": "Orchards around Puttalam grow mango alongside the district's cashew and coconut.", "notification_text": "Puttalam's orchards also grow mango alongside its cashew and coconut." }
+      ]
+    },
+    {
+      "district": "Anuradhapura",
+      "province": "North Central",
+      "items": [
+        { "category": "agri_produce", "name": "Ancient heirloom red rice", "description": "Anuradhapura preserves traditional heirloom red rice varieties tied to the island's ancient irrigation civilization.", "notification_text": "Anuradhapura still grows heirloom red rice varieties tracing back to its ancient irrigation civilization." },
+        { "category": "food", "name": "Wood apple (beli)", "description": "The dry-zone district is known for wood apple, used in juices, jam, and traditional remedies.", "notification_text": "Look for wood apple (beli) drinks here — a dry-zone specialty used in juices and traditional remedies." },
+        { "category": "craft", "name": "Traditional pottery", "description": "Anuradhapura District has a long-standing clay pottery tradition tied to the region's ancient heritage.", "notification_text": "This region has a long clay-pottery tradition dating back to its ancient civilization." },
+        { "category": "food", "name": "Tank-fed fish & curd", "description": "The district's many ancient irrigation tanks support freshwater fishing and dairy/curd production.", "notification_text": "Anuradhapura's ancient tanks support freshwater fish and dairy farming to this day." },
+        { "category": "food", "name": "Anuradhapura curd", "description": "Dry-zone dairy farms around the ancient city produce curd sold in the region's markets.", "notification_text": "Anuradhapura's dry-zone dairy farms produce curd sold in the region's local markets." },
+        { "category": "craft", "name": "Anuradhapura palmyrah crafts", "description": "Palmyrah-leaf basketry and mat weaving are practiced in parts of the district.", "notification_text": "Parts of Anuradhapura District still practice palmyrah-leaf basketry and mat weaving." },
+        { "category": "food", "name": "Anuradhapura banana", "description": "Irrigated farmland around Anuradhapura supports banana cultivation alongside rice.", "notification_text": "Anuradhapura's irrigated farmland also supports banana cultivation alongside rice." }
+      ]
+    },
+    {
+      "district": "Polonnaruwa",
+      "province": "North Central",
+      "items": [
+        { "category": "agri_produce", "name": "Polonnaruwa rice", "description": "Fed by the Parakrama Samudra reservoir, Polonnaruwa is one of Sri Lanka's principal rice-producing districts.", "notification_text": "Polonnaruwa's paddies, fed by the ancient Parakrama Samudra, make it a major rice-producing district." },
+        { "category": "food", "name": "Tank fishery catch", "description": "The district's many reservoirs support a significant freshwater tank-fishing industry.", "notification_text": "Polonnaruwa's reservoirs support a strong freshwater fishing tradition — look for tank-fresh fish." },
+        { "category": "food", "name": "Buffalo curd", "description": "Dairy buffalo herds around Polonnaruwa's tank country support local curd production.", "notification_text": "Polonnaruwa's tank country also produces its own buffalo curd." },
+        { "category": "craft", "name": "Polonnaruwa stone-craft souvenirs", "description": "Local artisans near the ancient city sell stone-carved replicas inspired by Polonnaruwa's monuments.", "notification_text": "Local artisans near the ancient city sell stone-carved souvenirs inspired by Polonnaruwa's monuments." },
+        { "category": "food", "name": "Polonnaruwa cashew & mango", "description": "Dry-zone farmland around the ancient city also supports cashew and mango cultivation.", "notification_text": "Polonnaruwa's dry-zone farmland also grows cashew and mango alongside its famous rice." },
+        { "category": "craft", "name": "Polonnaruwa reed & cane crafts", "description": "Villages near the tank country practice reed and cane weaving as a household craft.", "notification_text": "Villages in Polonnaruwa's tank country practice reed and cane weaving as a household craft." }
+      ]
+    },
+    {
+      "district": "Badulla",
+      "province": "Uva",
+      "items": [
+        { "category": "drink", "name": "Uva tea", "description": "Badulla anchors the Uva tea region, prized for a distinctive seasonal 'muscatel' character found nowhere else.", "notification_text": "You're in Uva tea country — Badulla's estates produce a rare seasonal 'muscatel' flavored tea." },
+        { "category": "food", "name": "Passion fruit", "description": "The Uva highlands around Badulla are a notable source of passion fruit and cordial.", "notification_text": "Badulla's highlands are known for passion fruit — look for fresh cordial along the road." },
+        { "category": "food", "name": "Bandarawela / Ella buffalo curd", "description": "The Bandarawela and Ella areas within Badulla District are noted for cool-climate buffalo curd.", "notification_text": "Near Ella or Bandarawela — try the cool-climate buffalo curd this area is known for." },
+        { "category": "food", "name": "Haputale coffee heritage", "description": "Before tea took over, Haputale in Badulla District was part of Ceylon's 19th-century coffee belt.", "notification_text": "Haputale was once part of Ceylon's original 19th-century coffee belt, before tea took over." },
+        { "category": "food", "name": "Welimada potatoes & vegetables", "description": "The Welimada area within Badulla District is a significant upcountry vegetable and potato growing zone.", "notification_text": "Welimada, in Badulla District, is a major upcountry potato and vegetable growing zone." },
+        { "category": "food", "name": "Badulla strawberries", "description": "Cooler pockets of Badulla District, near the Nuwara Eliya border, also grow strawberries.", "notification_text": "Cooler parts of Badulla, near the Nuwara Eliya border, also grow strawberries." },
+        { "category": "craft", "name": "Badulla handloom weaving", "description": "Small handloom weaving cooperatives operate in parts of Badulla District.", "notification_text": "Small handloom weaving cooperatives operate in parts of Badulla District." }
+      ]
+    },
+    {
+      "district": "Monaragala",
+      "province": "Uva",
+      "items": [
+        { "category": "food", "name": "Wellawaya wild honey", "description": "Villages around Wellawaya in Monaragala District are known for harvesting wild bee honey.", "notification_text": "Wellawaya's villages are known for harvesting wild bee honey — a Monaragala specialty." },
+        { "category": "agri_produce", "name": "Monaragala cashew", "description": "The district's dry-zone chena farmland supports significant cashew cultivation.", "notification_text": "Monaragala's dry-zone farmland is a notable cashew-growing area." },
+        { "category": "craft", "name": "Bibile cane crafts", "description": "Bibile, in Monaragala District, is a traditional center for handwoven cane products.", "notification_text": "Bibile nearby — a traditional center for handwoven cane crafts." },
+        { "category": "food", "name": "King coconut", "description": "Monaragala's plantations are a regional source of the orange-shelled king coconut.", "notification_text": "Monaragala grows plenty of king coconut — a refreshing local stop on a hot day." },
+        { "category": "food", "name": "Monaragala mee oil products", "description": "Traditional oil pressed from mee (Madhuca) tree seeds is still produced in parts of Monaragala District.", "notification_text": "Parts of Monaragala still press traditional mee-tree seed oil — an old rural craft." },
+        { "category": "food", "name": "Monaragala rice & millet", "description": "Traditional dry-zone chena farming in Monaragala grows rice, millet, and pulses.", "notification_text": "Monaragala's chena farms grow traditional dry-zone rice, millet, and pulses." },
+        { "category": "food", "name": "Monaragala mango orchards", "description": "Dry-zone orchards in Monaragala District also grow mango alongside cashew.", "notification_text": "Monaragala's dry-zone orchards also grow mango alongside its cashew." }
+      ]
+    },
+    {
+      "district": "Ratnapura",
+      "province": "Sabaragamuwa",
+      "items": [
+        { "category": "gem_mineral", "name": "Ratnapura gem mines", "description": "Known as the 'City of Gems', Ratnapura is Sri Lanka's historic center for sapphire, ruby, and cat's-eye mining.", "notification_text": "Welcome to the City of Gems — Ratnapura has mined sapphires, rubies, and cat's-eye for centuries." },
+        { "category": "food", "name": "Kithul treacle & jaggery", "description": "The wet-zone forests of Ratnapura are a traditional source of kithul palm treacle and jaggery.", "notification_text": "Ratnapura's forests are prime kithul country — try treacle or jaggery tapped straight from the palm." },
+        { "category": "food", "name": "Ratnapura gotu kola", "description": "Fresh gotu kola greens, foraged from home gardens, are a well-known local salad ingredient here.", "notification_text": "Ratnapura's home gardens are known for fresh-foraged gotu kola, a local salad staple." },
+        { "category": "agri_produce", "name": "Rubber & rice", "description": "Ratnapura District combines wet-zone rubber plantations with lowland rice cultivation.", "notification_text": "Ratnapura's landscape mixes rubber plantations with lowland rice paddies." },
+        { "category": "gem_mineral", "name": "Elahera gem fields", "description": "Bordering areas of Ratnapura and Matale District form the Elahera gem-mining belt, known for corundum deposits.", "notification_text": "You're near the Elahera gem belt, known for rich corundum (sapphire/ruby) deposits." },
+        { "category": "food", "name": "Ratnapura durian & mangosteen", "description": "The wet-zone climate around Ratnapura supports durian and mangosteen orchards.", "notification_text": "Ratnapura's wet-zone climate is well suited to durian and mangosteen orchards." },
+        { "category": "craft", "name": "Ratnapura gem-cutting workshops", "description": "Small lapidary workshops throughout the city cut and polish rough gemstones mined locally.", "notification_text": "Ratnapura's lapidary workshops cut and polish gems mined right here in the district." }
+      ]
+    },
+    {
+      "district": "Kegalle",
+      "province": "Sabaragamuwa",
+      "items": [
+        { "category": "food", "name": "Kithul jaggery & treacle ('Kithul country')", "description": "Kegalle is widely regarded as the heartland of Sri Lanka's kithul palm treacle and jaggery production.", "notification_text": "You're in Kithul Country — Kegalle is the heartland of Sri Lanka's kithul treacle and jaggery." },
+        { "category": "craft", "name": "Molagoda pottery", "description": "The village of Molagoda along the Colombo-Kandy road is one of Sri Lanka's most famous pottery centers.", "notification_text": "Molagoda nearby — one of Sri Lanka's most famous traditional pottery villages." },
+        { "category": "food", "name": "Pinnawala-area produce", "description": "Farms around the Pinnawala Elephant Orphanage grow jackfruit and other wet-zone crops feeding the elephants and locals alike.", "notification_text": "Near Pinnawala — local farms here grow jackfruit and other wet-zone crops." },
+        { "category": "agri_produce", "name": "Kegalle rubber & cocoa", "description": "The district's plantations produce both rubber and cocoa, part of Sri Lanka's historic export crops.", "notification_text": "Kegalle's plantations grow rubber and cocoa — long-standing export crops of the region." },
+        { "category": "food", "name": "Kegalle jackfruit chips", "description": "Home industries in Kegalle process jackfruit into chips and preserves.", "notification_text": "Kegalle's home industries are known for jackfruit chips and preserves." },
+        { "category": "food", "name": "Kegalle king coconut & curd", "description": "Plantations and dairy farms around Kegalle supply king coconut and fresh curd to the region.", "notification_text": "Kegalle's plantations and dairy farms supply king coconut and fresh curd to the region." },
+        { "category": "craft", "name": "Kegalle cane furniture", "description": "Cane furniture weaving is practiced in villages around Kegalle, alongside its pottery tradition.", "notification_text": "Villages around Kegalle also weave cane furniture, alongside its pottery tradition." }
+      ]
+    }
+  ]
+}

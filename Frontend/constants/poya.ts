@@ -1,0 +1,15 @@
+export const poyaDays2026 = [
+  { date: '2026-01-03', name: 'Duruthu Poya' },
+  { date: '2026-02-01', name: 'Navam Poya' },
+  { date: '2026-03-03', name: 'Medin Poya' },
+  { date: '2026-04-01', name: 'Bak Poya' },
+  { date: '2026-05-01', name: 'Vesak Poya' },
+  { date: '2026-05-30', name: 'Poson Poya' },
+  { date: '2026-06-29', name: 'Esala Poya' },
+  { date: '2026-07-28', name: 'Nikini Poya' },
+  { date: '2026-08-27', name: 'Binara Poya' },
+  { date: '2026-09-25', name: 'Vap Poya' },
+  { date: '2026-10-25', name: 'Il Poya' },
+  { date: '2026-11-23', name: 'Unduvap Poya' },
+  { date: '2026-12-23', name: 'Duruthu Poya' },
+];

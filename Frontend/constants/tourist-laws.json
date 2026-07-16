@@ -1,0 +1,3850 @@
+{
+ "meta": {
+  "title": "Rawana Ceylon - Tourist Law, Ethics & Safety Notification Dataset v2",
+  "disclaimer": "General travel-safety and cultural-etiquette information compiled from tourism operators, travel-safety publications and secondary legal summaries - NOT the Penal Code/Gazette directly. Cross-check exact penalties against sltda.gov.lk, immigration.gov.lk, caa.lk, travel.state.gov and gov.uk/foreign-travel-advice/sri-lanka before publishing precise figures in-app.",
+  "total_entries": 241,
+  "categories": [
+   "Animal Tourism Ethics",
+   "Archaeological Site Conduct",
+   "Beach & Ocean Safety",
+   "Customs & Souvenir Export",
+   "Dress Code - Religious Sites",
+   "Driving & Vehicle Permits",
+   "Drones",
+   "Drugs",
+   "Environment & Plastic",
+   "Festivals & Events",
+   "Gem Trade",
+   "Health & Wellbeing",
+   "Hiking & Adventure Safety",
+   "Hindu & Muslim Site Etiquette",
+   "LGBTQ+ Law",
+   "Marine & Coastal Conservation",
+   "Marine Wildlife - Whale & Dolphin Watching",
+   "Money & Imports",
+   "Monsoon & Regional Weather Warnings",
+   "National Symbols & Respect",
+   "Northern Province - Cultural & Political Sensitivity",
+   "Photography & Security",
+   "Poya Day & Alcohol Law",
+   "Public Conduct",
+   "Religious Respect - Buddhist",
+   "Road & Transport Rules",
+   "Sacred City Conduct - Anuradhapura",
+   "Social Etiquette",
+   "Tea Estate & Plantation Etiquette",
+   "Train & Rail Safety",
+   "Urban Safety & Scams",
+   "Visas & Immigration",
+   "Wildlife Parks & Safari"
+  ],
+  "risk_levels": [
+   "high",
+   "medium",
+   "low"
+  ],
+  "types": {
+   "law": "statutory, real penalty risk",
+   "custom": "social/cultural etiquette",
+   "safety": "physical danger or scam warning",
+   "ethics": "animal welfare / environment, values-based"
+  }
+ },
+ "entries": [
+  {
+   "id": "Reli-001",
+   "category": "Religious Respect - Buddhist",
+   "title": "Never pose with your back to a Buddha statue",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "explanation": "Treated as desecration of a sacred image, not bad manners. People have been arrested and deported for this.",
+   "penalty": "Arrest, fine, deportation",
+   "suggested_geofence_radius_m": 300,
+   "sources": [
+    "theculturetrip.com",
+    "bluelankatours.com"
+   ]
+  },
+  {
+   "id": "Reli-002",
+   "category": "Religious Respect - Buddhist",
+   "title": "Never touch, sit on, or climb a Buddha statue",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "explanation": "Physical contact with a Buddha image is a criminal offense under religious-artifact protection.",
+   "penalty": "Arrest, fine",
+   "suggested_geofence_radius_m": 300,
+   "sources": [
+    "lawlertapp.com"
+   ]
+  },
+  {
+   "id": "Reli-003",
+   "category": "Religious Respect - Buddhist",
+   "title": "Cover Buddha-image tattoos while in the country",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "high",
+   "type": "custom",
+   "explanation": "Visible Buddha tattoos have led to visitors being denied entry or deported (2012 French tourist case).",
+   "penalty": "Denied entry, deportation",
+   "sources": [
+    "bluelankatours.com"
+   ],
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Reli-004",
+   "category": "Religious Respect - Buddhist",
+   "title": "Don't wear Buddha-image clothing or accessories as fashion",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "explanation": "Buddha imagery used as decoration is treated as disrespect toward a sacred symbol.",
+   "penalty": "Social/legal friction, possible confiscation",
+   "sources": [
+    "theculturetrip.com"
+   ],
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Reli-005",
+   "category": "Religious Respect - Buddhist",
+   "title": "Never damage or mistreat any Buddhist image or artifact",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "explanation": "This is a criminal offense anywhere in the country, not just inside temples.",
+   "penalty": "Arrest, imprisonment",
+   "sources": [
+    "lawlertapp.com"
+   ],
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Reli-006",
+   "category": "Religious Respect - Buddhist",
+   "title": "Remove shoes before entering temple grounds",
+   "districts": [
+    "Anuradhapura",
+    "Matale",
+    "Kandy",
+    "Polonnaruwa",
+    "Hambantota"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "explanation": "Footwear (and sometimes hats) must be removed at the outer wall, not just the inner shrine.",
+   "penalty": "Refusal of entry, public rebuke",
+   "suggested_geofence_radius_m": 200,
+   "sources": [
+    "trishansoz.com"
+   ]
+  },
+  {
+   "id": "Reli-007",
+   "category": "Religious Respect - Buddhist",
+   "title": "Don't point your feet at a Buddha statue or monk",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "explanation": "Feet are considered the lowest/impure part of the body in South and Southeast Asian Buddhist custom.",
+   "sources": [
+    "srilanka-spirit.com"
+   ],
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Reli-008",
+   "category": "Religious Respect - Buddhist",
+   "title": "Don't touch monks, especially their heads, and keep distance from monks generally (applies doubly to women)",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "explanation": "Monks observe vows of physical separation from laypeople, particularly from women; unsolicited contact is a serious breach.",
+   "sources": [
+    "srilanka-spirit.com"
+   ],
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Reli-009",
+   "category": "Religious Respect - Buddhist",
+   "title": "No photography where temple signage prohibits it",
+   "districts": [
+    "Anuradhapura",
+    "Matale",
+    "Kandy",
+    "Polonnaruwa"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "explanation": "Many inner shrine rooms and museum areas ban photography to protect murals/artifacts and worship privacy.",
+   "penalty": "Fine, confiscation of memory card",
+   "suggested_geofence_radius_m": 150,
+   "sources": [
+    "noelleneff.com"
+   ]
+  },
+  {
+   "id": "Reli-010",
+   "category": "Religious Respect - Buddhist",
+   "title": "No flash photography inside cave temples or shrine rooms",
+   "districts": [
+    "Matale",
+    "Anuradhapura",
+    "Kandy"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": "Flash light damages centuries-old murals and paintings over repeated exposure.",
+   "suggested_geofence_radius_m": 150,
+   "sources": [
+    "hidmc.com",
+    "thrillingtravel.in"
+   ],
+   "penalty": null
+  },
+  {
+   "id": "Sacr-001",
+   "category": "Sacred City Conduct - Anuradhapura",
+   "title": "Dress modestly (shoulders and knees covered) throughout the Sacred City zone, not just inside shrines",
+   "districts": [
+    "Anuradhapura"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "explanation": "Anuradhapura's core is a continuously consecrated sacred area; modest dress is expected the moment you enter, not only at the stupa steps.",
+   "penalty": "Refusal of entry to shrines",
+   "suggested_geofence_radius_m": 500,
+   "sources": []
+  },
+  {
+   "id": "Sacr-002",
+   "category": "Sacred City Conduct - Anuradhapura",
+   "title": "No leather items (belts, watch straps, bags) near the Sri Maha Bodhi enclosure",
+   "districts": [
+    "Anuradhapura"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "explanation": "Leather is considered ritually impure in the innermost sacred enclosures.",
+   "suggested_geofence_radius_m": 200,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Sacr-003",
+   "category": "Sacred City Conduct - Anuradhapura",
+   "title": "No motorized vehicles inside the inner Sacred City core - cycle or walk between monuments",
+   "districts": [
+    "Anuradhapura"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": "The Sacred City core restricts vehicle access to protect the archaeological zone and to preserve the pilgrimage atmosphere.",
+   "suggested_geofence_radius_m": 500,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Sacr-004",
+   "category": "Sacred City Conduct - Anuradhapura",
+   "title": "Circumambulate stupas and shrines clockwise (keep the object on your right)",
+   "districts": [
+    "Anuradhapura"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": "Clockwise circling (pradakshina) is the customary direction of respect around a sacred structure.",
+   "suggested_geofence_radius_m": 300,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Sacr-005",
+   "category": "Sacred City Conduct - Anuradhapura",
+   "title": "Speak quietly and avoid loud group behavior near the Sri Maha Bodhi and Ruwanwelisaya",
+   "districts": [
+    "Anuradhapura"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": "These are active, continuously worshipped pilgrimage sites, not just archaeological ruins.",
+   "suggested_geofence_radius_m": 400,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Sacr-006",
+   "category": "Sacred City Conduct - Anuradhapura",
+   "title": "Don't climb on stupa brickwork or ruins for photos",
+   "districts": [
+    "Anuradhapura",
+    "Polonnaruwa"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "explanation": "Climbing on protected archaeological monuments is prohibited and can damage 2,000+ year old structures.",
+   "penalty": "Fine, arrest under Antiquities Ordinance",
+   "suggested_geofence_radius_m": 300,
+   "sources": []
+  },
+  {
+   "id": "Poya-001",
+   "category": "Poya Day & Alcohol Law",
+   "title": "Alcohol sale is banned nationwide on Poya (full moon) days",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "explanation": "Bars, restaurants, bottle shops, supermarkets and hotel bars all stop alcohol sales - this covers ~12-13 days/year.",
+   "penalty": "Refusal of service; venues risk license suspension",
+   "sources": [
+    "srilanka-spirit.com",
+    "cyalcohol.com"
+   ],
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Poya-002",
+   "category": "Poya Day & Alcohol Law",
+   "title": "Drinking alcohol you already purchased is legal in private (hotel room, minibar)",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": "The Poya law bans sale, not private consumption of already-owned alcohol.",
+   "sources": [
+    "srilanka-spirit.com"
+   ],
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Poya-003",
+   "category": "Poya Day & Alcohol Law",
+   "title": "Major Poya days (e.g. Vesak) can extend the dry period to 2-3 days and also close casinos/betting shops/nightclubs",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "explanation": "Vesak and other major religious Poyas trigger extended restrictions beyond the usual single day.",
+   "sources": [
+    "casinobeats.com"
+   ],
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Poya-004",
+   "category": "Poya Day & Alcohol Law",
+   "title": "Alcohol sale is also restricted on Independence Day (Feb 4), Sinhala/Tamil New Year (Apr 13-14), Christmas Day, and some Hindu/Christian holy days",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "sources": [
+    "bestofceylon.com"
+   ],
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Poya-005",
+   "category": "Poya Day & Alcohol Law",
+   "title": "Drinking or smoking in public places (streets, parks, buses) is prohibited",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": "Legal inside bars, restaurants, and private venues, but not in open public spaces.",
+   "penalty": "Warning, possible fine",
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Poya-006",
+   "category": "Poya Day & Alcohol Law",
+   "title": "Meat, especially red meat, may be unavailable outside tourist areas on major Poya days",
+   "districts": [
+    "Anuradhapura",
+    "Kandy",
+    "Hambantota"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": "Abattoirs are officially ordered shut on major Poya days such as Vesak.",
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Driv-001",
+   "category": "Driving & Vehicle Permits",
+   "title": "A foreign license or ordinary IDP alone is NOT sufficient to drive in Sri Lanka",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "explanation": "You need a 1968 Vienna Convention IDP, an AA-Ceylon-endorsed 1949 Geneva IDP recognition permit, or a Sri Lankan Temporary Driving Licence.",
+   "penalty": "Vehicle seizure, arrest, denied insurance claims",
+   "sources": [
+    "drivinginsrilanka.com",
+    "rofi.lk"
+   ],
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Driv-002",
+   "category": "Driving & Vehicle Permits",
+   "title": "Temporary Driving Licences are issued on-arrival at Bandaranaike International Airport",
+   "districts": [
+    "Gampaha"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": "Available since August 2025 at BIA, or at the DMT Werahera office, for those without a qualifying IDP.",
+   "sources": [
+    "nohatuktuk.com"
+   ],
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Driv-003",
+   "category": "Driving & Vehicle Permits",
+   "title": "Tuk-tuks (three-wheelers) require a separate endorsement beyond a car-covering permit",
+   "districts": [
+    "Kandy",
+    "Nuwara Eliya",
+    "Galle",
+    "Matara",
+    "Badulla"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "explanation": "An IDP/permit valid for cars does not automatically authorize tuk-tuk driving.",
+   "penalty": "Vehicle seizure, fine",
+   "sources": [
+    "tuktukrental.com"
+   ],
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Driv-004",
+   "category": "Driving & Vehicle Permits",
+   "title": "Sri Lanka drives on the LEFT; minimum self-drive rental age is usually 21",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Driv-005",
+   "category": "Driving & Vehicle Permits",
+   "title": "Self-drive safaris are prohibited inside all national parks - a licensed jeep/guide is mandatory",
+   "districts": [
+    "Hambantota",
+    "Monaragala",
+    "Puttalam",
+    "Ampara",
+    "Nuwara Eliya"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "explanation": "Applies at Yala, Wilpattu, Udawalawe, Gal Oya, Horton Plains and all other national parks.",
+   "penalty": "Refusal of park entry",
+   "suggested_geofence_radius_m": 1000,
+   "sources": [
+    "theportuguesetraveler.com",
+    "bunniktours.com.au"
+   ]
+  },
+  {
+   "id": "Phot-001",
+   "category": "Photography & Security",
+   "title": "No photos of military installations, checkpoints, government buildings, or VIP convoys",
+   "districts": [
+    "Colombo",
+    "Jaffna",
+    "Trincomalee",
+    "Kilinochchi",
+    "Mullaitivu",
+    "Vavuniya",
+    "Mannar"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "explanation": "Enforced with fines or worse; the northern/eastern former conflict zones still have an active military presence.",
+   "penalty": "Fine, detention, camera/phone confiscation",
+   "suggested_geofence_radius_m": 300,
+   "sources": [
+    "noelleneff.com"
+   ]
+  },
+  {
+   "id": "Phot-002",
+   "category": "Photography & Security",
+   "title": "No photography inside most government institutions",
+   "districts": [
+    "Colombo"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "penalty": "Fine, confiscation",
+   "suggested_geofence_radius_m": 300,
+   "explanation": null,
+   "sources": []
+  },
+  {
+   "id": "Phot-003",
+   "category": "Photography & Security",
+   "title": "Avoid photographing checkpoints or soldiers in the North and East even casually",
+   "districts": [
+    "Jaffna",
+    "Kilinochchi",
+    "Mullaitivu",
+    "Vavuniya",
+    "Mannar",
+    "Trincomalee",
+    "Batticaloa"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": "This region retains a heavier security presence and sensitivities tied to the civil war; casual tourist photos are frequently misread.",
+   "suggested_geofence_radius_m": 500,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Dron-001",
+   "category": "Drones",
+   "title": "All drones must be registered with the Civil Aviation Authority of Sri Lanka (CAASL) before flying",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "explanation": "This includes small consumer drones; only cameraless drones under ~200g may be exempt, and even those may need police notification.",
+   "penalty": "Fines, confiscation",
+   "sources": [
+    "caa.lk",
+    "drone-laws.com"
+   ],
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Dron-002",
+   "category": "Drones",
+   "title": "No drone flights within 5 miles of any airport",
+   "districts": [
+    "Gampaha",
+    "Colombo",
+    "Trincomalee",
+    "Batticaloa",
+    "Hambantota"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "explanation": "Standard no-fly buffer around Bandaranaike (Katunayake), Ratmalana, and regional airports.",
+   "penalty": "Fine, confiscation, arrest",
+   "suggested_geofence_radius_m": 8000,
+   "sources": [
+    "drone-laws.com"
+   ]
+  },
+  {
+   "id": "Dron-003",
+   "category": "Drones",
+   "title": "No drone flights over military sites",
+   "districts": [
+    "Trincomalee",
+    "Jaffna",
+    "Colombo",
+    "Kilinochchi",
+    "Mullaitivu"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "penalty": "Arrest, equipment seizure",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Dron-004",
+   "category": "Drones",
+   "title": "Drone flights over Sigiriya, Dambulla, and other archaeological/religious sites need separate Department of Archaeology sign-off",
+   "districts": [
+    "Matale"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "penalty": "Fine, confiscation",
+   "suggested_geofence_radius_m": 1500,
+   "sources": [
+    "propelrc.com"
+   ],
+   "explanation": null
+  },
+  {
+   "id": "Dron-005",
+   "category": "Drones",
+   "title": "Drone flights inside national parks (Yala, Wilpattu, Udawalawe etc.) need Wildlife Department clearance",
+   "districts": [
+    "Hambantota",
+    "Puttalam",
+    "Monaragala",
+    "Ampara"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "explanation": "Uncleared drone use can disturb wildlife and violate park regulations.",
+   "penalty": "Fine, park ban",
+   "suggested_geofence_radius_m": 1000,
+   "sources": []
+  },
+  {
+   "id": "Dron-006",
+   "category": "Drones",
+   "title": "Night drone flights require an additional permit; max approved altitude is generally ~45m (150ft)",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "sources": [
+    "drone-laws.com"
+   ],
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Drug-001",
+   "category": "Drugs",
+   "title": "Nearly all recreational drugs, including marijuana, are illegal with no tourist/medical exception",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "explanation": "Sri Lankan law technically retains the death penalty for drug trafficking (unused since the 1970s), and life sentences are real and applied.",
+   "penalty": "Long imprisonment, deportation",
+   "sources": [
+    "theculturetrip.com"
+   ],
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Drug-002",
+   "category": "Drugs",
+   "title": "Random police checks on tuk-tuks, taxis, and roadside stops are common at night, especially in party/beach towns",
+   "districts": [
+    "Matara",
+    "Galle",
+    "Ampara",
+    "Trincomalee"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "LGBT-001",
+   "category": "LGBTQ+ Law",
+   "title": "Same-sex sexual relations remain criminalized under a colonial-era law",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "explanation": "Enforcement against tourists is rare, but it affects safety advice: avoid public displays of affection and don't assume legal protection.",
+   "sources": [
+    "lawlertapp.com",
+    "tikalanka.com"
+   ],
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Mone-001",
+   "category": "Money & Imports",
+   "title": "You may not take more than a small amount of Sri Lankan Rupees (commonly cited as LKR 5,000) out of the country",
+   "districts": [
+    "Gampaha",
+    "Colombo"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "explanation": "The Rupee is a closed/non-convertible currency.",
+   "penalty": "Confiscation",
+   "sources": [
+    "lawlertapp.com"
+   ],
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Mone-002",
+   "category": "Money & Imports",
+   "title": "Declare foreign cash above USD 15,000 brought in, or above USD 10,000 taken out",
+   "districts": [
+    "Gampaha",
+    "Colombo"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "penalty": "Confiscation, fine",
+   "sources": [
+    "lawlertapp.com"
+   ],
+   "explanation": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Mone-003",
+   "category": "Money & Imports",
+   "title": "E-cigarettes and vaping devices are prohibited imports",
+   "districts": [
+    "Gampaha",
+    "Colombo"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "penalty": "Confiscation, fine, possible arrest",
+   "sources": [
+    "bluelankatours.com"
+   ],
+   "explanation": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Mone-004",
+   "category": "Money & Imports",
+   "title": "Carry prescription medication in original packaging with the prescription",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": "Counterfeit/unclear medication imports create real customs risk.",
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Mone-005",
+   "category": "Money & Imports",
+   "title": "Buy cigarettes locally - bringing large quantities in for personal use is restricted",
+   "districts": [
+    "Gampaha",
+    "Colombo"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Publ-001",
+   "category": "Public Conduct",
+   "title": "Nudity and topless sunbathing are illegal on all Sri Lankan beaches, including at resorts",
+   "districts": [
+    "Galle",
+    "Matara",
+    "Hambantota",
+    "Trincomalee",
+    "Ampara",
+    "Kalutara",
+    "Puttalam"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "penalty": "Heavy fines",
+   "suggested_geofence_radius_m": 1000,
+   "sources": [
+    "tikalanka.com"
+   ],
+   "explanation": null
+  },
+  {
+   "id": "Publ-002",
+   "category": "Public Conduct",
+   "title": "Public displays of affection (kissing, overt romantic contact) draw social and sometimes legal attention",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": "Hand-holding is generally fine; more than that is culturally conspicuous.",
+   "sources": [
+    "blog.onevasco.com"
+   ],
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Publ-003",
+   "category": "Public Conduct",
+   "title": "Loud, aggressive public arguments are strongly socially penalized",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Dres-001",
+   "category": "Dress Code - Religious Sites",
+   "title": "Shoulders and knees covered at the Temple of the Sacred Tooth Relic",
+   "districts": [
+    "Kandy"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "explanation": "Men in shorts are turned away from inner shrine areas.",
+   "penalty": "Refusal of entry",
+   "suggested_geofence_radius_m": 300,
+   "sources": []
+  },
+  {
+   "id": "Dres-002",
+   "category": "Dress Code - Religious Sites",
+   "title": "Shoes off and shoulders/knees covered at Dambulla Cave Temple",
+   "districts": [
+    "Matale"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "explanation": "Sarongs/scarves are rentable at the entrance if you arrive under-dressed.",
+   "penalty": "Refusal of entry",
+   "suggested_geofence_radius_m": 500,
+   "sources": [
+    "hidmc.com"
+   ]
+  },
+  {
+   "id": "Dres-003",
+   "category": "Dress Code - Religious Sites",
+   "title": "No hats or caps inside temple buildings",
+   "districts": [
+    "Matale",
+    "Kandy",
+    "Anuradhapura",
+    "Polonnaruwa"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "suggested_geofence_radius_m": 200,
+   "sources": [
+    "trishansoz.com"
+   ],
+   "explanation": null,
+   "penalty": null
+  },
+  {
+   "id": "Dres-004",
+   "category": "Dress Code - Religious Sites",
+   "title": "Leather items (belts, wallets, bags) are prohibited inside many Hindu kovils",
+   "districts": [
+    "Jaffna",
+    "Hambantota",
+    "Colombo"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "suggested_geofence_radius_m": 200,
+   "sources": [
+    "srilanka-spirit.com"
+   ],
+   "explanation": null,
+   "penalty": null
+  },
+  {
+   "id": "Dres-005",
+   "category": "Dress Code - Religious Sites",
+   "title": "Head covering is expected inside mosques (opposite of temple rule - cover, don't uncover)",
+   "districts": [
+    "Ampara",
+    "Batticaloa",
+    "Colombo"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "explanation": "Women should carry a scarf; shoulders/legs covered for all genders.",
+   "suggested_geofence_radius_m": 200,
+   "sources": [
+    "nathab.com"
+   ],
+   "penalty": null
+  },
+  {
+   "id": "Wild-001",
+   "category": "Wildlife Parks & Safari",
+   "title": "Self-guided/self-drive safaris are prohibited - a DWC-licensed jeep and driver is mandatory",
+   "districts": [
+    "Hambantota",
+    "Monaragala",
+    "Puttalam"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "explanation": "Applies at Yala, Wilpattu, Udawalawe and other national parks; only ~1/5 of Yala is even open to visitor access.",
+   "penalty": "Refusal of entry",
+   "suggested_geofence_radius_m": 1000,
+   "sources": [
+    "bunniktours.com.au"
+   ]
+  },
+  {
+   "id": "Wild-002",
+   "category": "Wildlife Parks & Safari",
+   "title": "Stay inside the jeep at all times except at designated stops",
+   "districts": [
+    "Hambantota",
+    "Monaragala",
+    "Puttalam",
+    "Ampara"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": "This protects both visitor safety and minimizes wildlife disturbance.",
+   "suggested_geofence_radius_m": 1000,
+   "sources": [
+    "nynehotels.com"
+   ],
+   "penalty": null
+  },
+  {
+   "id": "Wild-003",
+   "category": "Wildlife Parks & Safari",
+   "title": "Engine off and silence during leopard/elephant sightings - no shouting, no chasing the sighting",
+   "districts": [
+    "Hambantota",
+    "Monaragala"
+   ],
+   "risk_level": "medium",
+   "type": "ethics",
+   "explanation": "Jeep 'flocking' behaviour (30-50 vehicles converging on one radio call) causes documented wildlife stress.",
+   "suggested_geofence_radius_m": 1000,
+   "sources": [
+    "experiencetravelgroup.com",
+    "thecommonwanderer.com"
+   ],
+   "penalty": null
+  },
+  {
+   "id": "Wild-004",
+   "category": "Wildlife Parks & Safari",
+   "title": "All jeeps must exit the park by 18:00 - park hours are 06:00-18:00 and strictly enforced",
+   "districts": [
+    "Hambantota",
+    "Monaragala"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": "Wildlife officers log license plates on entry and exit.",
+   "penalty": "Fine",
+   "sources": [
+    "wherethesoulswander.com"
+   ],
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Wild-005",
+   "category": "Wildlife Parks & Safari",
+   "title": "Yala is a strict no-plastic zone - bring a reusable bottle",
+   "districts": [
+    "Hambantota"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": "Most operators now supply reusable glass bottles for guests.",
+   "suggested_geofence_radius_m": 1000,
+   "sources": [
+    "yalawildlife.com"
+   ],
+   "penalty": null
+  },
+  {
+   "id": "Wild-006",
+   "category": "Wildlife Parks & Safari",
+   "title": "Never approach or feed wild elephants on roadsides near parks/villages",
+   "districts": [
+    "Hambantota",
+    "Monaragala",
+    "Puttalam",
+    "Ampara",
+    "Polonnaruwa",
+    "Anuradhapura"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": "Human-elephant conflict is a serious ongoing safety issue outside as well as inside parks.",
+   "penalty": "Injury/death risk",
+   "suggested_geofence_radius_m": 500,
+   "sources": []
+  },
+  {
+   "id": "Wild-007",
+   "category": "Wildlife Parks & Safari",
+   "title": "A passport is mandatory for national park entry - it is checked at the gate",
+   "districts": [
+    "Hambantota",
+    "Monaragala",
+    "Puttalam"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "sources": [
+    "yalawildlife.com"
+   ],
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Mari-001",
+   "category": "Marine Wildlife - Whale & Dolphin Watching",
+   "title": "Boats must stay at least 100m from whales and 50m from dolphins",
+   "districts": [
+    "Matara",
+    "Trincomalee",
+    "Puttalam"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "explanation": "Required under Sri Lanka's Fisheries and Aquatic Resources Management Act and international marine-mammal watching guidelines.",
+   "penalty": "Operator fine; report unsafe operators to the Coast Guard",
+   "sources": [
+    "srilanka-spirit.com",
+    "ceylontourguides.com"
+   ],
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Mari-002",
+   "category": "Marine Wildlife - Whale & Dolphin Watching",
+   "title": "Engines should idle/switch off within 100m of whales - no chasing or cutting across a whale's path",
+   "districts": [
+    "Matara",
+    "Trincomalee"
+   ],
+   "risk_level": "medium",
+   "type": "ethics",
+   "explanation": "Overcrowding and fast approaches by 10-25 competing boats is documented to cause acoustic stress and habitat avoidance in blue whales.",
+   "sources": [
+    "srilanka-spirit.com",
+    "wwhandbook.iwc.int"
+   ],
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Mari-003",
+   "category": "Marine Wildlife - Whale & Dolphin Watching",
+   "title": "Choose licensed, small-group operators that limit time per pod to ~30 minutes",
+   "districts": [
+    "Matara",
+    "Trincomalee",
+    "Puttalam"
+   ],
+   "risk_level": "low",
+   "type": "ethics",
+   "sources": [
+    "ceylontourguides.com"
+   ],
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Mari-004",
+   "category": "Marine Wildlife - Whale & Dolphin Watching",
+   "title": "Never touch, feed, or attempt to swim with whales or dolphins; do not discard anything into the ocean",
+   "districts": [
+    "Matara",
+    "Trincomalee",
+    "Puttalam"
+   ],
+   "risk_level": "medium",
+   "type": "ethics",
+   "sources": [
+    "bluelankatours.com"
+   ],
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Mari-005",
+   "category": "Marine & Coastal Conservation",
+   "title": "Don't touch, pick up, or take flash photos of nesting sea turtles or hatchlings",
+   "districts": [
+    "Galle",
+    "Matara",
+    "Kalutara"
+   ],
+   "risk_level": "medium",
+   "type": "ethics",
+   "explanation": "Handling stresses turtles and can prevent nesting; flash disorients hatchlings finding the sea.",
+   "suggested_geofence_radius_m": 500,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Mari-006",
+   "category": "Marine & Coastal Conservation",
+   "title": "Avoid touching or standing on coral at protected reef sites",
+   "districts": [
+    "Galle",
+    "Trincomalee",
+    "Puttalam"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "explanation": "Hikkaduwa and Bar Reef are gazetted marine protected areas; reef damage is a punishable offense.",
+   "penalty": "Fine",
+   "suggested_geofence_radius_m": 400,
+   "sources": []
+  },
+  {
+   "id": "Mari-007",
+   "category": "Marine & Coastal Conservation",
+   "title": "No spearfishing or removal of marine life/shells from protected marine areas",
+   "districts": [
+    "Galle",
+    "Trincomalee",
+    "Puttalam"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "penalty": "Fine, confiscation of gear",
+   "suggested_geofence_radius_m": 400,
+   "explanation": null,
+   "sources": []
+  },
+  {
+   "id": "Envi-001",
+   "category": "Environment & Plastic",
+   "title": "Single-use plastics (cutlery, straws, cups, artificial flowers) are banned under national law",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": "Introduced after repeated wild elephant and cattle deaths from plastic ingestion at waste dumps.",
+   "penalty": "Fine (enforcement inconsistent)",
+   "sources": [
+    "packaginginsights.com",
+    "bangkokpost.com"
+   ],
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Envi-002",
+   "category": "Environment & Plastic",
+   "title": "Non-biodegradable plastic bags have been banned since 2017",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "sources": [
+    "bangkokpost.com"
+   ],
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Envi-003",
+   "category": "Environment & Plastic",
+   "title": "Horton Plains National Park is a strict no-plastic zone",
+   "districts": [
+    "Nuwara Eliya"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": "Enforced to protect the cloud forest and montane grassland ecosystem around World's End and Baker's Falls.",
+   "suggested_geofence_radius_m": 1500,
+   "sources": [
+    "wanderlog.com"
+   ],
+   "penalty": null
+  },
+  {
+   "id": "Envi-004",
+   "category": "Environment & Plastic",
+   "title": "Do not litter on hiking trails or feed wildlife along the way (e.g. Horton Plains, Ella, Knuckles)",
+   "districts": [
+    "Nuwara Eliya",
+    "Badulla",
+    "Kandy",
+    "Matale"
+   ],
+   "risk_level": "low",
+   "type": "ethics",
+   "penalty": "Fine at gazetted parks",
+   "suggested_geofence_radius_m": 1000,
+   "explanation": null,
+   "sources": []
+  },
+  {
+   "id": "Envi-005",
+   "category": "Environment & Plastic",
+   "title": "Open burning of rubbish, including plastics, is banned",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "sources": [
+    "switch-asia.eu"
+   ],
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Hiki-001",
+   "category": "Hiking & Adventure Safety",
+   "title": "Start Adam's Peak (Sri Pada) at night to summit for sunrise - trail lighting and crowds are built around this timing",
+   "districts": [
+    "Ratnapura"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": "Sri Pada is a major multi-faith pilgrimage site (Buddhist, Hindu, Muslim, Christian traditions), so trail etiquette and pace matter.",
+   "suggested_geofence_radius_m": 2000,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Hiki-002",
+   "category": "Hiking & Adventure Safety",
+   "title": "Horton Plains' World's End viewpoint can be shrouded in mist after 10am - go early, and don't cross safety barriers at the cliff edge",
+   "districts": [
+    "Nuwara Eliya"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": "The escarpment has a sheer ~870m drop with minimal barriers in places.",
+   "penalty": "Injury/fatality risk",
+   "suggested_geofence_radius_m": 1500,
+   "sources": []
+  },
+  {
+   "id": "Hiki-003",
+   "category": "Hiking & Adventure Safety",
+   "title": "Stay on marked trails in the Knuckles Range and Horton Plains - off-trail hiking risks getting lost and disturbs endemic species habitat",
+   "districts": [
+    "Matale",
+    "Kandy",
+    "Nuwara Eliya"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "suggested_geofence_radius_m": 1000,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Hiki-004",
+   "category": "Hiking & Adventure Safety",
+   "title": "Leeches are common on hill-country and rainforest trails - wear leech socks, don't panic-pull them off",
+   "districts": [
+    "Nuwara Eliya",
+    "Badulla",
+    "Matale",
+    "Ratnapura",
+    "Kandy"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "suggested_geofence_radius_m": 1500,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Trai-001",
+   "category": "Train & Rail Safety",
+   "title": "Never lean or hang out of train doors/windows for photos, especially on the Kandy-Ella-Badulla line",
+   "districts": [
+    "Badulla",
+    "Nuwara Eliya",
+    "Kandy"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": "Multiple tourists have died leaning out of moving trains for selfies on this exact route, including near the Nine Arch Bridge.",
+   "penalty": "Serious injury or death",
+   "suggested_geofence_radius_m": 500,
+   "sources": [
+    "dailymirror.lk",
+    "ladbible.com"
+   ]
+  },
+  {
+   "id": "Trai-002",
+   "category": "Train & Rail Safety",
+   "title": "Clear the tracks at Nine Arch Bridge the moment you hear a train horn - there are no safety barriers",
+   "districts": [
+    "Badulla"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": "Up to 10 trains a day cross a bridge with no railings; the surface is also slippery when wet.",
+   "penalty": "Serious injury or death",
+   "suggested_geofence_radius_m": 300,
+   "sources": [
+    "thecommonwanderer.com"
+   ]
+  },
+  {
+   "id": "Trai-003",
+   "category": "Train & Rail Safety",
+   "title": "Trespassing on railway property, including walking onto the Nine Arch Bridge itself, is technically an offense under the Railway Ordinance",
+   "districts": [
+    "Badulla"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "penalty": "Fine (rarely enforced against tourists, but real)",
+   "suggested_geofence_radius_m": 300,
+   "sources": [
+    "dailymirror.lk"
+   ],
+   "explanation": null
+  },
+  {
+   "id": "Trai-004",
+   "category": "Train & Rail Safety",
+   "title": "Don't ride on train footboards or roofs, however common it looks on social media",
+   "districts": [
+    "Badulla",
+    "Nuwara Eliya",
+    "Kandy"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "penalty": "Injury/death, and doors on older rolling stock don't lock centrally",
+   "sources": [
+    "dailymirror.lk"
+   ],
+   "explanation": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Anim-001",
+   "category": "Animal Tourism Ethics",
+   "title": "Elephant rides and elephant 'bathing' experiences are widely considered unethical by welfare groups",
+   "districts": [
+    "Kegalle",
+    "Kandy",
+    "Matale"
+   ],
+   "risk_level": "medium",
+   "type": "ethics",
+   "explanation": "Elephants used for rides are typically chained, trained with a bullhook (ankus), and can suffer spinal damage from howdah seating.",
+   "sources": [
+    "petaasia.com",
+    "responsibletravel.com"
+   ],
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Anim-002",
+   "category": "Animal Tourism Ethics",
+   "title": "Pinnawala Elephant Orphanage is government-run and does not officially permit rides, but privately-run elephant camps nearby do - check which operator you're booking",
+   "districts": [
+    "Kegalle"
+   ],
+   "risk_level": "low",
+   "type": "ethics",
+   "explanation": "Welfare assessments of Pinnawala itself are mixed/contested; independent camps in the same town have drawn heavier criticism.",
+   "suggested_geofence_radius_m": 1000,
+   "sources": [
+    "timetravelturtle.com",
+    "ticketsntour.com"
+   ],
+   "penalty": null
+  },
+  {
+   "id": "Anim-003",
+   "category": "Animal Tourism Ethics",
+   "title": "Elephants paraded at festivals such as the Kandy Esala Perahera are a documented animal-welfare concern",
+   "districts": [
+    "Kandy"
+   ],
+   "risk_level": "low",
+   "type": "ethics",
+   "sources": [
+    "petaasia.com"
+   ],
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Anim-004",
+   "category": "Animal Tourism Ethics",
+   "title": "Ask before you visit whether a 'turtle sanctuary' releases hatchlings promptly to the sea rather than holding them for tourist photos",
+   "districts": [
+    "Galle",
+    "Matara",
+    "Kalutara"
+   ],
+   "risk_level": "low",
+   "type": "ethics",
+   "explanation": "Several west-coast 'turtle hatcheries' have been criticized as more show than conservation.",
+   "sources": [
+    "timetravelturtle.com"
+   ],
+   "penalty": null,
+   "suggested_geofence_radius_m": null
+  },
+  {
+   "id": "Anim-005",
+   "category": "Animal Tourism Ethics",
+   "title": "Avoid snake charmers / performing-animal street photo-ops in tourist towns",
+   "districts": [
+    "Colombo",
+    "Galle",
+    "Kandy"
+   ],
+   "risk_level": "low",
+   "type": "ethics",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Tea-001",
+   "category": "Tea Estate & Plantation Etiquette",
+   "title": "Ask permission before photographing tea pluckers at work",
+   "districts": [
+    "Nuwara Eliya",
+    "Badulla",
+    "Kandy",
+    "Ratnapura"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": "Many tea estates now have visitor centers precisely because informal photography of workers became intrusive.",
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Tea-002",
+   "category": "Tea Estate & Plantation Etiquette",
+   "title": "Stick to marked visitor paths on working tea estates - the fields are a workplace, not a park",
+   "districts": [
+    "Nuwara Eliya",
+    "Badulla"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Gem-001",
+   "category": "Gem Trade",
+   "title": "Only buy gems from licensed dealers (look for National Gem and Jewellery Authority registration) and get a certificate",
+   "districts": [
+    "Ratnapura"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": "Ratnapura is Sri Lanka's gem capital and a known hotspot for tourist-targeted fake-gem and inflated-price scams.",
+   "penalty": "Financial loss, no legal recourse without paperwork",
+   "suggested_geofence_radius_m": 1000,
+   "sources": []
+  },
+  {
+   "id": "Gem-002",
+   "category": "Gem Trade",
+   "title": "Be wary of unsolicited 'gem mine tour' offers from strangers on the street",
+   "districts": [
+    "Ratnapura"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "suggested_geofence_radius_m": 1000,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Arch-001",
+   "category": "Archaeological Site Conduct",
+   "title": "Do not climb on, sit on, or remove pieces from ruins at Polonnaruwa or Anuradhapura",
+   "districts": [
+    "Polonnaruwa",
+    "Anuradhapura"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "explanation": "Protected under the Antiquities Ordinance; these are UNESCO World Heritage sites.",
+   "penalty": "Fine, arrest",
+   "suggested_geofence_radius_m": 500,
+   "sources": []
+  },
+  {
+   "id": "Arch-002",
+   "category": "Archaeological Site Conduct",
+   "title": "Sigiriya's summit and frescoes area have restricted photography zones and no-touch rules on the ancient plaster murals",
+   "districts": [
+    "Matale"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "penalty": "Fine",
+   "suggested_geofence_radius_m": 800,
+   "explanation": null,
+   "sources": []
+  },
+  {
+   "id": "Arch-003",
+   "category": "Archaeological Site Conduct",
+   "title": "Do not remove any stone, brick, or artifact fragment as a souvenir from any archaeological site",
+   "districts": [
+    "Anuradhapura",
+    "Polonnaruwa",
+    "Matale"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "penalty": "Arrest, prosecution under heritage protection law",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Arch-004",
+   "category": "Archaeological Site Conduct",
+   "title": "Hire a licensed site guide at major Cultural Triangle sites - unlicensed 'guides' at Sigiriya/Polonnaruwa are a common tourist scam",
+   "districts": [
+    "Matale",
+    "Polonnaruwa",
+    "Anuradhapura"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Nort-001",
+   "category": "Northern Province - Cultural & Political Sensitivity",
+   "title": "Avoid casual photography near military camps, checkpoints, or memorial sites without asking first",
+   "districts": [
+    "Jaffna",
+    "Kilinochchi",
+    "Mullaitivu",
+    "Vavuniya",
+    "Mannar"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": "The North retains a significant military presence and unresolved war-memory sensitivities; casual photos are easily misread.",
+   "penalty": "Detention, confiscation",
+   "suggested_geofence_radius_m": 500,
+   "sources": []
+  },
+  {
+   "id": "Nort-002",
+   "category": "Northern Province - Cultural & Political Sensitivity",
+   "title": "Discuss the civil war and its history factually and respectfully - this remains a live, sensitive topic for local families",
+   "districts": [
+    "Jaffna",
+    "Kilinochchi",
+    "Mullaitivu",
+    "Mannar",
+    "Batticaloa",
+    "Trincomalee"
+   ],
+   "risk_level": "low",
+   "type": "ethics",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Nort-003",
+   "category": "Northern Province - Cultural & Political Sensitivity",
+   "title": "Some former conflict-zone areas still carry landmine-clearance signage - never leave marked paths in these areas",
+   "districts": [
+    "Kilinochchi",
+    "Mullaitivu",
+    "Mannar",
+    "Vavuniya"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": "Demining is largely complete in tourist areas but not universally; always respect posted signage.",
+   "penalty": "Injury/death",
+   "suggested_geofence_radius_m": 2000,
+   "sources": []
+  },
+  {
+   "id": "Nort-004",
+   "category": "Northern Province - Cultural & Political Sensitivity",
+   "title": "Cover shoulders/legs and remove footwear at Hindu kovils; leather items may be restricted inside",
+   "districts": [
+    "Jaffna"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "explanation": "Jaffna's Nallur Kandaswamy Kovil and other major kovils enforce dress code strictly, especially during festivals.",
+   "suggested_geofence_radius_m": 300,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Hind-001",
+   "category": "Hindu & Muslim Site Etiquette",
+   "title": "Kataragama is sacred to Buddhists, Hindus, and Muslims simultaneously - dress and behave conservatively across the whole complex",
+   "districts": [
+    "Hambantota"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "suggested_geofence_radius_m": 500,
+   "sources": [
+    "theportuguesetraveler.com"
+   ],
+   "explanation": null,
+   "penalty": null
+  },
+  {
+   "id": "Hind-002",
+   "category": "Hindu & Muslim Site Etiquette",
+   "title": "During Ramadan, avoid eating, drinking, or smoking in public in heavily Muslim areas out of respect for those fasting",
+   "districts": [
+    "Ampara",
+    "Batticaloa",
+    "Puttalam"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Hind-003",
+   "category": "Hindu & Muslim Site Etiquette",
+   "title": "Women should carry a headscarf for mosque visits; men should wear long trousers",
+   "districts": [
+    "Ampara",
+    "Batticaloa",
+    "Colombo",
+    "Puttalam"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "suggested_geofence_radius_m": 300,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Urba-001",
+   "category": "Urban Safety & Scams",
+   "title": "Agree on tuk-tuk/taxi fares before the ride, or insist on the meter - rate scams are common near tourist sites",
+   "districts": [
+    "Colombo",
+    "Kandy",
+    "Galle",
+    "Matale"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Urba-002",
+   "category": "Urban Safety & Scams",
+   "title": "Be cautious of unsolicited 'guides' or 'gem shop' referrals near major attractions - commission-driven scams are common",
+   "districts": [
+    "Colombo",
+    "Kandy",
+    "Matale",
+    "Ratnapura"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Urba-003",
+   "category": "Urban Safety & Scams",
+   "title": "Verify any 'government closure' or 'special ticket' claims made by street touts at temples/sites directly at the official ticket counter",
+   "districts": [
+    "Anuradhapura",
+    "Polonnaruwa",
+    "Matale",
+    "Kandy"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Nati-001",
+   "category": "National Symbols & Respect",
+   "title": "Do not deface, burn, or mishandle the Sri Lankan national flag",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "penalty": "Fine, arrest",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Nati-002",
+   "category": "National Symbols & Respect",
+   "title": "Stand respectfully if the national anthem is played at a public event",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Visa-001",
+   "category": "Visas & Immigration",
+   "title": "Obtain an ETA/eVisa before arrival (or on-arrival where offered) - entering without valid authorization is an offense",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "explanation": "Most nationalities need an Electronic Travel Authorization before boarding. Verify the current scheme on immigration.gov.lk as rules changed several times in 2024-2025.",
+   "penalty": "Denied boarding/entry",
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Visa-002",
+   "category": "Visas & Immigration",
+   "title": "Do not overstay your visa - overstays incur fines and can lead to detention and future entry bans",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "penalty": "Fine per period overstayed, detention, entry ban",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Visa-003",
+   "category": "Visas & Immigration",
+   "title": "Working (including remote-style paid gigs for local clients, guiding, or teaching) on a tourist visa is prohibited",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "penalty": "Fine, deportation",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Visa-004",
+   "category": "Visas & Immigration",
+   "title": "Carry your passport or a photo/copy of it - police can ask for identification",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": "A phone photo of the data page plus visa is accepted for routine checks; keep the original in the hotel safe.",
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Visa-005",
+   "category": "Visas & Immigration",
+   "title": "Visa extensions are processed at the Department of Immigration in Battaramulla, Colombo - apply before expiry",
+   "districts": [
+    "Colombo"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Cust-001",
+   "category": "Customs & Souvenir Export",
+   "title": "Exporting antiques older than about 100 years without a license is prohibited",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "explanation": "Covers old masks, palm-leaf manuscripts, coins, carvings and colonial-era items under the Antiquities Ordinance.",
+   "penalty": "Confiscation, prosecution",
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Cust-002",
+   "category": "Customs & Souvenir Export",
+   "title": "Buying or exporting coral, turtle-shell, or ivory products is illegal",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "explanation": "Protected under wildlife and CITES rules - refuse these souvenirs even when openly offered in shops.",
+   "penalty": "Confiscation, fine, arrest",
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Cust-003",
+   "category": "Customs & Souvenir Export",
+   "title": "Protected timber (ebony, sandalwood) items may not be exported without permits",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "penalty": "Confiscation",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Cust-004",
+   "category": "Customs & Souvenir Export",
+   "title": "Satellite phones and some radio equipment require Telecommunications Regulatory Commission approval to bring in",
+   "districts": [
+    "Gampaha",
+    "Colombo"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "penalty": "Confiscation at customs",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Cust-005",
+   "category": "Customs & Souvenir Export",
+   "title": "Gems bought for export should carry a National Gem & Jewellery Authority certificate - keep receipts for customs",
+   "districts": [
+    "Ratnapura",
+    "Colombo",
+    "Gampaha"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "penalty": "Questioning/valuation disputes at departure",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Cust-006",
+   "category": "Customs & Souvenir Export",
+   "title": "Do not take sand, shells in bulk, or beach coral fragments home",
+   "districts": [
+    "Galle",
+    "Matara",
+    "Hambantota",
+    "Trincomalee",
+    "Kalutara"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": "Removal of beach material from protected coastal zones is restricted; small ordinary shells are tolerated, bags of them are not.",
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Cust-007",
+   "category": "Customs & Souvenir Export",
+   "title": "Personal tea purchases are fine to export; commercial quantities need paperwork",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Beac-001",
+   "category": "Beach & Ocean Safety",
+   "title": "South-west monsoon (roughly May-September): west and south coast seas are dangerous - swim on the east coast instead",
+   "districts": [
+    "Galle",
+    "Matara",
+    "Kalutara",
+    "Colombo",
+    "Hambantota"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": "Rip currents and heavy shore break kill swimmers every season at Mirissa, Unawatuna, Hikkaduwa and Bentota during these months.",
+   "penalty": "Drowning risk",
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Beac-002",
+   "category": "Beach & Ocean Safety",
+   "title": "North-east monsoon (roughly November-March): east coast seas turn rough - Trincomalee/Arugam Bay swimming is safest May-September",
+   "districts": [
+    "Trincomalee",
+    "Batticaloa",
+    "Ampara"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "penalty": "Drowning risk",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Beac-003",
+   "category": "Beach & Ocean Safety",
+   "title": "Most beaches have no lifeguards - a red flag means do not swim, and no flag does not mean safe",
+   "districts": [
+    "Galle",
+    "Matara",
+    "Hambantota",
+    "Trincomalee",
+    "Ampara",
+    "Kalutara",
+    "Puttalam",
+    "Batticaloa"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Beac-004",
+   "category": "Beach & Ocean Safety",
+   "title": "Caught in a rip current: swim parallel to the beach until free, then in - never fight it straight back",
+   "districts": [
+    "Galle",
+    "Matara",
+    "Trincomalee",
+    "Ampara",
+    "Kalutara"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Beac-005",
+   "category": "Beach & Ocean Safety",
+   "title": "Never swim in river mouths, estuaries or lagoons - saltwater crocodiles are present",
+   "districts": [
+    "Galle",
+    "Matara",
+    "Ampara",
+    "Kalutara",
+    "Hambantota",
+    "Batticaloa"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": "Crocodile attacks occur at river mouths near Bentota, the Nilwala river, Pottuvil lagoon and southern estuaries.",
+   "penalty": "Injury/death risk",
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Beac-006",
+   "category": "Beach & Ocean Safety",
+   "title": "Never swim at night or after drinking alcohol - the most common factor in tourist drownings",
+   "districts": [
+    "Galle",
+    "Matara",
+    "Trincomalee",
+    "Ampara"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Beac-007",
+   "category": "Beach & Ocean Safety",
+   "title": "Wear reef shoes on rocky/reef flats - sea urchins and sharp coral cause most beach injuries",
+   "districts": [
+    "Galle",
+    "Trincomalee",
+    "Matara"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Beac-008",
+   "category": "Beach & Ocean Safety",
+   "title": "Seasonal jellyfish blooms occur - ask locals before swimming if you see others staying out of the water",
+   "districts": [
+    "Trincomalee",
+    "Batticaloa",
+    "Galle",
+    "Matara"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Beac-009",
+   "category": "Beach & Ocean Safety",
+   "title": "Insist on life jackets for any boat trip, lagoon crossing or snorkelling tour",
+   "districts": [
+    "Matara",
+    "Trincomalee",
+    "Puttalam",
+    "Galle",
+    "Batticaloa"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": "Operator safety standards vary widely; a licensed operator provides jackets without argument.",
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Beac-010",
+   "category": "Beach & Ocean Safety",
+   "title": "Surf etiquette applies at Arugam Bay, Weligama and Hikkaduwa - don't drop in on locals' waves, keep your leash on",
+   "districts": [
+    "Ampara",
+    "Matara",
+    "Galle"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Beac-011",
+   "category": "Beach & Ocean Safety",
+   "title": "Kitesurfing at Kalpitiya: stay in designated kite zones and clear of swimmers - lines are dangerous",
+   "districts": [
+    "Puttalam"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "suggested_geofence_radius_m": 2000,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Beac-012",
+   "category": "Beach & Ocean Safety",
+   "title": "Pigeon Island National Park: tickets required, no touching coral, no feeding fish, and weak swimmers should wear a life jacket",
+   "districts": [
+    "Trincomalee"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "suggested_geofence_radius_m": 1000,
+   "penalty": "Fine for reef damage",
+   "explanation": null,
+   "sources": []
+  },
+  {
+   "id": "Road-001",
+   "category": "Road & Transport Rules",
+   "title": "Helmets are mandatory for motorbike riders AND passengers",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "penalty": "Fine; insurance void in accidents",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Road-002",
+   "category": "Road & Transport Rules",
+   "title": "Drink-driving is enforced with breath tests - the legal limit is low, treat it as zero",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "penalty": "Arrest, fine, court appearance",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Road-003",
+   "category": "Road & Transport Rules",
+   "title": "Front seatbelts are mandatory; using a handheld phone while driving is an offense",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "penalty": "Fine",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Road-004",
+   "category": "Road & Transport Rules",
+   "title": "Expressways (E01/E02/E03) ban tuk-tuks, motorbikes, bicycles and pedestrians",
+   "districts": [
+    "Colombo",
+    "Galle",
+    "Matara",
+    "Gampaha",
+    "Kalutara"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "penalty": "Fine, removal",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Road-005",
+   "category": "Road & Transport Rules",
+   "title": "Vehicles rarely stop at pedestrian crossings - cross defensively, make eye contact",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Road-006",
+   "category": "Road & Transport Rules",
+   "title": "Drive with extreme care at dusk/night on the Habarana-Polonnaruwa-Kataragama corridors: wild elephants cross the road",
+   "districts": [
+    "Polonnaruwa",
+    "Anuradhapura",
+    "Monaragala",
+    "Hambantota"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": "Do not stop next to a roadside elephant, keep windows up, and never feed them from vehicles - it trains them to block cars.",
+   "penalty": "Injury/death risk",
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Road-007",
+   "category": "Road & Transport Rules",
+   "title": "Unlit vehicles, dogs and cattle on rural roads make night driving genuinely hazardous - avoid long night drives",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Road-008",
+   "category": "Road & Transport Rules",
+   "title": "On buses, front seats are reserved for clergy - vacate them for monks without being asked",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Road-009",
+   "category": "Road & Transport Rules",
+   "title": "Reserve Kandy-Ella train seats well in advance; unreserved carriages are crush-loaded in season",
+   "districts": [
+    "Kandy",
+    "Nuwara Eliya",
+    "Badulla"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": "Keep daypacks on your front in crowded carriages - petty theft happens at peak crowding.",
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Road-010",
+   "category": "Road & Transport Rules",
+   "title": "Use metered ride apps (PickMe/Uber) in cities rather than flagging tuk-tuks at tourist hotspots",
+   "districts": [
+    "Colombo",
+    "Kandy",
+    "Galle",
+    "Gampaha"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Road-011",
+   "category": "Road & Transport Rules",
+   "title": "Prefer day trains over overnight buses on hill routes - bus speeding on mountain bends is a known accident cause",
+   "districts": [
+    "Badulla",
+    "Nuwara Eliya",
+    "Kandy",
+    "Ratnapura"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Heal-001",
+   "category": "Health & Wellbeing",
+   "title": "Dengue is present year-round island-wide - use repellent, especially at dawn/dusk in monsoon months",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": "Urban Colombo and the wet-zone west coast see the largest outbreaks; there is no vaccine generally available to travellers.",
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Heal-002",
+   "category": "Health & Wellbeing",
+   "title": "Tap water is not for drinking - use bottled, filtered or boiled water everywhere",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Heal-003",
+   "category": "Health & Wellbeing",
+   "title": "Any dog/monkey bite or scratch needs immediate rabies post-exposure treatment - go to a hospital the same day",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": "Street dogs are everywhere and rabies is endemic; government hospitals give post-exposure vaccination.",
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Heal-004",
+   "category": "Health & Wellbeing",
+   "title": "Monkeys at Dambulla, Mihintale, Sigiriya and temple sites snatch food, bottles and glasses - keep bags zipped, don't feed them",
+   "districts": [
+    "Matale",
+    "Anuradhapura",
+    "Polonnaruwa"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "suggested_geofence_radius_m": 800,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Heal-005",
+   "category": "Health & Wellbeing",
+   "title": "Temple courtyards are walked barefoot - stone burns feet at midday, so visit early morning or evening",
+   "districts": [
+    "Anuradhapura",
+    "Polonnaruwa",
+    "Kandy",
+    "Matale",
+    "Hambantota"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Heal-006",
+   "category": "Health & Wellbeing",
+   "title": "Hill country nights are genuinely cold (Nuwara Eliya can approach 5°C) - pack warm layers",
+   "districts": [
+    "Nuwara Eliya",
+    "Badulla"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Heal-007",
+   "category": "Health & Wellbeing",
+   "title": "Heat and humidity on the lowland plains cause heatstroke - hydrate and avoid midday exertion, especially April-May",
+   "districts": [
+    "Vavuniya",
+    "Mannar",
+    "Anuradhapura",
+    "Polonnaruwa",
+    "Hambantota",
+    "Puttalam"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Heal-008",
+   "category": "Health & Wellbeing",
+   "title": "Choose registered Ayurveda spas/practitioners - unregistered massage parlours are a known problem sector",
+   "districts": [
+    "Kalutara",
+    "Galle",
+    "Colombo"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Heal-009",
+   "category": "Health & Wellbeing",
+   "title": "Private hospitals expect payment guarantees/deposits - carry travel insurance details",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Soci-001",
+   "category": "Social Etiquette",
+   "title": "Give and receive items (money, gifts, food) with your right hand or both hands, never the left alone",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Soci-002",
+   "category": "Social Etiquette",
+   "title": "Never touch anyone's head, including children's",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Soci-003",
+   "category": "Social Etiquette",
+   "title": "Don't point at people with an index finger - gesture with the whole hand",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Soci-004",
+   "category": "Social Etiquette",
+   "title": "Remove shoes when entering homes",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Soci-005",
+   "category": "Social Etiquette",
+   "title": "Ask before photographing people, especially women, market vendors and fishing crews",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Soci-006",
+   "category": "Social Etiquette",
+   "title": "The 'stilt fishermen' near Koggala are largely a posed photo attraction - agree a price BEFORE taking pictures",
+   "districts": [
+    "Galle",
+    "Matara"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": "Payment demands after unsolicited photos are a routine dispute; genuine stilt fishing is now rare.",
+   "suggested_geofence_radius_m": 1000,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Soci-007",
+   "category": "Social Etiquette",
+   "title": "Avoid photographing school children or school grounds",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Soci-008",
+   "category": "Social Etiquette",
+   "title": "Don't give money or sweets to begging children - it fuels school-skipping; donate to registered charities instead",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "ethics",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Soci-009",
+   "category": "Social Etiquette",
+   "title": "Losing your temper in public loses the argument - stay calm and quiet in any dispute and you will be helped",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Soci-010",
+   "category": "Social Etiquette",
+   "title": "Swimwear belongs on the beach only - cover up in shops, buses and towns even in beach resorts",
+   "districts": [
+    "Galle",
+    "Matara",
+    "Trincomalee",
+    "Ampara",
+    "Kalutara",
+    "Hambantota"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Soci-011",
+   "category": "Social Etiquette",
+   "title": "Tipping ~10% is appreciated where no service charge is added; round up tuk-tuk fares",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Soci-012",
+   "category": "Social Etiquette",
+   "title": "Bargaining is normal in markets and with tuk-tuks, not in supermarkets, pharmacies or metered taxis",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Soci-013",
+   "category": "Social Etiquette",
+   "title": "The side-to-side head wobble generally means 'yes/okay', not 'no'",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Fest-001",
+   "category": "Festivals & Events",
+   "title": "Kandy Esala Perahera (July/August): stay behind barriers, never cross the procession route, no flash at the elephants",
+   "districts": [
+    "Kandy"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "explanation": "Arrive hours early for a spot; dress modestly; watch for pickpockets in the crush.",
+   "suggested_geofence_radius_m": 1000,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Fest-002",
+   "category": "Festivals & Events",
+   "title": "Vesak week (May): expect road closures around lantern displays; dansal (free food stalls) welcome everyone - queue politely, take modest portions",
+   "districts": [
+    "Colombo",
+    "Gampaha",
+    "Kandy"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Fest-003",
+   "category": "Festivals & Events",
+   "title": "Poson Poya (June): Anuradhapura and Mihintale fill with hundreds of thousands of pilgrims - book rooms far ahead, dress white/modest",
+   "districts": [
+    "Anuradhapura"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "suggested_geofence_radius_m": 2000,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Fest-004",
+   "category": "Festivals & Events",
+   "title": "Kataragama festival (July/August): keep a respectful distance from fire-walking and kavadi rituals - never imitate or obstruct them",
+   "districts": [
+    "Hambantota",
+    "Monaragala"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "suggested_geofence_radius_m": 800,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Fest-005",
+   "category": "Festivals & Events",
+   "title": "Nallur Festival, Jaffna (Aug, ~25 days): strict kovil dress code - men enter the inner precinct bare-chested, no leather",
+   "districts": [
+    "Jaffna"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "suggested_geofence_radius_m": 500,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Fest-006",
+   "category": "Festivals & Events",
+   "title": "Sinhala & Tamil New Year (April 13-14): the whole country effectively closes for days - book transport and rooms early",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "explanation": "Trains/buses are packed before and after; many restaurants and shops shut. If invited to village games, join - it's the point.",
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Fest-007",
+   "category": "Festivals & Events",
+   "title": "Thai Pongal (January): don't step on kolam (rice-flour designs) drawn at doorways in Tamil areas",
+   "districts": [
+    "Jaffna",
+    "Batticaloa",
+    "Nuwara Eliya"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Fest-008",
+   "category": "Festivals & Events",
+   "title": "Flying drones over any perahera/procession or festival crowd is prohibited without clearance",
+   "districts": [
+    "Kandy",
+    "Colombo",
+    "Jaffna",
+    "Anuradhapura"
+   ],
+   "risk_level": "high",
+   "type": "law",
+   "penalty": "Confiscation, arrest",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Fest-009",
+   "category": "Festivals & Events",
+   "title": "Duruthu Perahera at Kelaniya Temple (January) draws huge crowds just outside Colombo - same conduct rules as Kandy's perahera",
+   "districts": [
+    "Gampaha",
+    "Colombo"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Weat-001",
+   "category": "Monsoon & Regional Weather Warnings",
+   "title": "South-west monsoon (May-September): flooding and landslides hit Ratnapura, Kalutara, Kegalle and Galle districts",
+   "districts": [
+    "Ratnapura",
+    "Kalutara",
+    "Kegalle",
+    "Galle"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": "Check NBRO landslide warnings before hill-road journeys in heavy rain; rivers rise fast.",
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Weat-002",
+   "category": "Monsoon & Regional Weather Warnings",
+   "title": "North-east monsoon (December-February): flooding affects Trincomalee, Batticaloa and Ampara lowlands",
+   "districts": [
+    "Trincomalee",
+    "Batticaloa",
+    "Ampara"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Weat-003",
+   "category": "Monsoon & Regional Weather Warnings",
+   "title": "Inter-monsoon months (October-November, March-April): violent afternoon thunderstorms island-wide - lightning kills people every year",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": "Shelter in buildings, not under trees, and get off open water and beaches when storms build.",
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Weat-004",
+   "category": "Monsoon & Regional Weather Warnings",
+   "title": "Adam's Peak climbing season is December-May only - the off-season trail is unlit, wet and effectively unsupported",
+   "districts": [
+    "Ratnapura",
+    "Nuwara Eliya"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "suggested_geofence_radius_m": 2000,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Weat-005",
+   "category": "Monsoon & Regional Weather Warnings",
+   "title": "Hill-country roads (Ella, Haputale, Nuwara Eliya) are landslide-prone after sustained rain - check road status before travelling",
+   "districts": [
+    "Badulla",
+    "Nuwara Eliya",
+    "Kandy",
+    "Ratnapura",
+    "Kegalle"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Weat-006",
+   "category": "Monsoon & Regional Weather Warnings",
+   "title": "Sinharaja and the wet-zone rainforests rain most afternoons - trek mornings, and expect leeches year-round",
+   "districts": [
+    "Ratnapura",
+    "Galle",
+    "Matara",
+    "Kalutara"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "suggested_geofence_radius_m": 2000,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Weat-007",
+   "category": "Monsoon & Regional Weather Warnings",
+   "title": "Yala National Park typically closes for several weeks around September-October for drought - plan safaris accordingly",
+   "districts": [
+    "Hambantota",
+    "Monaragala"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Weat-008",
+   "category": "Monsoon & Regional Weather Warnings",
+   "title": "Minneriya/Kaudulla 'Gathering' of elephants peaks August-September in the dry season",
+   "districts": [
+    "Polonnaruwa",
+    "Anuradhapura"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Weat-009",
+   "category": "Monsoon & Regional Weather Warnings",
+   "title": "Northern plains (Vavuniya, Mannar, Jaffna) hit dangerous heat indexes in April-May - plan around midday",
+   "districts": [
+    "Vavuniya",
+    "Mannar",
+    "Jaffna",
+    "Kilinochchi",
+    "Mullaitivu"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Weat-010",
+   "category": "Monsoon & Regional Weather Warnings",
+   "title": "Rare but real: late-year cyclonic storms can affect the north and east coasts (November-December) - heed Met Department warnings",
+   "districts": [
+    "Trincomalee",
+    "Batticaloa",
+    "Mullaitivu",
+    "Jaffna",
+    "Mannar"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Weat-011",
+   "category": "Monsoon & Regional Weather Warnings",
+   "title": "Knuckles Range weather flips fast from sun to zero-visibility mist - take a guide and warm/wet-weather layers",
+   "districts": [
+    "Matale",
+    "Kandy"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "suggested_geofence_radius_m": 2000,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Weat-012",
+   "category": "Monsoon & Regional Weather Warnings",
+   "title": "Nuwara Eliya gets ground frost on December-February mornings - the only place in Sri Lanka you'll need it, pack accordingly",
+   "districts": [
+    "Nuwara Eliya"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Scam-001",
+   "category": "Urban Safety & Scams",
+   "title": "Matale/Kandy 'spice garden' free tours end in heavy-pressure sales at inflated prices - buy spices at ordinary shops",
+   "districts": [
+    "Matale",
+    "Kandy"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Scam-002",
+   "category": "Urban Safety & Scams",
+   "title": "At the airport, use official taxi counters or ride apps - ignore freelance touts in arrivals",
+   "districts": [
+    "Gampaha",
+    "Colombo"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Scam-003",
+   "category": "Urban Safety & Scams",
+   "title": "'The temple/attraction is closed today, come to my shop instead' is a classic redirection scam - verify at the entrance yourself",
+   "districts": [
+    "Colombo",
+    "Kandy",
+    "Galle",
+    "Matale"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Scam-004",
+   "category": "Urban Safety & Scams",
+   "title": "Check guide licenses: legitimate guides carry SLTDA (tourist board) ID cards",
+   "districts": [
+    "Kandy",
+    "Matale",
+    "Anuradhapura",
+    "Polonnaruwa",
+    "Galle"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Scam-005",
+   "category": "Urban Safety & Scams",
+   "title": "Count your change: worn LKR notes of different values look similar, and short-changing tourists happens",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Scam-006",
+   "category": "Urban Safety & Scams",
+   "title": "The 'buy gems here, resell at home for profit' pitch is always a scam - tourist-grade stones have no resale margin",
+   "districts": [
+    "Ratnapura",
+    "Colombo",
+    "Galle"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "penalty": "Financial loss",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Scam-007",
+   "category": "Urban Safety & Scams",
+   "title": "'Buy milk powder for my baby' redirections to a shop (where the shop later splits the refund) is a known Colombo/Galle scam",
+   "districts": [
+    "Colombo",
+    "Galle"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Scam-008",
+   "category": "Urban Safety & Scams",
+   "title": "Persistent 'beach boys' selling tours/massages on southern beaches: a firm, polite no and walking on works",
+   "districts": [
+    "Galle",
+    "Matara",
+    "Kalutara"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Scam-009",
+   "category": "Urban Safety & Scams",
+   "title": "Use ATMs attached to banks; exchange money only at banks or licensed changers and keep the receipt",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": "Street-rate exchange offers are either counterfeit or short-count risks, and receipts are needed to reconvert rupees on exit.",
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Scam-010",
+   "category": "Urban Safety & Scams",
+   "title": "Keep bags worn on your front in Pettah market and on crowded buses",
+   "districts": [
+    "Colombo"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "suggested_geofence_radius_m": 800,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Site-001",
+   "category": "Religious Respect - Buddhist",
+   "title": "Temple of the Tooth: expect airport-style bag checks; no shorts, no sleeveless tops; busiest at puja times",
+   "districts": [
+    "Kandy"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "suggested_geofence_radius_m": 300,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Site-002",
+   "category": "Sacred City Conduct - Anuradhapura",
+   "title": "Sri Maha Bodhi: white or light clothing preferred; never climb the enclosure walls or platforms around the sacred tree",
+   "districts": [
+    "Anuradhapura"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "explanation": "This is the world's oldest documented planted tree and Sri Lanka's most heavily guarded religious site.",
+   "suggested_geofence_radius_m": 300,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Site-003",
+   "category": "Hiking & Adventure Safety",
+   "title": "Mihintale is climbed barefoot on 1,840 rock-cut steps - go at dawn or late afternoon to avoid burnt feet",
+   "districts": [
+    "Anuradhapura"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "suggested_geofence_radius_m": 800,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Site-004",
+   "category": "Archaeological Site Conduct",
+   "title": "Sigiriya: hornet colonies live on the rock face - keep silent on the upper stairways and obey wardens if a swarm warning sounds",
+   "districts": [
+    "Matale"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "explanation": "Hornet attacks have hospitalized dozens of visitors at once; noise and vibration are known triggers.",
+   "suggested_geofence_radius_m": 800,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Site-005",
+   "category": "Archaeological Site Conduct",
+   "title": "Sigiriya's Mirror Wall: touching or scratching graffiti onto the ancient plaster is an offense",
+   "districts": [
+    "Matale"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "penalty": "Fine, prosecution",
+   "suggested_geofence_radius_m": 800,
+   "explanation": null,
+   "sources": []
+  },
+  {
+   "id": "Site-006",
+   "category": "Archaeological Site Conduct",
+   "title": "Gal Vihara (Polonnaruwa): shoes AND hats off even though the Buddha statues stand in the open air",
+   "districts": [
+    "Polonnaruwa"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "suggested_geofence_radius_m": 300,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Site-007",
+   "category": "Hindu & Muslim Site Etiquette",
+   "title": "Koneswaram Kovil, Trincomalee: dress code enforced; take care near Swami Rock cliff edges",
+   "districts": [
+    "Trincomalee"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "suggested_geofence_radius_m": 400,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Site-008",
+   "category": "Hindu & Muslim Site Etiquette",
+   "title": "Colombo's Red Mosque (Jami Ul-Alfar) welcomes visitors outside prayer times - modest dress, women bring a headscarf",
+   "districts": [
+    "Colombo"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "suggested_geofence_radius_m": 200,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Site-009",
+   "category": "Religious Respect - Buddhist",
+   "title": "Kelaniya Raja Maha Vihara: an active major temple, not a tourist site - follow worshipper flow, silence inside the image house",
+   "districts": [
+    "Gampaha",
+    "Colombo"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "suggested_geofence_radius_m": 300,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Site-010",
+   "category": "Hiking & Adventure Safety",
+   "title": "Ella Rock and Little Adam's Peak: informal 'guides' may claim the path is closed to sell services - the trails are free and open",
+   "districts": [
+    "Badulla"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "suggested_geofence_radius_m": 1500,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Wild-008",
+   "category": "Wildlife Parks & Safari",
+   "title": "Udawalawe: never feed elephants over the electric fence at the park boundary road",
+   "districts": [
+    "Ratnapura",
+    "Monaragala",
+    "Hambantota"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "explanation": "Fence-line feeding created dangerous begging behaviour; authorities prohibit it and remove roadside fruit stalls.",
+   "penalty": "Fine",
+   "suggested_geofence_radius_m": 1000,
+   "sources": []
+  },
+  {
+   "id": "Wild-009",
+   "category": "Wildlife Parks & Safari",
+   "title": "Sinharaja Forest Reserve requires a licensed guide - entry without one is not permitted",
+   "districts": [
+    "Ratnapura",
+    "Galle",
+    "Matara"
+   ],
+   "risk_level": "medium",
+   "type": "law",
+   "explanation": "UNESCO World Heritage rainforest; guides are assigned at the ticket office.",
+   "penalty": "Refusal of entry",
+   "suggested_geofence_radius_m": 1500,
+   "sources": []
+  },
+  {
+   "id": "Wild-010",
+   "category": "Wildlife Parks & Safari",
+   "title": "Do not pick plants, orchids or seeds in any reserve - endemic flora is protected",
+   "districts": [
+    "Ratnapura",
+    "Nuwara Eliya",
+    "Matale",
+    "Kandy"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "penalty": "Fine",
+   "explanation": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Wild-011",
+   "category": "Wildlife Parks & Safari",
+   "title": "Gal Oya boat safaris: wear the life jacket; keep hands inside near swimming elephants",
+   "districts": [
+    "Ampara",
+    "Monaragala"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "suggested_geofence_radius_m": 1500,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Wild-012",
+   "category": "Wildlife Parks & Safari",
+   "title": "Bundala and Kumana: bird-nesting areas require silence and distance - no drones, no playback calls",
+   "districts": [
+    "Hambantota",
+    "Ampara"
+   ],
+   "risk_level": "low",
+   "type": "ethics",
+   "suggested_geofence_radius_m": 1000,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Wild-013",
+   "category": "Wildlife Parks & Safari",
+   "title": "When Minneriya floods, the elephant gathering shifts to Kaudulla/Hurulu - your jeep operator choosing the park is normal",
+   "districts": [
+    "Polonnaruwa",
+    "Anuradhapura"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Envi-006",
+   "category": "Environment & Plastic",
+   "title": "Mangrove boat tours (Madu Ganga, Kalpitiya): don't touch monitor lizards/birds and never let guides feed wildlife for photos",
+   "districts": [
+    "Galle",
+    "Kalutara",
+    "Puttalam"
+   ],
+   "risk_level": "low",
+   "type": "ethics",
+   "suggested_geofence_radius_m": 1000,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Envi-007",
+   "category": "Environment & Plastic",
+   "title": "Beach bonfires need the property owner's/local council's okay - embers and leftover glass injure morning walkers",
+   "districts": [
+    "Galle",
+    "Matara",
+    "Trincomalee",
+    "Ampara"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Envi-008",
+   "category": "Environment & Plastic",
+   "title": "Take used batteries and broken electronics home - island e-waste handling is limited",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "ethics",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Envi-009",
+   "category": "Environment & Plastic",
+   "title": "Carry a refillable bottle - refill stations and boiled-water refills at guesthouses beat buying plastic bottles daily",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "ethics",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Nort-005",
+   "category": "Northern Province - Cultural & Political Sensitivity",
+   "title": "Delft Island's wild ponies are protected - don't feed, chase or try to ride them",
+   "districts": [
+    "Jaffna"
+   ],
+   "risk_level": "low",
+   "type": "ethics",
+   "suggested_geofence_radius_m": 3000,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Nort-006",
+   "category": "Northern Province - Cultural & Political Sensitivity",
+   "title": "Ferries to Delft/Nainativu: take morning sailings and wear the life jacket - afternoon seas get rough",
+   "districts": [
+    "Jaffna"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Nort-007",
+   "category": "Northern Province - Cultural & Political Sensitivity",
+   "title": "Nainativu hosts a major kovil AND the Nagadeepa Buddhist temple - dress for both, as pilgrims visit the two together",
+   "districts": [
+    "Jaffna"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Nort-008",
+   "category": "Northern Province - Cultural & Political Sensitivity",
+   "title": "No posed/smiling selfies at war memorial and mass-grave sites - treat them like any war cemetery",
+   "districts": [
+    "Mullaitivu",
+    "Kilinochchi",
+    "Jaffna"
+   ],
+   "risk_level": "medium",
+   "type": "custom",
+   "suggested_geofence_radius_m": 500,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Colo-001",
+   "category": "Public Conduct",
+   "title": "Avoid political demonstrations around Galle Face, Fort and Lipton Circus - gatherings can turn confrontational and police respond hard",
+   "districts": [
+    "Colombo"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": "Foreigners photographing or joining protests attract police attention.",
+   "suggested_geofence_radius_m": 1000,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Colo-002",
+   "category": "Public Conduct",
+   "title": "Casinos are legal (foreigners welcome) - bring your passport for entry",
+   "districts": [
+    "Colombo"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Colo-003",
+   "category": "Urban Safety & Scams",
+   "title": "Galle Face Green at sunset is safe and family-filled - normal crowd awareness for phones/wallets applies",
+   "districts": [
+    "Colombo"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "suggested_geofence_radius_m": 800,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Reli-011",
+   "category": "Religious Respect - Buddhist",
+   "title": "Sit lower than a monk when talking with one; don't hand things directly to a monk if you are a woman - place items down instead",
+   "districts": [
+    "ALL"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Reli-012",
+   "category": "Religious Respect - Buddhist",
+   "title": "Walking meditation paths and sand courtyards at forest monasteries are raked ritual spaces - walk around, not across",
+   "districts": [
+    "Anuradhapura",
+    "Kurunegala",
+    "Matale"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Dres-006",
+   "category": "Dress Code - Religious Sites",
+   "title": "Socks are allowed where shoes are not - bring a pair for hot stone courtyards",
+   "districts": [
+    "Anuradhapura",
+    "Polonnaruwa",
+    "Kandy",
+    "Matale"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Kuru-001",
+   "category": "Religious Respect - Buddhist",
+   "title": "Ridi Viharaya and Athugala (Elephant Rock) Kurunegala: standard temple dress and shoe rules apply; the rock climb is hot after 9am",
+   "districts": [
+    "Kurunegala"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "suggested_geofence_radius_m": 800,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Kegl-001",
+   "category": "Hiking & Adventure Safety",
+   "title": "White-water rafting at Kitulgala: use operators with helmets, jackets and certified guides - water levels swing fast after rain",
+   "districts": [
+    "Kegalle"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "suggested_geofence_radius_m": 2000,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Gamp-001",
+   "category": "Public Conduct",
+   "title": "Negombo beach and lagoon: fishing fleet areas are workplaces - don't handle catch/gear or block boat launches for photos",
+   "districts": [
+    "Gampaha"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "suggested_geofence_radius_m": 1000,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Mata-001",
+   "category": "Public Conduct",
+   "title": "Polhena/Mirissa snorkelling: don't stand on the reef or chase turtles - give them 3m and never block their surfacing path",
+   "districts": [
+    "Matara"
+   ],
+   "risk_level": "medium",
+   "type": "ethics",
+   "suggested_geofence_radius_m": 800,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Batt-001",
+   "category": "Public Conduct",
+   "title": "Batticaloa lagoon 'singing fish' boat trips: agree prices ahead; life jackets for night trips",
+   "districts": [
+    "Batticaloa"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Mann-001",
+   "category": "Northern Province - Cultural & Political Sensitivity",
+   "title": "Mannar's baobab trees and donkeys are local heritage - don't carve initials or feed the donkeys junk food",
+   "districts": [
+    "Mannar"
+   ],
+   "risk_level": "low",
+   "type": "ethics",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Vavu-001",
+   "category": "Photography & Security",
+   "title": "Vavuniya remains a garrison town - keep cameras away from the camps along the A9 road",
+   "districts": [
+    "Vavuniya"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Kili-001",
+   "category": "Northern Province - Cultural & Political Sensitivity",
+   "title": "War relics displayed along the A9 (tank, water tower) may be photographed; active military areas beside them may not - when unsure, ask",
+   "districts": [
+    "Kilinochchi"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Trin-001",
+   "category": "Public Conduct",
+   "title": "Hot springs at Kanniya: bathing is bucket-style over the wells, modest swimwear, no soap in the wells",
+   "districts": [
+    "Trincomalee"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "suggested_geofence_radius_m": 400,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Anur-001",
+   "category": "Sacred City Conduct - Anuradhapura",
+   "title": "Ticket checks are separate per site cluster - keep your Sacred City ticket on you all day",
+   "districts": [
+    "Anuradhapura"
+   ],
+   "risk_level": "low",
+   "type": "law",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Polo-001",
+   "category": "Archaeological Site Conduct",
+   "title": "Cycling is the standard way around Polonnaruwa's ruins - dismount and park at shrine platforms, don't ride across them",
+   "districts": [
+    "Polonnaruwa"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "suggested_geofence_radius_m": 800,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Badu-001",
+   "category": "Hiking & Adventure Safety",
+   "title": "Ravana Falls: rocks above the pools are slick and people have fallen - swim only in the lower pools, never climb the falls",
+   "districts": [
+    "Badulla"
+   ],
+   "risk_level": "high",
+   "type": "safety",
+   "penalty": "Injury/fatality risk",
+   "suggested_geofence_radius_m": 500,
+   "explanation": null,
+   "sources": []
+  },
+  {
+   "id": "Nuwa-001",
+   "category": "Hiking & Adventure Safety",
+   "title": "Gregory Lake and Moon Plains: boating/quad operators vary in standards - life jackets and helmets are yours to insist on",
+   "districts": [
+    "Nuwara Eliya"
+   ],
+   "risk_level": "low",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Hamb-001",
+   "category": "Public Conduct",
+   "title": "Hambantota's salt pans and Bundala boundary roads are working/protected areas - stay on public roads for flamingo photos",
+   "districts": [
+    "Hambantota"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Ampa-001",
+   "category": "Public Conduct",
+   "title": "Arugam Bay is relaxed but the villages behind it are conservative Muslim communities - cover up away from the beach strip",
+   "districts": [
+    "Ampara"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Kalu-001",
+   "category": "Religious Respect - Buddhist",
+   "title": "Kalutara Bodhiya: drivers honk/stop to donate at the roadside till - if driving, don't block the flow; visitors welcome, shoes off on the platform",
+   "districts": [
+    "Kalutara"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "suggested_geofence_radius_m": 300,
+   "explanation": null,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Gall-001",
+   "category": "Public Conduct",
+   "title": "Galle Fort ramparts: no barriers on the walls - watch children near edges, and don't jump into the sea with the local divers",
+   "districts": [
+    "Galle"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": "The famous rampart jumpers know the tides and rocks; tourists imitating them have been seriously hurt.",
+   "suggested_geofence_radius_m": 500,
+   "penalty": null,
+   "sources": []
+  },
+  {
+   "id": "Jaff-001",
+   "category": "Public Conduct",
+   "title": "Jaffna is more conservative than the south - shorts are fine for tourists but beachwear belongs only at the beach, and PDA draws stares",
+   "districts": [
+    "Jaffna"
+   ],
+   "risk_level": "low",
+   "type": "custom",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  },
+  {
+   "id": "Putt-001",
+   "category": "Public Conduct",
+   "title": "Wilpattu buffer villages: leopard sightings on roads at night are real - don't walk unlit rural roads after dark",
+   "districts": [
+    "Puttalam",
+    "Anuradhapura"
+   ],
+   "risk_level": "medium",
+   "type": "safety",
+   "explanation": null,
+   "penalty": null,
+   "suggested_geofence_radius_m": null,
+   "sources": []
+  }
+ ]
+}
