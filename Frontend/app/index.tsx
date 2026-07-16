@@ -4,7 +4,6 @@ import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { TodayHero } from '../components/trip/TodayHero';
-import { WindowCard } from '../components/trip/WindowCard';
 import { HourStrip } from '../components/trip/HourStrip';
 import { DistrictSheet } from '../components/trip/DistrictSheet';
 import { DistrictMap, MapPin } from '../components/trip/DistrictMap';
@@ -12,7 +11,7 @@ import { Next24Strip, Next24Summary } from '../components/trip/Next24';
 import { Banner, SectionHeader } from '../components/trip/Ui';
 import { useTrip } from '../lib/store';
 import { districtByKey } from '../constants/districts';
-import { bestWindow, gradeDay, resolveDistrict, zonesNear } from '../lib/engine';
+import { bestWindow, resolveDistrict, zonesNear } from '../lib/engine';
 import { profileByKey } from '../constants/profiles';
 import { Palette, Radius, Space, Type } from '../constants/trip-theme';
 
@@ -42,7 +41,6 @@ export default function TodayScreen() {
 
   const district = districtByKey(districtKey)!;
   const profile = profileByKey(profileKey);
-  const grade = gradeDay(prediction, profileKey);
   const window = bestWindow(prediction, profile);
   const nowHour = new Date().getHours();
   const activeHour = selectedHour ?? nowHour;
@@ -61,7 +59,10 @@ export default function TodayScreen() {
   return (
     <View style={styles.root}>
       <StatusBar style="light" />
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.content, locationChosen && styles.contentWithCta]}
+      >
         <TodayHero
           district={district}
           now={now}
@@ -70,12 +71,20 @@ export default function TodayScreen() {
           onPressDistrict={() => setPicking(true)}
         />
 
-        <WindowCard
-          prediction={prediction}
-          window={window}
-          grade={grade}
-          profile={profile}
-        />
+        {/* Hour-by-hour clock for the selected district, right under the hero. */}
+        <View style={styles.section}>
+          <SectionHeader
+            title={`Today by the clock · ${district.name}`}
+            action={selectedHour !== null ? 'Reset to now' : undefined}
+            onPress={() => setSelectedHour(null)}
+          />
+          <HourStrip
+            hours={prediction.hours}
+            window={window}
+            selectedHour={activeHour}
+            onSelectHour={setSelectedHour}
+          />
+        </View>
 
         <View style={styles.banners}>
           {offline ? (
@@ -114,50 +123,37 @@ export default function TodayScreen() {
           </Pressable>
         </View>
 
-        {locationChosen ? (
+        {forecast24 ? (
           <View style={styles.section}>
-            <Pressable
-              style={[styles.forecastCta, forecast24Loading && styles.forecastCtaBusy]}
-              onPress={runForecast24}
-              disabled={forecast24Loading}
-            >
-              {forecast24Loading ? (
-                <>
-                  <ActivityIndicator size="small" color={Palette.onDark} />
-                  <Text style={styles.forecastCtaText}>Running the model…</Text>
-                </>
-              ) : (
-                <>
-                  <Ionicons name="cloud-download-outline" size={17} color={Palette.onDark} />
-                  <Text style={styles.forecastCtaText}>Next 24 Hours Weather</Text>
-                </>
-              )}
-            </Pressable>
-
-            {forecast24 ? (
-              <View style={styles.results}>
-                <SectionHeader title={`Next 24 hours in ${district.name}`} />
-                <Next24Strip forecast={forecast24} />
-                <Next24Summary forecast={forecast24} />
-              </View>
-            ) : null}
+            <SectionHeader title={`Next 24 hours in ${district.name}`} />
+            <Next24Strip forecast={forecast24} />
+            <Next24Summary forecast={forecast24} />
           </View>
         ) : null}
-
-        <View style={styles.section}>
-          <SectionHeader
-            title="Today by the clock"
-            action={selectedHour !== null ? 'Reset to now' : undefined}
-            onPress={() => setSelectedHour(null)}
-          />
-          <HourStrip
-            hours={prediction.hours}
-            window={window}
-            selectedHour={activeHour}
-            onSelectHour={setSelectedHour}
-          />
-        </View>
       </ScrollView>
+
+      {/* Predict button pinned above the tab bar once a location is chosen. */}
+      {locationChosen ? (
+        <View style={styles.ctaBar}>
+          <Pressable
+            style={[styles.forecastCta, forecast24Loading && styles.forecastCtaBusy]}
+            onPress={runForecast24}
+            disabled={forecast24Loading}
+          >
+            {forecast24Loading ? (
+              <>
+                <ActivityIndicator size="small" color={Palette.onDark} />
+                <Text style={styles.forecastCtaText}>Running the model…</Text>
+              </>
+            ) : (
+              <>
+                <Ionicons name="cloud-download-outline" size={17} color={Palette.onDark} />
+                <Text style={styles.forecastCtaText}>Next 24 Hours Weather</Text>
+              </>
+            )}
+          </Pressable>
+        </View>
+      ) : null}
 
       <DistrictSheet
         visible={picking}
@@ -180,6 +176,10 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingBottom: Space.section,
+  },
+  contentWithCta: {
+    // Keep the last section reachable above the pinned predict button.
+    paddingBottom: Space.section + 64,
   },
   banners: {
     paddingHorizontal: Space.lg,
@@ -215,6 +215,18 @@ const styles = StyleSheet.create({
     color: Palette.text,
     marginTop: 1,
   },
+  ctaBar: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: Space.lg,
+    paddingTop: Space.sm,
+    paddingBottom: Space.md,
+    backgroundColor: Palette.canvas,
+    borderTopWidth: 1,
+    borderTopColor: Palette.borderSoft,
+  },
   forecastCta: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -230,8 +242,5 @@ const styles = StyleSheet.create({
   forecastCtaText: {
     ...Type.label,
     color: Palette.onDark,
-  },
-  results: {
-    marginTop: Space.lg,
   },
 });

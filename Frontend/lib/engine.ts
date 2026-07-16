@@ -18,11 +18,24 @@ export type Prediction = {
 };
 
 export function resolveDistrict(lat: number, lng: number): District | null {
-  const hit = districts.find(
+  // District bounding boxes overlap near borders (e.g. Ella sits inside both
+  // the Nuwara Eliya and Badulla boxes). Among the boxes containing the
+  // point, pick the district whose centre is closest, not the first match.
+  const hits = districts.filter(
     (d) => lat >= d.bbox[0] && lat <= d.bbox[2] && lng >= d.bbox[1] && lng <= d.bbox[3],
   );
-  if (hit) {
-    return hit;
+  if (hits.length === 1) return hits[0];
+  if (hits.length > 1) {
+    let best = hits[0];
+    let bestDistance = Infinity;
+    for (const d of hits) {
+      const distance = haversineKm(lat, lng, d.lat, d.lng);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        best = d;
+      }
+    }
+    return best;
   }
   return nearestDistrict(lat, lng);
 }

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trip Smart — Location Picker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f6f9; }
+        .picker-container { display: flex; gap: 20px; max-width: 1000px; margin: 0 auto; }
+        #map { height: 500px; width: 65%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .controls { width: 35%; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        input, button { width: 100%; padding: 10px; margin: 8px 0; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        .coordinate-display { background: #eef2f7; padding: 10px; border-radius: 4px; margin-top: 15px; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+<h2 style="text-align: center;">Select Your Travel Destination</h2>
+
+<div class="picker-container">
+    <div id="map"></div>
+
+    <div class="controls">
+        <h3>Search Destination</h3>
+        <input type="text" id="addressInput" placeholder="e.g., Kandy, Sri Lanka">
+        <button onclick="searchAddress()">Find on Map</button>
+
+        <div class="coordinate-display">
+            <strong>Selected Coordinates:</strong>
+            <p>Latitude: <span id="latDisplay">6.9271</span></p>
+            <p>Longitude: <span id="lonDisplay">79.8612</span></p>
+        </div>
+        <button style="background: #28a745;" onclick="confirmLocation()">Confirm Selection</button>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Initialize map centered on Sri Lanka (Colombo coordinates)
+    const defaultLat = 6.9271;
+    const defaultLon = 79.8612;
+    
+    const map = L.map('map').setView([defaultLat, defaultLon], 8);
+
+    // Load and render free OpenStreetMap Tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Create an initial draggable marker
+    let marker = L.marker([defaultLat, defaultLon], { draggable: true }).addTo(map);
+
+    // Update coordinates when marker is dragged
+    marker.on('dragend', function (e) {
+        const position = marker.getLatLng();
+        updateDisplay(position.lat, position.lng);
+    });
+
+    // Move marker and update coordinates when user clicks anywhere on the map
+    map.on('click', function (e) {
+        marker.setLatLng(e.latlng);
+        updateDisplay(e.latlng.lat, e.latlng.lng);
+    });
+
+    function updateDisplay(lat, lon) {
+        document.getElementById('latDisplay').innerText = lat.toFixed(6);
+        document.getElementById('lonDisplay').innerText = lon.toFixed(6);
+    }
+
+    // 3. Free Geocoding Search using OpenStreetMap's Nominatim Engine
+    async function searchAddress() {
+        const query = document.getElementById('addressInput').value;
+        if (!query) return;
+
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+        
+        try {
+            const response = await fetch(url, { headers: { 'User-Agent': 'TripSmartApp' } });
+            const data = await response.json();
+            
+            if (data && data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lon = parseFloat(data[0].lon);
+                
+                // Move map and marker to searched location
+                map.setView([lat, lon], 12);
+                marker.setLatLng([lat, lon]);
+                updateDisplay(lat, lon);
+            } else {
+                alert("Location not found. Try adding ', Sri Lanka' to your search.");
+            }
+        } catch (error) {
+            console.error("Geocoding error:", error);
+        }
+    }
+
+    function confirmLocation() {
+        const selectedLat = document.getElementById('latDisplay').innerText;
+        const selectedLon = document.getElementById('lonDisplay').innerText;
+        alert(`Location saved!\nLat: ${selectedLat}\nLon: ${selectedLon}\nReady to pass to backend forecasting payload.`);
+    }
+</script>
+</body>
+</html>
