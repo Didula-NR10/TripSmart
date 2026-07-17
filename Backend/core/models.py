@@ -10,8 +10,10 @@ from __future__ import annotations
 import uuid
 
 from sqlalchemy import (
+    Boolean,
     ForeignKey,
     Index,
+    Integer,
     Numeric,
     Text,
     UniqueConstraint,
@@ -101,6 +103,100 @@ class GroundReport(Base):
     location: Mapped[str] = mapped_column(Text, nullable=False)   # free text: "Ella Rock trail"
     title: Mapped[str] = mapped_column(Text, nullable=False)      # the main purpose, one line
     body: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
+    author: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
+    created_at = mapped_column(
+        TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
+    )
+
+
+class User(Base):
+    """A registered traveller. Passwords are stored only as PBKDF2 hashes;
+    the account activates once the emailed OTP is confirmed."""
+
+    __tablename__ = "users"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    full_name: Mapped[str] = mapped_column(Text, nullable=False)
+    username: Mapped[str] = mapped_column(Text, unique=True, nullable=False)  # stored lowercase
+    email: Mapped[str] = mapped_column(Text, unique=True, nullable=False)     # stored lowercase
+    country: Mapped[str] = mapped_column(Text, nullable=False)
+    password_hash: Mapped[str] = mapped_column(Text, nullable=False)
+    avatar_url: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
+    email_verified: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
+    created_at = mapped_column(
+        TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
+    )
+    updated_at = mapped_column(
+        TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
+    )
+    last_login_at = mapped_column(TIMESTAMP(timezone=True), nullable=True)
+
+
+class EmailOtp(Base):
+    """A one-time code emailed for signup verification or a password reset.
+    Codes expire quickly, allow limited attempts, and are deleted on use."""
+
+    __tablename__ = "email_otps"
+    __table_args__ = (
+        Index("email_otps_email_purpose_idx", "email", "purpose"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    email: Mapped[str] = mapped_column(Text, nullable=False)
+    code: Mapped[str] = mapped_column(Text, nullable=False)          # 6 digits
+    purpose: Mapped[str] = mapped_column(Text, nullable=False)       # 'signup' | 'reset'
+    attempts: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    expires_at = mapped_column(TIMESTAMP(timezone=True), nullable=False)
+    created_at = mapped_column(
+        TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
+    )
+
+
+class AuthToken(Base):
+    """An opaque bearer session token. Deleting the row is the logout."""
+
+    __tablename__ = "auth_tokens"
+    __table_args__ = (
+        Index("auth_tokens_user_idx", "user_id"),
+    )
+
+    token: Mapped[str] = mapped_column(Text, primary_key=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    created_at = mapped_column(
+        TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
+    )
+    expires_at = mapped_column(TIMESTAMP(timezone=True), nullable=False)
+
+
+class TravelNote(Base):
+    """A private notebook entry: where the traveller went and what they saw.
+    Notes belong to their author alone and live until deleted."""
+
+    __tablename__ = "travel_notes"
+    __table_args__ = (
+        Index("travel_notes_user_created_idx", "user_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    place: Mapped[str] = mapped_column(Text, nullable=False)   # where they went
+    body: Mapped[str] = mapped_column(Text, nullable=False)    # what they saw
     created_at = mapped_column(
         TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
     )

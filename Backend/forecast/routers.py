@@ -11,6 +11,7 @@ from forecast.schemas import (
     ForecastResponse,
     HealthResponse,
     PredictRequest,
+    WeeklyOutlookResponse,
 )
 from forecast.services import ForecastService
 
@@ -39,6 +40,18 @@ async def current_conditions(district: str):
     day/night and a condition label. Powers the "go now" district comparison.
     """
     return await service.current_conditions(district)
+
+
+@router.get("/weekly/{district}", response_model=WeeklyOutlookResponse)
+async def weekly_outlook(district: str):
+    """7-day planner outlook — every day is a GRU prediction.
+
+    Day 1 is the standard single-shot forecast from 168 hours of observations.
+    Later days are autoregressive: the model's own predictions extend its input
+    window, with unpredicted channels (cloud, wind, daylight) filled from the
+    past week's same-hour pattern. Confidence is labeled and decays with distance.
+    """
+    return await service.weekly_outlook(district)
 
 
 @router.get("/{district}", response_model=ForecastResponse)

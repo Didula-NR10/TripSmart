@@ -10,6 +10,7 @@ import { DistrictMap, MapPin } from '../components/trip/DistrictMap';
 import { Next24Strip, Next24Summary } from '../components/trip/Next24';
 import { Banner, SectionHeader } from '../components/trip/Ui';
 import { useTrip } from '../lib/store';
+import { useAuthGate } from '../lib/auth';
 import { districtByKey } from '../constants/districts';
 import { bestWindow, resolveDistrict, zonesNear } from '../lib/engine';
 import { profileByKey } from '../constants/profiles';
@@ -33,6 +34,7 @@ export default function TodayScreen() {
     forecast24Loading,
     runForecast24,
   } = useTrip();
+  const gate = useAuthGate();
   const [picking, setPicking] = useState(false);
   const [selectedHour, setSelectedHour] = useState<number | null>(null);
   const [pinAdvisories, setPinAdvisories] = useState(0);
@@ -137,7 +139,10 @@ export default function TodayScreen() {
         <View style={styles.ctaBar}>
           <Pressable
             style={[styles.forecastCta, forecast24Loading && styles.forecastCtaBusy]}
-            onPress={runForecast24}
+            onPress={() => {
+              if (!gate()) return; // predictions need an account
+              runForecast24();
+            }}
             disabled={forecast24Loading}
           >
             {forecast24Loading ? (

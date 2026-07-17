@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { DistrictSheet } from '../components/trip/DistrictSheet';
 import { Empty, ScreenTitle } from '../components/trip/Ui';
 import { useTrip } from '../lib/store';
+import { useAuthGate } from '../lib/auth';
 import { districtByKey } from '../constants/districts';
 import { GroundReport, fetchGroundReports, postGroundReport } from '../lib/api';
 import { Palette, Radius, Space, Type } from '../constants/trip-theme';
@@ -29,6 +31,7 @@ const postedAt = (at: number) =>
 
 export default function ReportsScreen() {
   const { districtKey } = useTrip();
+  const gate = useAuthGate();
 
   const [reports, setReports] = useState<GroundReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,6 +76,7 @@ export default function ReportsScreen() {
 
   const submit = async () => {
     if (!location.trim() || !title.trim()) return;
+    if (!gate()) return; // token may have expired since the form opened
     setPosting(true);
     try {
       await postGroundReport({
@@ -171,6 +175,7 @@ export default function ReportsScreen() {
           <Pressable
             style={styles.trigger}
             onPress={() => {
+              if (!gate()) return; // posting reports needs an account
               setFormDistrict(districtKey);
               setComposing(true);
             }}
@@ -239,6 +244,15 @@ export default function ReportsScreen() {
           reports.map((r) => (
             <View key={r.id} style={styles.log}>
               <View style={styles.logHead}>
+                <View style={styles.logAvatar}>
+                  {r.authorAvatar ? (
+                    <Image source={{ uri: r.authorAvatar }} style={styles.logAvatarImg} />
+                  ) : (
+                    <Text style={styles.logAvatarText}>
+                      {(r.author || '?').slice(0, 1).toUpperCase()}
+                    </Text>
+                  )}
+                </View>
                 <Text style={styles.logTitle}>{r.title}</Text>
                 <Text style={styles.logAgo}>{ago(r.at)}</Text>
               </View>
@@ -247,6 +261,7 @@ export default function ReportsScreen() {
                 <Ionicons name="location-outline" size={11} color={Palette.textDim} />
                 <Text style={styles.logDistrict}>
                   {r.location} · {r.districtName}
+                  {r.author ? ` · by @${r.author}` : ''}
                 </Text>
                 <View style={styles.logPosted}>
                   <Ionicons name="time-outline" size={11} color={Palette.textDim} />
@@ -424,9 +439,28 @@ const styles = StyleSheet.create({
   },
   logHead: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
     gap: Space.sm,
+  },
+  logAvatar: {
+    width: 26,
+    height: 26,
+    borderRadius: Radius.pill,
+    backgroundColor: Palette.primaryTint,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  logAvatarImg: {
+    width: 26,
+    height: 26,
+    borderRadius: Radius.pill,
+  },
+  logAvatarText: {
+    ...Type.label,
+    fontSize: 11,
+    color: Palette.primaryDeep,
   },
   logTitle: {
     ...Type.label,

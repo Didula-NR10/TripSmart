@@ -75,6 +75,17 @@ def init_db() -> None:
         for table in Base.metadata.tables:
             conn.execute(text(f'ALTER TABLE public."{table}" ENABLE ROW LEVEL SECURITY'))
 
+        # create_all never alters existing tables; columns added to the models
+        # after a table already exists are migrated explicitly here.
+        conn.execute(text(
+            "ALTER TABLE public.ground_reports "
+            "ADD COLUMN IF NOT EXISTS author TEXT NOT NULL DEFAULT ''"
+        ))
+        conn.execute(text(
+            "ALTER TABLE public.users "
+            "ADD COLUMN IF NOT EXISTS avatar_url TEXT NOT NULL DEFAULT ''"
+        ))
+
     # Seed the 25 districts the model serves. Imported here, not at module
     # top, to keep core free of forecast-package imports at load time.
     from forecast.utils import DISTRICT_COORDS

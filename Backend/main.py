@@ -11,9 +11,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from auth.routers import router as auth_router
 from core.config import settings
 from core.database import init_db
 from forecast.routers import router as forecast_router
+from notes.routers import router as notes_router
 from reports.routers import router as reports_router
 
 logging.basicConfig(
@@ -59,7 +61,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router)
 app.include_router(forecast_router)
+app.include_router(notes_router)
 app.include_router(reports_router)
 # app.include_router(profile_router)
 # app.include_router(almanac_router)

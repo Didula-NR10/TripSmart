@@ -3,8 +3,10 @@ reports.routers — HTTP surface for ground reports. Thin: validate, delegate.
 """
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from auth.deps import get_current_user
+from core.models import User
 from reports.repositories import ReportRepository
 from reports.schemas import ReportCreate, ReportList, ReportOut
 
@@ -30,14 +32,15 @@ def list_reports(
 
 
 @router.post("", response_model=ReportOut, status_code=status.HTTP_201_CREATED)
-def create_report(payload: ReportCreate):
-    """Publish a ground report. It stays visible for 24 hours, then expires."""
+def create_report(payload: ReportCreate, user: User = Depends(get_current_user)):
+    """Publish a ground report — login required. Visible for 24 hours, then expires."""
     try:
         created = repo.create(
             district=payload.district.strip(),
             location=payload.location,
             title=payload.title,
             body=payload.body,
+            author=user.username,
         )
     except RuntimeError as e:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))

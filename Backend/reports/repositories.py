@@ -14,7 +14,7 @@ from typing import List, Optional
 from sqlalchemy import or_
 
 from core.database import db_available, get_session
-from core.models import District, GroundReport
+from core.models import District, GroundReport, User
 
 log = logging.getLogger("trip_smart.reports.repo")
 
@@ -32,7 +32,9 @@ class ReportRepository:
     def _district_by_name(self, session, name: str) -> Optional[District]:
         return session.query(District).filter(District.name == name).first()
 
-    def create(self, district: str, location: str, title: str, body: str) -> Optional[dict]:
+    def create(
+        self, district: str, location: str, title: str, body: str, author: str = ""
+    ) -> Optional[dict]:
         """Returns the stored report, or None when the district is unknown."""
         if not db_available():
             raise RuntimeError("Database is not configured.")
@@ -42,7 +44,7 @@ class ReportRepository:
             if d is None:
                 return None
             report = GroundReport(
-                district_id=d.id, location=location, title=title, body=body
+                district_id=d.id, location=location, title=title, body=body, author=author
             )
             session.add(report)
             session.flush()          # server defaults (id, created_at) come back
@@ -74,15 +76,29 @@ class ReportRepository:
                     )
                 )
             rows = query.order_by(GroundReport.created_at.desc()).limit(100).all()
-            return [self._to_dict(r, name) for r, name in rows]
+
+            # One lookup for every reporter's profile picture.
+            authors = {r.author for r, _ in rows if r.author}
+            avatars: dict = {}
+            if authors:
+                avatars = dict(
+                    session.query(User.username, User.avatar_url)
+                    .filter(User.username.in_(authors))
+                    .all()
+                )
+            return [
+                self._to_dict(r, name, avatars.get(r.author, "")) for r, name in rows
+            ]
 
     @staticmethod
-    def _to_dict(r: GroundReport, district_name: str) -> dict:
+    def _to_dict(r: GroundReport, district_name: str, author_avatar: str = "") -> dict:
         return {
             "id": str(r.id),
             "district": district_name,
             "location": r.location,
             "title": r.title,
             "body": r.body or "",
+            "author": r.author or "",
+            "author_avatar": author_avatar or "",
             "created_at": r.created_at.isoformat(),
         }

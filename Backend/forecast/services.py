@@ -166,6 +166,120 @@ class ForecastService:
         forecast_repo.save(district, origin, result)
         return result
 
+    async def weekly_outlook(self, district: str) -> dict:
+        """The climate-disruption planner: a 7-day outlook where EVERY day is a
+        GRU prediction, not a static climatology row.
+
+        Hours 1-24 are the standard forecast — the model reading 168 hours of
+        real observations. Beyond that the rollout is autoregressive: each
+        day's predicted temperature, rain and humidity are appended to the
+        input window and the model runs again on the shifted window. The three
+        channels the model predicts come from the model itself; the channels
+        it does not predict (cloud cover, wind, gusts, daylight) are filled
+        with the past observed week's value at the same clock hour — the
+        recent diurnal pattern of that exact district.
+
+        Skill decays with distance: day 1 carries real-data momentum, later
+        days increasingly reflect the model's own assumptions. Each day is
+        therefore labeled with its source and an honest confidence tier
+        instead of pretending day 6 is as trustworthy as tomorrow.
+        """
+        if district not in DISTRICT_COORDS:
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND,
+                detail=f"Unknown district '{district}'. See GET /districts.",
+            )
+        if not ModelRepository.is_ready():
+            raise HTTPException(
+                status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Forecast model artifacts are missing on the server.",
+            )
+
+        try:
+            frame = await weather_repo.fetch_context_window(district)
+        except RuntimeError as e:
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail=str(e))
+
+        observation_repo.save_window(district, frame)
+
+        # The past week's diurnal pattern, keyed by clock hour, for the
+        # channels the GRU cannot predict about its own future.
+        pattern = frame.groupby("Hour")[
+            ["CloudCover_%", "WindSpeed_kmh", "WindGusts_kmh", "DaylightScore"]
+        ].mean()
+
+        origin = datetime.now(timezone.utc)
+        work = frame.copy()
+        predicted_hours: List[Dict[str, Any]] = []
+
+        for day in range(7):
+            window = work.tail(settings.INPUT_WINDOW).reset_index(drop=True)
+            real = self._run_model(window)
+            last_dt = work["datetime"].iloc[-1]
+
+            new_rows: List[Dict[str, Any]] = []
+            for i in range(settings.TARGET_HORIZON):
+                temp, rain, humidity = clamp_physical(real[i][0], real[i][1], real[i][2])
+                valid = last_dt + pd.Timedelta(hours=i + 1)
+                hour = int(valid.hour)
+
+                predicted_hours.append({
+                    "forecast_hour": day * settings.TARGET_HORIZON + i + 1,
+                    "valid_time": valid.strftime("%Y-%m-%d %H:00"),
+                    "temperature_c": temp,
+                    "precipitation_mm": rain,
+                    "humidity_pct": humidity,
+                })
+                new_rows.append({
+                    "datetime": valid,
+                    "Temperature_C": temp,
+                    "Precipitation_mm": rain,
+                    "Humidity_%": humidity,
+                    "CloudCover_%": float(pattern.loc[hour, "CloudCover_%"]),
+                    "WindSpeed_kmh": float(pattern.loc[hour, "WindSpeed_kmh"]),
+                    "WindGusts_kmh": float(pattern.loc[hour, "WindGusts_kmh"]),
+                    "DaylightScore": float(pattern.loc[hour, "DaylightScore"]),
+                    "Hour": hour,
+                    "Month": int(valid.month),
+                })
+
+            work = pd.concat([work, pd.DataFrame(new_rows)], ignore_index=True)
+
+        # Roll the 168 predicted hours up into calendar days (Colombo dates).
+        # Partial edge days (< 12 hours) can't carry a fair daily verdict.
+        by_date: Dict[str, List[Dict[str, Any]]] = {}
+        for h in predicted_hours:
+            by_date.setdefault(h["valid_time"][:10], []).append(h)
+
+        days_out: List[Dict[str, Any]] = []
+        for date_str, hours in sorted(by_date.items()):
+            if len(hours) < 12:
+                continue
+            # A day mostly inside the first 24 predicted hours is the real
+            # single-shot GRU forecast; later days are rollout territory.
+            median_ahead = sorted(x["forecast_hour"] for x in hours)[len(hours) // 2]
+            if median_ahead <= 24:
+                source, confidence = "gru", "high"
+            elif median_ahead <= 72:
+                source, confidence = "gru+pattern", "medium"
+            else:
+                source, confidence = "gru+pattern", "low"
+
+            days_out.append({
+                "date": date_str,
+                "weekday": datetime.strptime(date_str, "%Y-%m-%d").strftime("%A"),
+                "hours_covered": len(hours),
+                "source": source,
+                "confidence": confidence,
+                **daily_summary(hours),
+            })
+
+        return {
+            "district": district,
+            "forecast_origin": origin.isoformat(),
+            "days": days_out[:7],
+        }
+
     def predict_from_records(self, district: str, records: list) -> dict:
         """Bring-your-own-context inference — the original /predict contract."""
         rows = [{

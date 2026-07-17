@@ -43,6 +43,29 @@ class ForecastResponse(BaseModel):
     forecast: List[HourlyForecast]
 
 
+class WeeklyDay(BaseModel):
+    date: str = Field(..., description="Colombo calendar date (YYYY-MM-DD)")
+    weekday: str
+    hours_covered: int = Field(..., description="Predicted hours inside this date (12-24)")
+    source: str = Field(..., description="gru (single-shot forecast) | gru+pattern (rollout)")
+    confidence: str = Field(..., description="high | medium | low — decays with distance")
+    temp_min_c: float
+    temp_max_c: float
+    temp_avg_c: float
+    total_rain_mm: float
+    humidity_min_pct: float
+    humidity_max_pct: float
+    wet_hours: int
+    advisory_level: str
+    verdict: str
+
+
+class WeeklyOutlookResponse(BaseModel):
+    district: str
+    forecast_origin: str
+    days: List[WeeklyDay]
+
+
 class HourlyRecord(BaseModel):
     """One hour of raw observations — for callers supplying their own context."""
     Hour: int

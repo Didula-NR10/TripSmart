@@ -20,6 +20,7 @@ import {
   fetchCurrentConditions,
   fetchForecastBundle,
 } from '../../lib/api';
+import { useAuthGate } from '../../lib/auth';
 import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
 
 type Mode = 'now' | 'day';
@@ -32,6 +33,7 @@ const compass = (deg: number) =>
   ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(deg / 45) % 8];
 
 export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
+  const gate = useAuthGate();
   const [left, setLeft] = useState('nuwaraeliya');
   const [right, setRight] = useState('anuradhapura');
   const [picking, setPicking] = useState<'left' | 'right' | null>(null);
@@ -58,6 +60,7 @@ export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
   };
 
   const compare = async () => {
+    if (!gate()) return; // comparisons need an account
     setLoading(true);
     setError(null);
     setResult(null);

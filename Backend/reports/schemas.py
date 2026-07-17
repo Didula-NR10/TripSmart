@@ -32,7 +32,9 @@ class ReportOut(BaseModel):
     location: str
     title: str
     body: str
-    created_at: str    # ISO-8601 UTC
+    author: str = ""          # username of the logged-in reporter
+    author_avatar: str = ""   # the reporter's profile-picture URL, if they set one
+    created_at: str           # ISO-8601 UTC
 
 
 class ReportList(BaseModel):

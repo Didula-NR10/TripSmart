@@ -16,7 +16,16 @@ import { HourPrediction, Prediction, predict } from './engine';
 // Point this at the machine running `uvicorn main:app`. For a phone on the
 // same Wi-Fi, set EXPO_PUBLIC_API_URL=http://<your-PC-LAN-IP>:8000 in .env —
 // localhost on a phone is the phone itself.
-const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
+export const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
+
+// The current session token, set by the auth provider. Kept module-level so
+// data functions can attach it without importing React context.
+let authToken: string | null = null;
+export const setAuthToken = (token: string | null) => {
+  authToken = token;
+};
+export const authHeaders = (): Record<string, string> =>
+  authToken ? { Authorization: `Bearer ${authToken}` } : {};
 
 /** Backend district keys have no spaces: 'Nuwara Eliya' → 'NuwaraEliya'. */
 const apiName = (districtKey: string) => {
@@ -160,6 +169,66 @@ export async function fetchForecastBundle(
   };
 }
 
+// ── Weekly outlook — GRU rollout for the climate-disruption planner ──────────
+
+export type OutlookDay = {
+  date: string;          // "2026-07-18"
+  weekday: string;       // "Saturday"
+  source: 'gru' | 'gru+pattern';
+  confidence: 'high' | 'medium' | 'low';
+  tempMin: number;
+  tempMax: number;
+  tempAvg: number;
+  totalRain: number;
+  wetHours: number;
+  advisoryLevel: AdvisoryLevel;
+  verdict: string;
+};
+
+type ApiWeeklyDay = {
+  date: string;
+  weekday: string;
+  hours_covered: number;
+  source: string;
+  confidence: string;
+  temp_min_c: number;
+  temp_max_c: number;
+  temp_avg_c: number;
+  total_rain_mm: number;
+  wet_hours: number;
+  advisory_level: AdvisoryLevel;
+  verdict: string;
+};
+
+/**
+ * 7 days, every one a GRU prediction. Day 1 is the standard forecast; later
+ * days are autoregressive rollouts where the model's own output extends its
+ * input window and unpredicted channels follow the past week's hourly pattern.
+ */
+export async function fetchWeeklyOutlook(districtKey: string): Promise<OutlookDay[]> {
+  const res = await fetch(`${API_BASE}/api/v1/forecast/weekly/${apiName(districtKey)}`);
+  if (!res.ok) {
+    throw new Error(`Backend returned ${res.status}`);
+  }
+  const data: { days: ApiWeeklyDay[] } = await res.json();
+  return data.days.map((d) => ({
+    date: d.date,
+    weekday: d.weekday,
+    source: d.source === 'gru' ? 'gru' : 'gru+pattern',
+    confidence: (['high', 'medium', 'low'].includes(d.confidence) ? d.confidence : 'low') as
+      | 'high'
+      | 'medium'
+      | 'low',
+    tempMin: d.temp_min_c,
+    tempMax: d.temp_max_c,
+    tempAvg: d.temp_avg_c,
+    totalRain: d.total_rain_mm,
+    wetHours: d.wet_hours,
+    advisoryLevel: d.advisory_level,
+    verdict: d.verdict,
+  }));
+}
+
 // ── Current conditions — live Open-Meteo snapshot, no model ──────────────────
 
 export type CurrentConditions = {
@@ -234,6 +303,8 @@ export type GroundReport = {
   location: string;
   title: string;
   body: string;
+  author: string; // username of the logged-in reporter
+  authorAvatar: string; // reporter's profile-picture URL, may be ''
   at: number; // epoch ms
 };
 
@@ -243,6 +314,8 @@ type ApiReport = {
   location: string;
   title: string;
   body: string;
+  author?: string;
+  author_avatar?: string;
   created_at: string;
 };
 
@@ -268,6 +341,8 @@ export async function fetchGroundReports(opts: {
     location: r.location,
     title: r.title,
     body: r.body,
+    author: r.author ?? '',
+    authorAvatar: r.author_avatar ?? '',
     at: new Date(r.created_at).getTime(),
   }));
 }
@@ -280,7 +355,7 @@ export async function postGroundReport(report: {
 }): Promise<void> {
   const res = await fetch(`${API_BASE}/api/v1/reports`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({
       district: apiName(report.districtKey),
       location: report.location,
@@ -288,9 +363,55 @@ export async function postGroundReport(report: {
       body: report.body,
     }),
   });
+  if (res.status === 401) {
+    throw new Error('LOGIN_REQUIRED');
+  }
   if (!res.ok) {
     throw new Error(`Backend returned ${res.status}`);
   }
+}
+
+// ── Travel notebook — private, login required ────────────────────────────────
+
+export type TravelNote = {
+  id: string;
+  place: string;
+  body: string;
+  at: number; // epoch ms
+};
+
+type ApiNote = { id: string; place: string; body: string; created_at: string };
+
+export async function fetchTravelNotes(): Promise<TravelNote[]> {
+  const res = await fetch(`${API_BASE}/api/v1/notes`, { headers: authHeaders() });
+  if (res.status === 401) throw new Error('LOGIN_REQUIRED');
+  if (!res.ok) throw new Error(`Backend returned ${res.status}`);
+  const data: { notes: ApiNote[] } = await res.json();
+  return data.notes.map((n) => ({
+    id: n.id,
+    place: n.place,
+    body: n.body,
+    at: new Date(n.created_at).getTime(),
+  }));
+}
+
+export async function postTravelNote(note: { place: string; body: string }): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/v1/notes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(note),
+  });
+  if (res.status === 401) throw new Error('LOGIN_REQUIRED');
+  if (!res.ok) throw new Error(`Backend returned ${res.status}`);
+}
+
+export async function deleteTravelNote(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/v1/notes/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  if (res.status === 401) throw new Error('LOGIN_REQUIRED');
+  if (!res.ok && res.status !== 404) throw new Error(`Backend returned ${res.status}`);
 }
 
 // ── Offline cache (factor 4) — expires after 24 hours ────────────────────────

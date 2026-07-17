@@ -12,6 +12,7 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { TripProvider } from '../lib/store';
+import { AuthProvider } from '../lib/auth';
 import { Palette, Radius, Type } from '../constants/trip-theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -47,6 +48,7 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
+      <AuthProvider>
       <TripProvider>
         <Tabs
           screenOptions={({ route }) => ({
@@ -83,6 +85,7 @@ export default function RootLayout() {
           <Tabs.Screen name="search" options={{ href: null }} />
         </Tabs>
       </TripProvider>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

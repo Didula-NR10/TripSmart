@@ -26,6 +26,18 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
+    # ---- Auth (signup / login / OTP email) ----
+    OTP_TTL_MINUTES: int = 10        # emailed codes die after this
+    OTP_MAX_ATTEMPTS: int = 5        # wrong guesses before the code is void
+    SESSION_DAYS: int = 30           # bearer-token lifetime
+
+    # ---- SMTP — used to email OTP codes (Gmail app password works) ----
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587             # 587 = STARTTLS, 465 = SSL
+    SMTP_USER: str = ""              # the sending address, e.g. you@gmail.com
+    SMTP_APP_PASSWORD: str = ""      # a Gmail App Password, NOT the account password
+    SMTP_FROM_EMAIL: str = ""        # optional display-from; defaults to SMTP_USER
+
     ALLOWED_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173"
 
     # ---- Forecast model artifacts ----
