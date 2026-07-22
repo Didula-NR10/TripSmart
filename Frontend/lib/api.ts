@@ -371,6 +371,16 @@ export async function postGroundReport(report: {
   }
 }
 
+/** Delete one of YOUR OWN ground reports. Login required. */
+export async function deleteGroundReport(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/v1/reports/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  if (res.status === 401) throw new Error('LOGIN_REQUIRED');
+  if (!res.ok && res.status !== 404) throw new Error(`Backend returned ${res.status}`);
+}
+
 // ── Travel notebook — private, login required ────────────────────────────────
 
 export type TravelNote = {

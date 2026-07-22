@@ -1,12 +1,12 @@
-import { Image, StyleSheet, Text, View, Pressable } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Image, StyleSheet, Text, View, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { District } from '../../constants/districts';
+import { heroForDistrict } from '../../constants/district-hero';
 import { HourPrediction } from '../../lib/engine';
 import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
-
-const hero = { uri: 'https://images.unsplash.com/photo-1641149750086-b11cd21d1f60?w=1200&q=80' };
 
 type Props = {
   district: District;
@@ -14,6 +14,8 @@ type Props = {
   offline: boolean;
   previewLabel?: string;
   onPressDistrict: () => void;
+  onPressNotifications?: () => void;
+  unreadNotifications?: number;
 };
 
 function Metric({ icon, value }: { icon: keyof typeof Ionicons.glyphMap; value: string }) {
@@ -25,14 +27,37 @@ function Metric({ icon, value }: { icon: keyof typeof Ionicons.glyphMap; value: 
   );
 }
 
-export function TodayHero({ district, now, offline, previewLabel, onPressDistrict }: Props) {
+export function TodayHero({
+  district,
+  now,
+  offline,
+  previewLabel,
+  onPressDistrict,
+  onPressNotifications,
+  unreadNotifications = 0,
+}: Props) {
   const insets = useSafeAreaInsets();
   const date = new Date();
   const line = `${date.toLocaleDateString('en-US', { weekday: 'long' })} · ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} · ${district.province}${previewLabel ? ` · ${previewLabel}` : ''}`;
 
+  const hero = heroForDistrict(district.key);
+
+  // A short crossfade whenever the district (and so the photo) changes,
+  // rather than the new landmark photo just popping in.
+  const fade = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    fade.setValue(0);
+    Animated.timing(fade, { toValue: 1, duration: 380, useNativeDriver: true }).start();
+  }, [hero.url, fade]);
+
   return (
     <View style={styles.wrap}>
-      <Image source={hero} style={StyleSheet.absoluteFill} resizeMode="cover" />
+      <Animated.Image
+        key={hero.url}
+        source={{ uri: hero.url }}
+        style={[StyleSheet.absoluteFill, { opacity: fade }]}
+        resizeMode="cover"
+      />
       <LinearGradient
         colors={[Palette.scrimTop, 'transparent', Palette.scrimBottom]}
         locations={[0, 0.4, 1]}
@@ -53,13 +78,28 @@ export function TodayHero({ district, now, offline, previewLabel, onPressDistric
               <Text style={styles.cachedText}>CACHED</Text>
             </View>
           ) : (
-            <View style={styles.iconButton}>
+            <Pressable
+              style={styles.iconButton}
+              onPress={onPressNotifications}
+              accessibilityLabel="Notifications"
+            >
               <Ionicons name="notifications-outline" size={17} color={Palette.onDark} />
-            </View>
+              {unreadNotifications > 0 ? (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>
+                    {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                  </Text>
+                </View>
+              ) : null}
+            </Pressable>
           )}
         </View>
 
         <View style={styles.readout}>
+          <View style={styles.landmarkRow}>
+            <Ionicons name="camera-outline" size={11} color={Palette.onDarkMuted} />
+            <Text style={styles.landmark}>{hero.landmark}</Text>
+          </View>
           <Text style={styles.date}>{line}</Text>
 
           <View style={styles.tempRow}>
@@ -123,6 +163,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.18)',
   },
+  badge: {
+    position: 'absolute',
+    top: -3,
+    right: -3,
+    minWidth: 16,
+    height: 16,
+    paddingHorizontal: 3,
+    borderRadius: Radius.pill,
+    backgroundColor: Palette.danger,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: Palette.primaryDeep,
+  },
+  badgeText: {
+    ...Type.caption,
+    fontSize: 8,
+    fontWeight: '700',
+    color: Palette.onDark,
+  },
   cached: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -140,6 +200,17 @@ const styles = StyleSheet.create({
   },
   readout: {
     gap: Space.md,
+  },
+  landmarkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  landmark: {
+    ...Type.caption,
+    fontSize: 10,
+    letterSpacing: 0.3,
+    color: Palette.onDarkMuted,
   },
   date: {
     ...Type.caption,

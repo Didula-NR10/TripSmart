@@ -90,6 +90,20 @@ class ReportRepository:
                 self._to_dict(r, name, avatars.get(r.author, "")) for r, name in rows
             ]
 
+    def delete(self, report_id: str, author: str) -> bool:
+        """Delete a report — only its own author may remove it. Returns
+        whether a row was actually deleted (False = not found / not yours)."""
+        if not db_available():
+            raise RuntimeError("Database is not configured.")
+        with get_session() as session:
+            self._purge_expired(session)
+            deleted = (
+                session.query(GroundReport)
+                .filter(GroundReport.id == report_id, GroundReport.author == author)
+                .delete(synchronize_session=False)
+            )
+            return bool(deleted)
+
     @staticmethod
     def _to_dict(r: GroundReport, district_name: str, author_avatar: str = "") -> dict:
         return {

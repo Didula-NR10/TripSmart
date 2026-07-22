@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -8,9 +8,11 @@ import { HourStrip } from '../components/trip/HourStrip';
 import { DistrictSheet } from '../components/trip/DistrictSheet';
 import { DistrictMap, MapPin } from '../components/trip/DistrictMap';
 import { Next24Strip, Next24Summary } from '../components/trip/Next24';
+import { NotificationInbox } from '../components/trip/NotificationInbox';
 import { Banner, SectionHeader } from '../components/trip/Ui';
 import { useTrip } from '../lib/store';
 import { useAuthGate } from '../lib/auth';
+import { getNotificationHistory, subscribeNotificationHistory } from '../lib/notify';
 import { districtByKey } from '../constants/districts';
 import { bestWindow, resolveDistrict, zonesNear } from '../lib/engine';
 import { profileByKey } from '../constants/profiles';
@@ -40,6 +42,17 @@ export default function TodayScreen() {
   const [pinAdvisories, setPinAdvisories] = useState(0);
   const [pin, setPin] = useState<MapPin>(null);
   const [locationChosen, setLocationChosen] = useState(false);
+  const [inboxOpen, setInboxOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    getNotificationHistory().then((entries) =>
+      setUnreadCount(entries.filter((e) => !e.read).length),
+    );
+    return subscribeNotificationHistory((entries) =>
+      setUnreadCount(entries.filter((e) => !e.read).length),
+    );
+  }, []);
 
   const district = districtByKey(districtKey)!;
   const profile = profileByKey(profileKey);
@@ -71,6 +84,8 @@ export default function TodayScreen() {
           offline={offline}
           previewLabel={selectedHour !== null && selectedHour !== nowHour ? `Previewing ${fmtHour(selectedHour)}` : undefined}
           onPressDistrict={() => setPicking(true)}
+          onPressNotifications={() => setInboxOpen(true)}
+          unreadNotifications={unreadCount}
         />
 
         {/* Hour-by-hour clock for the selected district, right under the hero. */}
@@ -170,6 +185,8 @@ export default function TodayScreen() {
           setLocationChosen(true);
         }}
       />
+
+      <NotificationInbox visible={inboxOpen} onClose={() => setInboxOpen(false)} />
     </View>
   );
 }

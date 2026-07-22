@@ -50,3 +50,19 @@ def create_report(payload: ReportCreate, user: User = Depends(get_current_user))
             detail=f"Unknown district '{payload.district}'.",
         )
     return created
+
+
+@router.delete("/{report_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_report(report_id: str, user: User = Depends(get_current_user)):
+    """Delete one of YOUR OWN reports. Login required; you cannot delete
+    someone else's report — the response doesn't distinguish "not found"
+    from "not yours" so it never confirms another user's report exists."""
+    try:
+        deleted = repo.delete(report_id, author=user.username)
+    except RuntimeError as e:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
+    if not deleted:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            detail="Report not found, already expired, or not yours to delete.",
+        )

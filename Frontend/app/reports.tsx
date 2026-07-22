@@ -14,9 +14,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { DistrictSheet } from '../components/trip/DistrictSheet';
 import { Empty, ScreenTitle } from '../components/trip/Ui';
 import { useTrip } from '../lib/store';
-import { useAuthGate } from '../lib/auth';
+import { useAuth, useAuthGate } from '../lib/auth';
 import { districtByKey } from '../constants/districts';
-import { GroundReport, fetchGroundReports, postGroundReport } from '../lib/api';
+import { GroundReport, deleteGroundReport, fetchGroundReports, postGroundReport } from '../lib/api';
 import { Palette, Radius, Space, Type } from '../constants/trip-theme';
 
 const ago = (at: number) => {
@@ -32,10 +32,12 @@ const postedAt = (at: number) =>
 export default function ReportsScreen() {
   const { districtKey } = useTrip();
   const gate = useAuthGate();
+  const { user } = useAuth();
 
   const [reports, setReports] = useState<GroundReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // filter + search
   const [filterKey, setFilterKey] = useState<string | null>(null);
@@ -94,6 +96,20 @@ export default function ReportsScreen() {
       setFailed(true);
     } finally {
       setPosting(false);
+    }
+  };
+
+  const removeReport = async (id: string) => {
+    if (!gate()) return; // session may have expired since page load
+    const previous = reports;
+    setDeletingId(id);
+    setReports((rs) => rs.filter((r) => r.id !== id)); // optimistic
+    try {
+      await deleteGroundReport(id);
+    } catch {
+      setReports(previous); // restore on failure
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -255,6 +271,21 @@ export default function ReportsScreen() {
                 </View>
                 <Text style={styles.logTitle}>{r.title}</Text>
                 <Text style={styles.logAgo}>{ago(r.at)}</Text>
+                {user && r.author === user.username ? (
+                  <Pressable
+                    onPress={() => removeReport(r.id)}
+                    disabled={deletingId === r.id}
+                    hitSlop={8}
+                    style={styles.logDelete}
+                    accessibilityLabel={`Delete report: ${r.title}`}
+                  >
+                    {deletingId === r.id ? (
+                      <ActivityIndicator size={12} color={Palette.danger} />
+                    ) : (
+                      <Ionicons name="trash-outline" size={15} color={Palette.danger} />
+                    )}
+                  </Pressable>
+                ) : null}
               </View>
               {r.body ? <Text style={styles.logBody}>{r.body}</Text> : null}
               <View style={styles.logMeta}>
@@ -471,6 +502,10 @@ const styles = StyleSheet.create({
     ...Type.caption,
     fontSize: 10,
     color: Palette.textDim,
+  },
+  logDelete: {
+    marginLeft: Space.xs,
+    padding: 2,
   },
   logBody: {
     ...Type.body,
