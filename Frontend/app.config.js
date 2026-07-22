@@ -5,6 +5,7 @@ export default ({ config }) => ({
   ...config,
   android: {
     ...config.android,
+    package: "com.didulanr.tripsmart", // <-- Add this line here
     config: {
       googleMaps: {
         apiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY ?? '',
