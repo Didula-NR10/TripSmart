@@ -1,0 +1,16 @@
+# Never bake real credentials into the image — HF Space Secrets supply these
+# as environment variables at runtime instead.
+.env
+.env.example
+
+venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+
+.git/
+.gitignore
+
+# Local-only scratch/debug artifacts
+*.log
