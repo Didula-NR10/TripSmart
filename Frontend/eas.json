@@ -16,9 +16,21 @@
         "EXPO_PUBLIC_API_URL": "https://didulanr-mandhodhini-backend.hf.space"
       }
     },
-    "production": {}
+    "production": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://didulanr-mandhodhini-backend.hf.space"
+      }
+    }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "track": "internal"
+      }
+    }
   }
 }
