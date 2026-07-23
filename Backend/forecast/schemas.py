@@ -39,6 +39,11 @@ class ForecastResponse(BaseModel):
     forecast_origin: str = Field(..., description="UTC timestamp the model ran at")
     forecast_horizon: int = 24
     cached: bool = False
+    stale: bool = Field(
+        default=False,
+        description="True when Open-Meteo was unreachable and this is the last known-good run, not a fresh one",
+    )
+    stale_reason: Optional[str] = None
     summary: DailySummary
     forecast: List[HourlyForecast]
 

@@ -149,6 +149,17 @@ class ForecastService:
         try:
             frame = await weather_repo.fetch_context_window(district)
         except RuntimeError as e:
+            # Open-Meteo is unreachable/rate-limited even after retries. Serving
+            # the last known-good forecast beats a hard error — the frontend's
+            # "predict" button otherwise looks broken during a transient upstream
+            # rate limit, which is the common case on shared-IP hosts.
+            stale = forecast_repo.get_stale(district)
+            if stale:
+                payload = stale["payload"]
+                payload["cached"] = True
+                payload["stale"] = True
+                payload["stale_reason"] = str(e)
+                return payload
             raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail=str(e))
 
         # Every fetched window tops up weather_observations — the growing

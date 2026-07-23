@@ -51,6 +51,12 @@ class Settings(BaseSettings):
     # ---- Upstream weather source (no API key required) ----
     OPEN_METEO_URL: str = "https://api.open-meteo.com/v1/forecast"
     OPEN_METEO_TIMEOUT: int = 15
+    OPEN_METEO_MAX_RETRIES: int = 3          # attempts on 429/5xx before giving up
+    OPEN_METEO_RETRY_BASE_SECONDS: float = 1.5  # doubles each attempt
+    # How long a raw fetched observation window is reused across endpoints
+    # (forecast + weekly-outlook both want "the last 168 hours" for the same
+    # district within seconds of each other) instead of re-hitting Open-Meteo.
+    OPEN_METEO_WINDOW_CACHE_MINUTES: int = 15
 
     # A forecast run is reused for this long rather than re-running the model.
     # The upstream data is hourly, so anything finer buys nothing.

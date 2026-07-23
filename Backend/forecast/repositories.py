@@ -7,6 +7,7 @@ nothing above it.
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from datetime import datetime, timedelta, timezone
@@ -97,6 +98,53 @@ class WeatherRepository:
         "direct_radiation",
     ]
 
+    # district -> (fetched_at, raw "hourly" JSON block). Open-Meteo's free tier
+    # is keyless and shared — on hosts like Hugging Face Spaces many containers
+    # share one egress IP, so 429s are routine rather than exceptional. Reusing
+    # a just-fetched window across forecast/weekly (which both want "the last
+    # 168 hours" for the same district within moments of each other) roughly
+    # halves real-world call volume without changing what the model sees, since
+    # upstream data only changes once an hour anyway.
+    _window_cache: Dict[str, tuple] = {}
+
+    async def _get_with_retry(self, params: dict) -> dict:
+        """GET against Open-Meteo, retrying 429/5xx with backoff before giving up.
+
+        A plain timeout retry already existed here; this generalizes it to also
+        cover rate-limiting, which is the far more common failure in practice.
+        """
+        delay = settings.OPEN_METEO_RETRY_BASE_SECONDS
+        last_error: Optional[str] = None
+
+        async with httpx.AsyncClient(timeout=settings.OPEN_METEO_TIMEOUT) as client:
+            for attempt in range(settings.OPEN_METEO_MAX_RETRIES):
+                try:
+                    response = await client.get(settings.OPEN_METEO_URL, params=params)
+                except httpx.TimeoutException:
+                    last_error = "Open-Meteo request timed out"
+                    wait = delay
+                else:
+                    if response.status_code == 200:
+                        return response.json()
+
+                    last_error = f"Open-Meteo returned {response.status_code}: {response.text[:200]}"
+                    if response.status_code != 429 and response.status_code < 500:
+                        # Not a transient failure (bad request, etc.) — retrying won't help.
+                        raise RuntimeError(last_error)
+
+                    retry_after = response.headers.get("retry-after")
+                    wait = float(retry_after) if retry_after and retry_after.strip().isdigit() else delay
+
+                if attempt < settings.OPEN_METEO_MAX_RETRIES - 1:
+                    log.warning(
+                        "Open-Meteo attempt %d/%d failed (%s) — retrying in %.1fs",
+                        attempt + 1, settings.OPEN_METEO_MAX_RETRIES, last_error, wait,
+                    )
+                    await asyncio.sleep(wait)
+                    delay *= 2
+
+        raise RuntimeError(last_error or "Open-Meteo request failed")
+
     async def fetch_context_window(self, district: str) -> pd.DataFrame:
         """The last 168 consecutive hours of RECORDED weather for a district.
 
@@ -107,6 +155,13 @@ class WeatherRepository:
         """
         if district not in DISTRICT_COORDS:
             raise ValueError(f"Unknown district: '{district}'")
+
+        cached = self._window_cache.get(district)
+        if cached:
+            fetched_at, hourly = cached
+            age = datetime.now(timezone.utc) - fetched_at
+            if age < timedelta(minutes=settings.OPEN_METEO_WINDOW_CACHE_MINUTES):
+                return self._frame_from_hourly(hourly)
 
         coords = DISTRICT_COORDS[district]
         params = {
@@ -119,22 +174,22 @@ class WeatherRepository:
             "windspeed_unit": "kmh",
         }
 
-        # One retry: when two districts are requested back-to-back (the
-        # comparer), the first request's model load can stall the event loop
-        # long enough for this call's read to time out spuriously.
-        async with httpx.AsyncClient(timeout=settings.OPEN_METEO_TIMEOUT) as client:
-            try:
-                response = await client.get(settings.OPEN_METEO_URL, params=params)
-            except httpx.TimeoutException:
-                response = await client.get(settings.OPEN_METEO_URL, params=params)
+        try:
+            hourly = (await self._get_with_retry(params))["hourly"]
+        except RuntimeError:
+            # Upstream is down/rate-limited even after retries. A slightly
+            # stale window (same district, up to an hour old) beats a hard
+            # failure — the model's own accuracy degrades far more gently
+            # than "the user sees an error and can't get a forecast at all."
+            if cached:
+                log.warning("Open-Meteo unavailable for %s; serving stale window from %s", district, cached[0])
+                return self._frame_from_hourly(cached[1])
+            raise
 
-        if response.status_code != 200:
-            raise RuntimeError(
-                f"Open-Meteo returned {response.status_code}: {response.text[:200]}"
-            )
+        self._window_cache[district] = (datetime.now(timezone.utc), hourly)
+        return self._frame_from_hourly(hourly)
 
-        hourly = response.json()["hourly"]
-
+    def _frame_from_hourly(self, hourly: dict) -> pd.DataFrame:
         df = pd.DataFrame({
             "datetime": pd.to_datetime(hourly["time"]),
             "Temperature_C": hourly["temperature_2m"],
@@ -200,15 +255,8 @@ class WeatherRepository:
             "windspeed_unit": "kmh",
         }
 
-        async with httpx.AsyncClient(timeout=settings.OPEN_METEO_TIMEOUT) as client:
-            response = await client.get(settings.OPEN_METEO_URL, params=params)
-
-        if response.status_code != 200:
-            raise RuntimeError(
-                f"Open-Meteo returned {response.status_code}: {response.text[:200]}"
-            )
-
-        return response.json()["current"]
+        data = await self._get_with_retry(params)
+        return data["current"]
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -300,6 +348,26 @@ class ForecastRepository:
                 return {"payload": run.payload} if run else None
         except Exception as e:
             log.warning("Cache lookup failed (serving fresh): %s", e)
+            return None
+
+    def get_stale(self, district: str) -> Optional[dict]:
+        """The most recent run regardless of age — a last resort when Open-Meteo
+        is unreachable even after retries. An hours-old forecast beats a hard
+        error; the payload is marked `stale` so the UI can say so."""
+        district_id = DistrictLookup.id_for(district)
+        if district_id is None:
+            return None
+        try:
+            with get_session() as session:
+                run = (
+                    session.query(ForecastRun)
+                    .filter(ForecastRun.district_id == district_id)
+                    .order_by(ForecastRun.forecast_origin.desc())
+                    .first()
+                )
+                return {"payload": run.payload} if run else None
+        except Exception as e:
+            log.warning("Stale-forecast lookup failed: %s", e)
             return None
 
     def save(self, district: str, origin: datetime, payload: dict) -> None:
