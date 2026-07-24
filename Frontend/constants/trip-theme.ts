@@ -26,22 +26,22 @@ export const Palette = {
 } as const;
 
 export const TripFonts = {
-  regular: 'Inter_400Regular',
-  medium: 'Inter_500Medium',
-  semi: 'Inter_600SemiBold',
-  bold: 'Inter_700Bold',
+  regular: 'Roboto',
+  medium: 'Roboto',
+  semi: 'Roboto',
+  bold: 'Roboto',
 } as const;
 
 export const Type = {
-  display: { fontFamily: TripFonts.bold, fontSize: 56, letterSpacing: -2.4 },
-  title: { fontFamily: TripFonts.bold, fontSize: 18, letterSpacing: -0.3 },
-  heading: { fontFamily: TripFonts.semi, fontSize: 16, letterSpacing: -0.2 },
-  window: { fontFamily: TripFonts.bold, fontSize: 24, letterSpacing: -0.6 },
-  label: { fontFamily: TripFonts.semi, fontSize: 13 },
-  body: { fontFamily: TripFonts.regular, fontSize: 13, lineHeight: 19 },
-  caption: { fontFamily: TripFonts.medium, fontSize: 11, letterSpacing: 0.2 },
-  eyebrow: { fontFamily: TripFonts.semi, fontSize: 11, letterSpacing: 0.9 },
-  tab: { fontFamily: TripFonts.medium, fontSize: 10 },
+  display: { fontFamily: TripFonts.bold, fontSize: 64, letterSpacing: -2.4 },
+  title: { fontFamily: TripFonts.bold, fontSize: 24, letterSpacing: -0.3 },
+  heading: { fontFamily: TripFonts.semi, fontSize: 20, letterSpacing: -0.2 },
+  window: { fontFamily: TripFonts.bold, fontSize: 30, letterSpacing: -0.6 },
+  label: { fontFamily: TripFonts.semi, fontSize: 16 },
+  body: { fontFamily: TripFonts.regular, fontSize: 16, lineHeight: 24 },
+  caption: { fontFamily: TripFonts.medium, fontSize: 14, letterSpacing: 0.2 },
+  eyebrow: { fontFamily: TripFonts.semi, fontSize: 13, letterSpacing: 0.9 },
+  tab: { fontFamily: TripFonts.medium, fontSize: 8.5, letterSpacing: -0.3 },
 } as const;
 
 export const Space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, section: 28 } as const;

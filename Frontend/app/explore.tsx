@@ -6,10 +6,12 @@ import * as Location from 'expo-location';
 import { ZoneModal } from '../components/trip/ZoneModal';
 import { DistrictSheet } from '../components/trip/DistrictSheet';
 import { LawGuide } from '../components/trip/LawGuide';
+import { PageHero } from '../components/trip/PageHero';
 import { SpecialtyGuide } from '../components/trip/SpecialtyGuide';
-import { Banner, ScreenTitle, SectionHeader } from '../components/trip/Ui';
+import { Banner, FilterRow, SectionHeader } from '../components/trip/Ui';
 import { useTrip } from '../lib/store';
 import { districtByKey } from '../constants/districts';
+import { heroForDistrict } from '../constants/district-hero';
 import { Zone, zones } from '../constants/geofences';
 import { allLaws, lawsForDistrict } from '../constants/laws';
 import { allSpecialties, specialtiesForDistrict } from '../constants/specialties';
@@ -89,20 +91,26 @@ export default function ExploreScreen() {
     }
   };
 
+  const heroImage = { uri: heroForDistrict(isAll ? 'colombo' : filterKey).url };
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        <ScreenTitle
-          title="Culture"
-          subtitle="Laws, etiquette and local specialties for wherever you are right now."
+        <PageHero
+          icon="business"
+          title="Local Guide"
+          subtitle="Essential laws, etiquette & local guidelines for a safe and respectful trip."
+          image={heroImage}
         />
 
         <Pressable style={styles.locate} onPress={useMyLocation} disabled={locating}>
-          {locating ? (
-            <ActivityIndicator size="small" color={Palette.primary} />
-          ) : (
-            <Ionicons name="locate-outline" size={17} color={Palette.primary} />
-          )}
+          <View style={styles.locateIcon}>
+            {locating ? (
+              <ActivityIndicator size="small" color={Palette.primaryDeep} />
+            ) : (
+              <Ionicons name="locate" size={17} color={Palette.primaryDeep} />
+            )}
+          </View>
           <View style={styles.locateBody}>
             <Text style={styles.locateTitle}>
               {locating ? 'Finding you…' : 'Use my location'}
@@ -111,20 +119,24 @@ export default function ExploreScreen() {
               {locStatus ?? 'Tap to auto-detect your district and get local notifications.'}
             </Text>
           </View>
+          <View style={styles.locateGo}>
+            <Ionicons name="chevron-forward" size={17} color={Palette.onDark} />
+          </View>
         </Pressable>
 
         {/* ── district filter: 25 districts + All Sri Lanka ─────────────── */}
-        <Pressable style={styles.filter} onPress={() => setPicking(true)}>
-          <Ionicons name="funnel-outline" size={15} color={Palette.primaryDeep} />
-          <View style={styles.locateBody}>
-            <Text style={styles.filterLabel}>Filtering by</Text>
-            <Text style={styles.filterValue}>{filterName}</Text>
-          </View>
-          <Ionicons name="chevron-down" size={15} color={Palette.textMuted} />
-        </Pressable>
+        <View style={styles.filterWrap}>
+          <FilterRow label="Filtering by" value={filterName} onPress={() => setPicking(true)} />
+        </View>
 
         <View style={styles.section}>
-          <SectionHeader title={`Advisories · ${filterName}`} />
+          <SectionHeader
+            title={`Advisories · ${filterName}`}
+            icon="shield-outline"
+            iconTone="danger"
+            action="View all"
+            actionTone="danger"
+          />
           <View style={styles.banners}>
             {poya ? (
               <Banner
@@ -163,7 +175,11 @@ export default function ExploreScreen() {
         </View>
 
         <View style={styles.section}>
-          <SectionHeader title={`Laws & customs · ${filterName}`} />
+          <SectionHeader
+            title={`Laws & guidelines · ${filterName}`}
+            icon="scale-balance"
+            iconLib="mci"
+          />
           <LawGuide laws={laws} districtName={isAll ? null : filterName} />
         </View>
 
@@ -171,6 +187,17 @@ export default function ExploreScreen() {
           <SectionHeader title={`Famous in ${filterName}`} />
           <SpecialtyGuide items={specialties} districtName={isAll ? null : filterName} />
         </View>
+
+        <Pressable style={styles.closingBanner}>
+          <View style={styles.closingIcon}>
+            <Ionicons name="shield-checkmark" size={20} color={Palette.onDark} />
+          </View>
+          <View style={styles.closingBody}>
+            <Text style={styles.closingTitle}>Travel smart. Respect local rules.</Text>
+            <Text style={styles.closingMeta}>Stay informed, stay safe, and enjoy your journey.</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={Palette.onDark} />
+        </Pressable>
       </ScrollView>
 
       <ZoneModal zone={zone} onClose={() => setZone(null)} />
@@ -200,52 +227,75 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Space.md,
     backgroundColor: Palette.primaryTint,
-    borderWidth: 1,
-    borderColor: Palette.primary,
-    borderStyle: 'dashed',
-    borderRadius: Radius.md,
-    paddingHorizontal: Space.md,
-    paddingVertical: Space.md,
+    borderRadius: Radius.lg,
+    paddingHorizontal: Space.lg,
+    paddingVertical: Space.lg,
+  },
+  locateIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.pill,
+    backgroundColor: Palette.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   locateBody: { flex: 1 },
   locateTitle: {
     ...Type.label,
-    fontSize: 12,
-    color: Palette.primaryDeep,
+    fontSize: 15,
+    color: Palette.text,
   },
   locateMeta: {
-    ...Type.caption,
-    fontSize: 10,
+    ...Type.body,
+    fontSize: 12,
+    lineHeight: 16,
     color: Palette.textMuted,
     marginTop: 2,
   },
-  filter: {
-    flexDirection: 'row',
+  locateGo: {
+    width: 34,
+    height: 34,
+    borderRadius: Radius.sm,
+    backgroundColor: Palette.primaryDeep,
     alignItems: 'center',
-    gap: Space.md,
-    backgroundColor: Palette.surface,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    borderRadius: Radius.md,
-    paddingHorizontal: Space.md,
-    paddingVertical: Space.md,
-    marginTop: Space.sm,
+    justifyContent: 'center',
   },
-  filterLabel: {
-    ...Type.caption,
-    fontSize: 9,
-    color: Palette.textDim,
-  },
-  filterValue: {
-    ...Type.label,
-    fontSize: 13,
-    color: Palette.text,
-    marginTop: 1,
+  filterWrap: {
+    marginTop: Space.md,
   },
   banners: {
     gap: Space.sm,
   },
   section: {
     marginTop: Space.section,
+  },
+  closingBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Space.md,
+    backgroundColor: Palette.primaryDeep,
+    borderRadius: Radius.lg,
+    padding: Space.lg,
+    marginTop: Space.section,
+  },
+  closingIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.pill,
+    backgroundColor: 'rgba(255, 255, 255, 0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  closingBody: { flex: 1 },
+  closingTitle: {
+    ...Type.label,
+    fontSize: 15,
+    color: Palette.onDark,
+  },
+  closingMeta: {
+    ...Type.caption,
+    fontSize: 12,
+    color: Palette.onDarkMuted,
+    marginTop: 2,
   },
 });

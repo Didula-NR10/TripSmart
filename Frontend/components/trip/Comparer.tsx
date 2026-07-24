@@ -21,7 +21,7 @@ import {
   fetchForecastBundle,
 } from '../../lib/api';
 import { useAuthGate } from '../../lib/auth';
-import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
+import { Palette, Radius, Shadow, Space, Type } from '../../constants/trip-theme';
 
 type Mode = 'now' | 'day';
 
@@ -100,13 +100,27 @@ export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
       {/* ── pick the two districts ─────────────────────────────────────── */}
       <View style={styles.picker}>
         <Pressable style={styles.slot} onPress={() => setPicking('left')}>
-          <Text style={styles.slotLabel}>{leftName}</Text>
-          <Ionicons name="chevron-down" size={13} color={Palette.textMuted} />
+          <Text style={styles.slotEyebrow}>DESTINATION 1</Text>
+          <View style={styles.slotRow}>
+            <Ionicons name="location" size={14} color={Palette.primary} />
+            <Text style={styles.slotLabel} numberOfLines={1}>
+              {leftName}
+            </Text>
+            <Ionicons name="chevron-down" size={13} color={Palette.textMuted} />
+          </View>
         </Pressable>
-        <Text style={styles.vs}>vs</Text>
+        <View style={styles.vsBadge}>
+          <Text style={styles.vs}>VS</Text>
+        </View>
         <Pressable style={styles.slot} onPress={() => setPicking('right')}>
-          <Text style={styles.slotLabel}>{rightName}</Text>
-          <Ionicons name="chevron-down" size={13} color={Palette.textMuted} />
+          <Text style={styles.slotEyebrow}>DESTINATION 2</Text>
+          <View style={styles.slotRow}>
+            <Ionicons name="location" size={14} color={Palette.primary} />
+            <Text style={styles.slotLabel} numberOfLines={1}>
+              {rightName}
+            </Text>
+            <Ionicons name="chevron-down" size={13} color={Palette.textMuted} />
+          </View>
         </Pressable>
       </View>
 
@@ -117,12 +131,15 @@ export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
           onPress={() => switchMode('now')}
         >
           <Ionicons
-            name="partly-sunny-outline"
-            size={14}
-            color={mode === 'now' ? Palette.onDark : Palette.textMuted}
+            name="rainy-outline"
+            size={18}
+            color={mode === 'now' ? Palette.onDark : Palette.text}
           />
-          <Text style={[styles.modeText, mode === 'now' && styles.modeTextOn]}>
+          <Text style={[styles.modeTitle, mode === 'now' && styles.modeTextOn]}>
             Current conditions
+          </Text>
+          <Text style={[styles.modeCaption, mode === 'now' && styles.modeCaptionOn]}>
+            Live observations from Open-Meteo
           </Text>
         </Pressable>
         <Pressable
@@ -130,21 +147,27 @@ export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
           onPress={() => switchMode('day')}
         >
           <Ionicons
-            name="analytics-outline"
-            size={14}
-            color={mode === 'day' ? Palette.onDark : Palette.textMuted}
+            name="trending-up-outline"
+            size={18}
+            color={mode === 'day' ? Palette.onDark : Palette.text}
           />
-          <Text style={[styles.modeText, mode === 'day' && styles.modeTextOn]}>
-            Next 24 h forecast
+          <Text style={[styles.modeTitle, mode === 'day' && styles.modeTextOn]}>
+            Next 24h forecast
+          </Text>
+          <Text style={[styles.modeCaption, mode === 'day' && styles.modeCaptionOn]}>
+            See how the weather is evolving
           </Text>
         </Pressable>
       </View>
 
-      <Text style={styles.modeHint}>
-        {mode === 'now'
-          ? 'Live observations from Open-Meteo — for deciding where to go right now.'
-          : 'GRU model run for each district: the last 7 days of weather feed the model, which predicts the next 24 hours.'}
-      </Text>
+      <View style={styles.modeHintRow}>
+        <Ionicons name="information-circle-outline" size={14} color={Palette.textDim} />
+        <Text style={styles.modeHint}>
+          {mode === 'now'
+            ? 'Live observations from Open-Meteo — for deciding where to go right now.'
+            : 'GRU model run for each district: the last 7 days of weather feed the model, which predicts the next 24 hours.'}
+        </Text>
+      </View>
 
       <Pressable
         style={[styles.cta, loading && styles.ctaBusy]}
@@ -154,7 +177,7 @@ export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
         {loading ? (
           <ActivityIndicator size="small" color={Palette.onDark} />
         ) : (
-          <Ionicons name="git-compare-outline" size={16} color={Palette.onDark} />
+          <Ionicons name="swap-horizontal-outline" size={18} color={Palette.onDark} />
         )}
         <Text style={styles.ctaText}>
           {loading
@@ -368,23 +391,42 @@ const styles = StyleSheet.create({
   },
   slot: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     backgroundColor: Palette.surface,
-    borderWidth: 1,
-    borderColor: Palette.border,
     borderRadius: Radius.md,
     paddingHorizontal: Space.md,
-    paddingVertical: Space.md,
+    paddingVertical: Space.sm,
+    ...Shadow.soft,
+  },
+  slotEyebrow: {
+    ...Type.eyebrow,
+    fontSize: 9,
+    color: Palette.textDim,
+  },
+  slotRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 2,
   },
   slotLabel: {
     ...Type.label,
+    fontSize: 12,
+    letterSpacing: -0.2,
     color: Palette.text,
+    flex: 1,
+  },
+  vsBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: Radius.pill,
+    backgroundColor: Palette.primaryTint,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   vs: {
-    ...Type.caption,
-    color: Palette.textDim,
+    ...Type.label,
+    fontSize: 11,
+    color: Palette.primaryDeep,
   },
   modes: {
     flexDirection: 'row',
@@ -392,34 +434,45 @@ const styles = StyleSheet.create({
   },
   mode: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
     paddingVertical: Space.md,
+    paddingHorizontal: Space.md,
     borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    backgroundColor: Palette.surface,
+    backgroundColor: Palette.primaryTint,
   },
   modeOn: {
-    backgroundColor: Palette.primary,
-    borderColor: Palette.primary,
+    backgroundColor: Palette.primaryDeep,
   },
-  modeText: {
+  modeTitle: {
     ...Type.label,
-    fontSize: 11,
+    fontSize: 13,
+    color: Palette.text,
+    marginTop: Space.sm,
+  },
+  modeCaption: {
+    ...Type.caption,
+    fontSize: 10,
+    lineHeight: 13,
     color: Palette.textMuted,
+    marginTop: 2,
   },
   modeTextOn: {
     color: Palette.onDark,
   },
+  modeCaptionOn: {
+    color: Palette.onDarkMuted,
+  },
+  modeHintRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 6,
+    marginTop: Space.md,
+  },
   modeHint: {
     ...Type.caption,
-    fontSize: 10,
+    fontSize: 11,
     color: Palette.textDim,
-    lineHeight: 14,
-    marginTop: Space.sm,
+    lineHeight: 15,
+    flex: 1,
   },
   cta: {
     flexDirection: 'row',

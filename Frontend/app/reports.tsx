@@ -12,10 +12,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { DistrictSheet } from '../components/trip/DistrictSheet';
-import { Empty, ScreenTitle } from '../components/trip/Ui';
+import { PageHero } from '../components/trip/PageHero';
+import { FilterRow } from '../components/trip/Ui';
 import { useTrip } from '../lib/store';
 import { useAuth, useAuthGate } from '../lib/auth';
 import { districtByKey } from '../constants/districts';
+import { heroForDistrict } from '../constants/district-hero';
 import { GroundReport, deleteGroundReport, fetchGroundReports, postGroundReport } from '../lib/api';
 import { Palette, Radius, Space, Type } from '../constants/trip-theme';
 
@@ -123,9 +125,10 @@ export default function ReportsScreen() {
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
-        <ScreenTitle
+        <PageHero
           title="Ground Reports"
           subtitle="Live conditions from travellers on the ground. Every report expires after 24 hours."
+          image={{ uri: heroForDistrict('badulla').url }}
         />
 
         {composing ? (
@@ -196,21 +199,28 @@ export default function ReportsScreen() {
               setComposing(true);
             }}
           >
-            <Ionicons name="add-circle-outline" size={17} color={Palette.primary} />
-            <Text style={styles.triggerText}>Report ground conditions here</Text>
+            <View style={styles.triggerIcon}>
+              <Ionicons name="cloud-upload-outline" size={19} color={Palette.primaryDeep} />
+            </View>
+            <View style={styles.triggerBody}>
+              <Text style={styles.triggerText}>Report ground conditions here</Text>
+              <Text style={styles.triggerMeta}>
+                Help fellow travellers by sharing real-time updates.
+              </Text>
+            </View>
+            <View style={styles.triggerGo}>
+              <Ionicons name="chevron-forward" size={17} color={Palette.onDark} />
+            </View>
           </Pressable>
         )}
 
-        {/* filter + clear + search */}
-        <View style={styles.filterRow}>
-          <Pressable style={styles.filterChip} onPress={() => setSheetTarget('filter')}>
-            <Ionicons name="funnel-outline" size={13} color={Palette.primary} />
-            <Text style={styles.filterChipText}>
-              {filterDistrict ? filterDistrict.name : 'All districts'}
-            </Text>
-            <Ionicons name="chevron-down" size={12} color={Palette.textMuted} />
-          </Pressable>
-
+        {/* filter + clear */}
+        <View style={styles.filterWrap}>
+          <FilterRow
+            label={filtering ? 'Filtering by' : 'Districts'}
+            value={filterDistrict ? filterDistrict.name : 'All districts'}
+            onPress={() => setSheetTarget('filter')}
+          />
           {filtering ? (
             <Pressable
               style={styles.clear}
@@ -220,7 +230,7 @@ export default function ReportsScreen() {
               }}
             >
               <Ionicons name="close-circle" size={14} color={Palette.danger} />
-              <Text style={styles.clearText}>Clear</Text>
+              <Text style={styles.clearText}>Clear filters</Text>
             </Pressable>
           ) : null}
         </View>
@@ -247,15 +257,38 @@ export default function ReportsScreen() {
             <ActivityIndicator color={Palette.primary} />
           </View>
         ) : failed ? (
-          <Empty text="Can't reach the server. Ground reports need a connection." />
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>Can&apos;t reach the server</Text>
+            <Text style={styles.emptySubtitle}>Ground reports need a connection. Try again shortly.</Text>
+          </View>
         ) : reports.length === 0 ? (
-          <Empty
-            text={
-              filtering
-                ? 'No live reports match this filter. Try clearing it.'
-                : 'No live reports right now. Be the first to post one.'
-            }
-          />
+          <View style={styles.emptyCard}>
+            <View style={styles.emptyCircle}>
+              <View style={styles.emptyPost} />
+              <View style={styles.emptySign} />
+              <View style={[styles.emptyBush, styles.emptyBushLeft]} />
+              <View style={[styles.emptyBush, styles.emptyBushRight]} />
+            </View>
+            <Text style={styles.emptyTitle}>
+              {filtering ? 'No reports match this filter' : 'No live reports right now'}
+            </Text>
+            <Text style={styles.emptySubtitle}>
+              {filtering
+                ? 'Try clearing the filter or search to see more.'
+                : 'Be the first to post one and help others stay informed.'}
+            </Text>
+            <Pressable
+              style={styles.emptyCta}
+              onPress={() => {
+                if (!gate()) return;
+                setFormDistrict(districtKey);
+                setComposing(true);
+              }}
+            >
+              <Ionicons name="sparkles-outline" size={16} color={Palette.onDark} />
+              <Text style={styles.emptyCtaText}>Post a report</Text>
+            </Pressable>
+          </View>
         ) : (
           reports.map((r) => (
             <View key={r.id} style={styles.log}>
@@ -323,18 +356,39 @@ const styles = StyleSheet.create({
   trigger: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Space.sm,
-    padding: Space.md,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: Palette.primary,
+    gap: Space.md,
+    padding: Space.lg,
+    borderRadius: Radius.lg,
     backgroundColor: Palette.primaryTint,
   },
+  triggerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.pill,
+    backgroundColor: Palette.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  triggerBody: { flex: 1 },
   triggerText: {
     ...Type.label,
+    fontSize: 15,
+    color: Palette.text,
+  },
+  triggerMeta: {
+    ...Type.body,
     fontSize: 12,
-    color: Palette.primaryDeep,
+    lineHeight: 16,
+    color: Palette.textMuted,
+    marginTop: 2,
+  },
+  triggerGo: {
+    width: 34,
+    height: 34,
+    borderRadius: Radius.sm,
+    backgroundColor: Palette.primaryDeep,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   form: {
     backgroundColor: Palette.surface,
@@ -404,34 +458,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Palette.onDark,
   },
-  filterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Space.sm,
+  filterWrap: {
     marginTop: Space.lg,
-  },
-  filterChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: Palette.surface,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    borderRadius: Radius.pill,
-    paddingHorizontal: Space.md,
-    paddingVertical: 7,
-  },
-  filterChipText: {
-    ...Type.label,
-    fontSize: 12,
-    color: Palette.text,
   },
   clear: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: Space.sm,
-    paddingVertical: 7,
+    alignSelf: 'flex-start',
+    marginTop: Space.sm,
+    paddingVertical: 4,
   },
   clearText: {
     ...Type.label,
@@ -459,6 +495,79 @@ const styles = StyleSheet.create({
   loading: {
     padding: Space.xl,
     alignItems: 'center',
+  },
+  emptyCard: {
+    alignItems: 'center',
+    backgroundColor: Palette.surface,
+    borderRadius: Radius.xl,
+    paddingVertical: Space.section,
+    paddingHorizontal: Space.xl,
+  },
+  emptyCircle: {
+    width: 128,
+    height: 128,
+    borderRadius: Radius.pill,
+    backgroundColor: Palette.primaryTint,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+    marginBottom: Space.lg,
+  },
+  emptyPost: {
+    position: 'absolute',
+    bottom: 28,
+    width: 4,
+    height: 56,
+    borderRadius: 2,
+    backgroundColor: Palette.primary,
+    opacity: 0.55,
+  },
+  emptySign: {
+    position: 'absolute',
+    bottom: 62,
+    width: 50,
+    height: 16,
+    borderRadius: 3,
+    backgroundColor: Palette.primary,
+    opacity: 0.6,
+  },
+  emptyBush: {
+    position: 'absolute',
+    bottom: 16,
+    width: 34,
+    height: 34,
+    borderRadius: Radius.pill,
+    backgroundColor: Palette.primary,
+    opacity: 0.35,
+  },
+  emptyBushLeft: { left: 24 },
+  emptyBushRight: { right: 24 },
+  emptyTitle: {
+    ...Type.label,
+    fontSize: 17,
+    color: Palette.text,
+  },
+  emptySubtitle: {
+    ...Type.body,
+    fontSize: 13,
+    color: Palette.textMuted,
+    textAlign: 'center',
+    marginTop: Space.sm,
+    maxWidth: 240,
+  },
+  emptyCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Space.sm,
+    marginTop: Space.lg,
+    paddingHorizontal: Space.xl,
+    paddingVertical: Space.md,
+    borderRadius: Radius.pill,
+    backgroundColor: Palette.primaryDeep,
+  },
+  emptyCtaText: {
+    ...Type.label,
+    color: Palette.onDark,
   },
   log: {
     backgroundColor: Palette.surface,

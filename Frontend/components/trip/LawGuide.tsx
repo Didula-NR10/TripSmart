@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Banner } from './Ui';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LawEntry, RiskLevel, lawsDisclaimer, typeLabel } from '../../constants/laws';
-import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
+import { Palette, Radius, Shadow, Space, Type } from '../../constants/trip-theme';
 
 /** Severity → the same tones the advisory banners use. */
 const riskTone = (risk: RiskLevel) =>
@@ -22,6 +21,25 @@ const typeIcon: Record<LawEntry['type'], keyof typeof Ionicons.glyphMap> = {
   custom: 'hand-left-outline',
   ethics: 'leaf-outline',
 };
+
+/** A more specific glyph for a handful of common categories, falling back to
+ *  the generic per-type icon above. Cosmetic only — matches the reference
+ *  design's per-topic icons without needing bespoke art per law. */
+function lawIcon(law: LawEntry) {
+  const category = law.category.toLowerCase();
+  if (category.includes('drone')) return { lib: 'mci' as const, name: 'quadcopter' as const };
+  if (category.includes('photo')) return { lib: 'ion' as const, name: 'camera-outline' as const };
+  return { lib: 'ion' as const, name: typeIcon[law.type] };
+}
+
+function LawGlyph({ law, size, color }: { law: LawEntry; size: number; color: string }) {
+  const glyph = lawIcon(law);
+  return glyph.lib === 'mci' ? (
+    <MaterialCommunityIcons name={glyph.name} size={size} color={color} />
+  ) : (
+    <Ionicons name={glyph.name} size={size} color={color} />
+  );
+}
 
 const INITIAL_COUNT = 6;
 
@@ -45,7 +63,7 @@ function LawModal({ law, onClose }: { law: LawEntry | null; onClose: () => void 
       <View style={styles.scrim}>
         <View style={styles.card}>
           <View style={[styles.badge, { backgroundColor: skin.tint }]}>
-            <Ionicons name={typeIcon[law.type]} size={22} color={skin.accent} />
+            <LawGlyph law={law} size={22} color={skin.accent} />
           </View>
 
           <Text style={styles.kind}>
@@ -91,7 +109,7 @@ export function LawGuide({
   return (
     <View>
       <View style={styles.summary}>
-        <Ionicons name="information-circle-outline" size={14} color={Palette.textMuted} />
+        <Ionicons name="information-circle-outline" size={16} color={Palette.primaryDeep} />
         <Text style={styles.summaryText}>
           {districtName
             ? `${laws.length} rules apply here — ${localCount} specific to ${districtName}, ${
@@ -101,18 +119,29 @@ export function LawGuide({
         </Text>
       </View>
 
-      <View style={styles.banners}>
-        {shown.map((law) => (
-          <Banner
-            key={law.id}
-            tone={riskTone(law.risk_level)}
-            icon={typeIcon[law.type]}
-            title={law.title}
-            body={`${typeLabel[law.type]} · ${law.category}. Tap to read the rules.`}
-            action="Read rules"
-            onPress={() => setOpen(law)}
-          />
-        ))}
+      <View style={styles.rows}>
+        {shown.map((law) => {
+          const skin = riskSkin(law.risk_level);
+          return (
+            <Pressable key={law.id} style={styles.row} onPress={() => setOpen(law)}>
+              <View style={[styles.rowBadge, { backgroundColor: skin.tint }]}>
+                <LawGlyph law={law} size={18} color={skin.accent} />
+              </View>
+              <View style={styles.rowBody}>
+                <Text style={styles.rowTitle} numberOfLines={2}>
+                  {law.title}
+                </Text>
+                <Text style={styles.rowMeta}>
+                  {typeLabel[law.type]} · {law.category}
+                </Text>
+              </View>
+              <View style={styles.rowAction}>
+                <Text style={styles.rowActionText}>Read rules</Text>
+                <Ionicons name="chevron-forward" size={13} color={Palette.danger} />
+              </View>
+            </Pressable>
+          );
+        })}
       </View>
 
       {laws.length > INITIAL_COUNT ? (
@@ -138,18 +167,63 @@ export function LawGuide({
 const styles = StyleSheet.create({
   summary: {
     flexDirection: 'row',
-    gap: 6,
-    paddingHorizontal: 2,
-    paddingBottom: Space.md,
+    alignItems: 'flex-start',
+    gap: Space.sm,
+    backgroundColor: Palette.primaryTint,
+    borderRadius: Radius.md,
+    padding: Space.md,
+    marginBottom: Space.md,
   },
   summaryText: {
-    ...Type.caption,
-    color: Palette.textMuted,
+    ...Type.body,
+    fontSize: 13,
+    lineHeight: 18,
+    color: Palette.primaryDeep,
     flex: 1,
-    lineHeight: 15,
   },
-  banners: {
+  rows: {
     gap: Space.sm,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Space.md,
+    backgroundColor: Palette.surface,
+    borderRadius: Radius.md,
+    padding: Space.md,
+    ...Shadow.soft,
+  },
+  rowBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rowBody: {
+    flex: 1,
+  },
+  rowTitle: {
+    ...Type.label,
+    fontSize: 14,
+    lineHeight: 19,
+    color: Palette.text,
+  },
+  rowMeta: {
+    ...Type.caption,
+    fontSize: 11,
+    color: Palette.textMuted,
+    marginTop: 3,
+  },
+  rowAction: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 2,
+  },
+  rowActionText: {
+    ...Type.label,
+    fontSize: 12,
+    color: Palette.danger,
   },
   toggle: {
     flexDirection: 'row',

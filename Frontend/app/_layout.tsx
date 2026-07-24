@@ -6,11 +6,10 @@ import * as SplashScreen from 'expo-splash-screen';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
-} from '@expo-google-fonts/inter';
+  Roboto_400Regular,
+  Roboto_500Medium,
+  Roboto_700Bold,
+} from '@expo-google-fonts/roboto';
 import { TripProvider } from '../lib/store';
 import { AuthProvider } from '../lib/auth';
 import { Palette, Radius, Type } from '../constants/trip-theme';
@@ -22,7 +21,7 @@ const icons: Record<
   { active: keyof typeof Ionicons.glyphMap; idle: keyof typeof Ionicons.glyphMap }
 > = {
   index: { active: 'sunny', idle: 'sunny-outline' },
-  explore: { active: 'shield-checkmark', idle: 'shield-checkmark-outline' },
+  explore: { active: 'business', idle: 'business-outline' },
   plan: { active: 'navigate', idle: 'navigate-outline' },
   reports: { active: 'chatbubbles', idle: 'chatbubbles-outline' },
   profile: { active: 'person', idle: 'person-outline' },
@@ -30,10 +29,9 @@ const icons: Record<
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
+    Roboto: Roboto_400Regular,
+    Roboto_500Medium,
+    Roboto_700Bold,
   });
 
   useEffect(() => {
@@ -76,9 +74,9 @@ export default function RootLayout() {
           })}
         >
           <Tabs.Screen name="index" options={{ title: 'Forecast' }} />
-          <Tabs.Screen name="explore" options={{ title: 'Culture' }} />
-          <Tabs.Screen name="plan" options={{ title: 'Router' }} />
-          <Tabs.Screen name="reports" options={{ title: 'Ground' }} />
+          <Tabs.Screen name="explore" options={{ title: 'Local Guide' }} />
+          <Tabs.Screen name="plan" options={{ title: 'Route Intelligence' }} />
+          <Tabs.Screen name="reports" options={{ title: 'Ground Reports' }} />
           <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
           <Tabs.Screen name="saved" options={{ href: null }} />
           <Tabs.Screen name="trips" options={{ href: null }} />
