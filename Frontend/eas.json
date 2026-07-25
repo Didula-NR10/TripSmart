@@ -11,22 +11,12 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
-      },
-      "env": {
-        "EXPO_PUBLIC_API_URL": "https://didulanr-mandhodhini-backend.hf.space",
-        "EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME": "qftg18mi",
-        "EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET": "pxkwgkig"
       }
     },
     "production": {
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
-      },
-      "env": {
-        "EXPO_PUBLIC_API_URL": "https://didulanr-mandhodhini-backend.hf.space",
-        "EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME": "qftg18mi",
-        "EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET": "pxkwgkig"
       }
     }
   },

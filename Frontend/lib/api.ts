@@ -11,12 +11,8 @@
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { districtByKey, districts } from '../constants/districts';
+import { API_BASE_URL } from './config';
 import { HourPrediction, Prediction, predict } from './engine';
-
-// Point this at the machine running `uvicorn main:app`. For a phone on the
-// same Wi-Fi, set EXPO_PUBLIC_API_URL=http://<your-PC-LAN-IP>:8000 in .env —
-// localhost on a phone is the phone itself.
-export const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
 
 // The current session token, set by the auth provider. Kept module-level so
 // data functions can attach it without importing React context.
@@ -114,7 +110,7 @@ export async function fetchForecastBundle(
   opts: { refresh?: boolean } = {},
 ): Promise<ForecastBundle> {
   const query = opts.refresh ? '?refresh=true' : '';
-  const res = await fetch(`${API_BASE}/api/v1/forecast/${apiName(districtKey)}${query}`);
+  const res = await fetch(`${API_BASE_URL}/api/v1/forecast/${apiName(districtKey)}${query}`);
   if (!res.ok) {
     throw new Error(`Backend returned ${res.status}`);
   }
@@ -206,7 +202,7 @@ type ApiWeeklyDay = {
  * input window and unpredicted channels follow the past week's hourly pattern.
  */
 export async function fetchWeeklyOutlook(districtKey: string): Promise<OutlookDay[]> {
-  const res = await fetch(`${API_BASE}/api/v1/forecast/weekly/${apiName(districtKey)}`);
+  const res = await fetch(`${API_BASE_URL}/api/v1/forecast/weekly/${apiName(districtKey)}`);
   if (!res.ok) {
     throw new Error(`Backend returned ${res.status}`);
   }
@@ -267,7 +263,7 @@ type ApiCurrent = {
 
 /** What the sky is doing in a district right now — for the "go now" comparison. */
 export async function fetchCurrentConditions(districtKey: string): Promise<CurrentConditions> {
-  const res = await fetch(`${API_BASE}/api/v1/forecast/current/${apiName(districtKey)}`);
+  const res = await fetch(`${API_BASE_URL}/api/v1/forecast/current/${apiName(districtKey)}`);
   if (!res.ok) {
     throw new Error(`Backend returned ${res.status}`);
   }
@@ -328,7 +324,7 @@ export async function fetchGroundReports(opts: {
   if (opts.search?.trim()) params.set('search', opts.search.trim());
   const qs = params.toString();
 
-  const res = await fetch(`${API_BASE}/api/v1/reports${qs ? `?${qs}` : ''}`);
+  const res = await fetch(`${API_BASE_URL}/api/v1/reports${qs ? `?${qs}` : ''}`);
   if (!res.ok) {
     throw new Error(`Backend returned ${res.status}`);
   }
@@ -353,7 +349,7 @@ export async function postGroundReport(report: {
   title: string;
   body: string;
 }): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/v1/reports`, {
+  const res = await fetch(`${API_BASE_URL}/api/v1/reports`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({
@@ -373,7 +369,7 @@ export async function postGroundReport(report: {
 
 /** Delete one of YOUR OWN ground reports. Login required. */
 export async function deleteGroundReport(id: string): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/v1/reports/${id}`, {
+  const res = await fetch(`${API_BASE_URL}/api/v1/reports/${id}`, {
     method: 'DELETE',
     headers: authHeaders(),
   });
@@ -393,7 +389,7 @@ export type TravelNote = {
 type ApiNote = { id: string; place: string; body: string; created_at: string };
 
 export async function fetchTravelNotes(): Promise<TravelNote[]> {
-  const res = await fetch(`${API_BASE}/api/v1/notes`, { headers: authHeaders() });
+  const res = await fetch(`${API_BASE_URL}/api/v1/notes`, { headers: authHeaders() });
   if (res.status === 401) throw new Error('LOGIN_REQUIRED');
   if (!res.ok) throw new Error(`Backend returned ${res.status}`);
   const data: { notes: ApiNote[] } = await res.json();
@@ -406,7 +402,7 @@ export async function fetchTravelNotes(): Promise<TravelNote[]> {
 }
 
 export async function postTravelNote(note: { place: string; body: string }): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/v1/notes`, {
+  const res = await fetch(`${API_BASE_URL}/api/v1/notes`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify(note),
@@ -416,7 +412,7 @@ export async function postTravelNote(note: { place: string; body: string }): Pro
 }
 
 export async function deleteTravelNote(id: string): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/v1/notes/${id}`, {
+  const res = await fetch(`${API_BASE_URL}/api/v1/notes/${id}`, {
     method: 'DELETE',
     headers: authHeaders(),
   });

@@ -19,7 +19,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../lib/auth';
-import { cloudinaryConfigured, uploadAvatar } from '../../lib/cloudinary';
+import { uploadAvatar } from '../../lib/cloudinary';
 import { Palette, Radius, Shadow, Space, Type } from '../../constants/trip-theme';
 
 function InfoRow({ icon, text }: { icon: keyof typeof Ionicons.glyphMap; text: string }) {
@@ -53,13 +53,6 @@ export function ProfileOverview({ travelPoints }: { travelPoints: number }) {
 
   const changePhoto = async () => {
     setAvatarError(null);
-    if (!cloudinaryConfigured()) {
-      setAvatarError(
-        'Cloudinary is not configured yet. Add EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME and ' +
-          'EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET to Frontend/.env, then restart Expo.',
-      );
-      return;
-    }
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
       setAvatarError('Photo permission denied.');

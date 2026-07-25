@@ -19,7 +19,8 @@ import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { API_BASE, setAuthToken } from './api';
+import { setAuthToken } from './api';
+import { API_BASE_URL } from './config';
 import { Palette, Radius, Space, Type } from '../constants/trip-theme';
 
 export type AuthUser = {
@@ -45,7 +46,7 @@ async function call<T>(
   token?: string | null,
   method?: 'GET' | 'POST',
 ): Promise<T> {
-  const res = await fetch(`${API_BASE}/api/v1/auth/${path}`, {
+  const res = await fetch(`${API_BASE_URL}/api/v1/auth/${path}`, {
     method: method ?? (body ? 'POST' : 'GET'),
     headers: {
       'Content-Type': 'application/json',
