@@ -420,6 +420,114 @@ export async function deleteTravelNote(id: string): Promise<void> {
   if (!res.ok && res.status !== 404) throw new Error(`Backend returned ${res.status}`);
 }
 
+// ── Travel journal — the pirate-book notebook, login required ───────────────
+// A "page" is a plain travel note bound to one book + page number, so
+// everything written here still counts toward the notebook stats above.
+
+export type JournalPage = {
+  id: string;
+  pageNumber: number;
+  place: string;
+  body: string;
+  photoUrl: string;
+  at: number;
+};
+
+export type JournalBook = {
+  id: string;
+  title: string;
+  pageCount: number;
+  at: number;
+};
+
+export type JournalDetail = JournalBook & { pages: JournalPage[] };
+
+type ApiPage = {
+  id: string;
+  page_number: number;
+  place: string;
+  body: string;
+  photo_url: string;
+  created_at: string;
+};
+type ApiBook = { id: string; title: string; page_count: number; created_at: string };
+type ApiBookDetail = ApiBook & { pages: ApiPage[] };
+
+const toPage = (p: ApiPage): JournalPage => ({
+  id: p.id,
+  pageNumber: p.page_number,
+  place: p.place,
+  body: p.body,
+  photoUrl: p.photo_url,
+  at: new Date(p.created_at).getTime(),
+});
+
+const toBook = (b: ApiBook): JournalBook => ({
+  id: b.id,
+  title: b.title,
+  pageCount: b.page_count,
+  at: new Date(b.created_at).getTime(),
+});
+
+async function readJournalError(res: Response): Promise<never> {
+  if (res.status === 401) throw new Error('LOGIN_REQUIRED');
+  const data = await res.json().catch(() => ({}));
+  throw new Error(typeof data?.detail === 'string' ? data.detail : `Backend returned ${res.status}`);
+}
+
+export async function fetchJournals(): Promise<JournalBook[]> {
+  const res = await fetch(`${API_BASE_URL}/api/v1/journals`, { headers: authHeaders() });
+  if (!res.ok) return readJournalError(res);
+  const data: ApiBook[] = await res.json();
+  return data.map(toBook);
+}
+
+export async function createJournal(title?: string): Promise<JournalBook> {
+  const res = await fetch(`${API_BASE_URL}/api/v1/journals`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ title: title ?? null }),
+  });
+  if (!res.ok) return readJournalError(res);
+  return toBook(await res.json());
+}
+
+export async function fetchJournal(id: string): Promise<JournalDetail> {
+  const res = await fetch(`${API_BASE_URL}/api/v1/journals/${id}`, { headers: authHeaders() });
+  if (!res.ok) return readJournalError(res);
+  const data: ApiBookDetail = await res.json();
+  return { ...toBook(data), pages: data.pages.map(toPage) };
+}
+
+export async function createJournalPage(
+  journalId: string,
+  page: { place: string; body: string; photoUrl?: string },
+): Promise<JournalPage> {
+  const res = await fetch(`${API_BASE_URL}/api/v1/journals/${journalId}/pages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ place: page.place, body: page.body, photo_url: page.photoUrl ?? '' }),
+  });
+  if (!res.ok) return readJournalError(res);
+  return toPage(await res.json());
+}
+
+export async function deleteJournalPage(journalId: string, pageId: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/api/v1/journals/${journalId}/pages/${pageId}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  if (!res.ok && res.status !== 404) return readJournalError(res);
+}
+
+export async function deleteJournal(journalId: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/api/v1/journals/${journalId}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  if (!res.ok && res.status !== 404) return readJournalError(res);
+}
+
 // ── Offline cache (factor 4) — expires after 24 hours ────────────────────────
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;

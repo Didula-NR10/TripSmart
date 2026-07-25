@@ -15,6 +15,7 @@ from auth.routers import router as auth_router
 from core.config import settings
 from core.database import init_db
 from forecast.routers import router as forecast_router
+from notes.journal_router import router as journal_router
 from notes.routers import router as notes_router
 from reports.routers import router as reports_router
 
@@ -64,6 +65,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(forecast_router)
 app.include_router(notes_router)
+app.include_router(journal_router)
 app.include_router(reports_router)
 # app.include_router(profile_router)
 # app.include_router(almanac_router)

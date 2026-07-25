@@ -1,6 +1,8 @@
 /**
  * TravelNotebook — the logged-in traveller's private journal: where they
- * went, what they saw. Entries live on the server until deleted.
+ * went, what they saw. Entries live on the server until deleted. Writing now
+ * happens in the pirate-journal book (app/journal.tsx) — this component is
+ * the read-only history + the entry point into it.
  *
  * `limit` caps how many notes are shown (the Profile screen passes 2 by
  * default and lets "View all" lift the cap). `onNotesChange` reports the
@@ -8,22 +10,10 @@
  * stats without a second fetch.
  */
 import { useCallback, useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import {
-  TravelNote,
-  deleteTravelNote,
-  fetchTravelNotes,
-  postTravelNote,
-} from '../../lib/api';
+import { TravelNote, deleteTravelNote, fetchTravelNotes } from '../../lib/api';
 import { districts } from '../../constants/districts';
 import { districtHero } from '../../constants/district-hero';
 import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
@@ -57,11 +47,6 @@ export function TravelNotebook({
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
 
-  const [composing, setComposing] = useState(false);
-  const [place, setPlace] = useState('');
-  const [body, setBody] = useState('');
-  const [saving, setSaving] = useState(false);
-
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -81,22 +66,6 @@ export function TravelNotebook({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const save = async () => {
-    if (!place.trim() || !body.trim()) return;
-    setSaving(true);
-    try {
-      await postTravelNote({ place: place.trim(), body: body.trim() });
-      setPlace('');
-      setBody('');
-      setComposing(false);
-      await load();
-    } catch {
-      setFailed(true);
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const remove = async (id: string) => {
     const next = notes.filter((x) => x.id !== id);
     setNotes(next); // optimistic
@@ -112,55 +81,16 @@ export function TravelNotebook({
 
   return (
     <View>
-      {composing ? (
-        <View style={styles.form}>
-          <TextInput
-            value={place}
-            onChangeText={setPlace}
-            placeholder="Where did you go? e.g. Sigiriya, Ella Rock"
-            placeholderTextColor={Palette.textDim}
-            style={styles.input}
-          />
-          <TextInput
-            value={body}
-            onChangeText={setBody}
-            placeholder="What did you see? The view, the food, the people…"
-            placeholderTextColor={Palette.textDim}
-            multiline
-            style={[styles.input, styles.multiline]}
-          />
-          <View style={styles.formActions}>
-            <Pressable onPress={() => setComposing(false)} style={styles.cancel}>
-              <Text style={styles.cancelText}>Cancel</Text>
-            </Pressable>
-            <Pressable
-              onPress={save}
-              disabled={saving || !place.trim() || !body.trim()}
-              style={[
-                styles.save,
-                (saving || !place.trim() || !body.trim()) && styles.saveOff,
-              ]}
-            >
-              {saving ? (
-                <ActivityIndicator size="small" color={Palette.onDark} />
-              ) : (
-                <Text style={styles.saveText}>Save note</Text>
-              )}
-            </Pressable>
-          </View>
+      <Pressable style={styles.trigger} onPress={() => router.push('/journal')}>
+        <View style={styles.triggerIcon}>
+          <Ionicons name="create-outline" size={17} color={Palette.primaryDeep} />
         </View>
-      ) : (
-        <Pressable style={styles.trigger} onPress={() => setComposing(true)}>
-          <View style={styles.triggerIcon}>
-            <Ionicons name="create-outline" size={17} color={Palette.primaryDeep} />
-          </View>
-          <View style={styles.triggerBody}>
-            <Text style={styles.triggerTitle}>Write a travel note</Text>
-            <Text style={styles.triggerSubtitle}>Capture your experiences and memories.</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={16} color={Palette.primaryDeep} />
-        </Pressable>
-      )}
+        <View style={styles.triggerBody}>
+          <Text style={styles.triggerTitle}>Write a travel note</Text>
+          <Text style={styles.triggerSubtitle}>Capture your experiences and memories.</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={16} color={Palette.primaryDeep} />
+      </Pressable>
 
       {loading ? (
         <View style={styles.loading}>
@@ -241,55 +171,6 @@ const styles = StyleSheet.create({
     fontSize: 10.5,
     color: Palette.textMuted,
     marginTop: 1,
-  },
-  form: {
-    gap: Space.sm,
-    backgroundColor: Palette.surface,
-    borderRadius: Radius.lg,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    padding: Space.md,
-  },
-  input: {
-    backgroundColor: Palette.canvas,
-    borderRadius: Radius.sm,
-    paddingHorizontal: Space.md,
-    paddingVertical: Space.md,
-    ...Type.body,
-    fontSize: 13,
-    color: Palette.text,
-  },
-  multiline: {
-    height: 84,
-    textAlignVertical: 'top',
-  },
-  formActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: Space.sm,
-  },
-  cancel: {
-    paddingHorizontal: Space.lg,
-    paddingVertical: Space.sm,
-  },
-  cancelText: {
-    ...Type.label,
-    fontSize: 12,
-    color: Palette.textMuted,
-  },
-  save: {
-    paddingHorizontal: Space.lg,
-    paddingVertical: Space.sm,
-    borderRadius: Radius.sm,
-    backgroundColor: Palette.primary,
-    minWidth: 92,
-    alignItems: 'center',
-  },
-  saveOff: { opacity: 0.5 },
-  saveText: {
-    ...Type.label,
-    fontSize: 12,
-    color: Palette.onDark,
   },
   loading: {
     padding: Space.lg,

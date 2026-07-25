@@ -178,13 +178,43 @@ class AuthToken(Base):
     expires_at = mapped_column(TIMESTAMP(timezone=True), nullable=False)
 
 
+class TravelJournal(Base):
+    """A 'book' in the traveller's journal — a container for up to 10 pages
+    (see notes.journal_router.MAX_PAGES_PER_BOOK). Deleting a book deletes
+    every page in it."""
+
+    __tablename__ = "travel_journals"
+    __table_args__ = (
+        Index("travel_journals_user_created_idx", "user_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    title: Mapped[str] = mapped_column(Text, nullable=False)   # "Book 1", "Book 2", ...
+    created_at = mapped_column(
+        TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
+    )
+
+
 class TravelNote(Base):
     """A private notebook entry: where the traveller went and what they saw.
-    Notes belong to their author alone and live until deleted."""
+    Notes belong to their author alone and live until deleted.
+
+    A note optionally belongs to one page of one TravelJournal book
+    (journal_id + page_number, 1-based, unique per book). Notes written
+    before the journal feature existed have both columns NULL — they still
+    count toward the traveller's stats, they just are not bound in a book."""
 
     __tablename__ = "travel_notes"
     __table_args__ = (
         Index("travel_notes_user_created_idx", "user_id", "created_at"),
+        Index("travel_notes_journal_page_idx", "journal_id", "page_number"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -197,6 +227,13 @@ class TravelNote(Base):
     )
     place: Mapped[str] = mapped_column(Text, nullable=False)   # where they went
     body: Mapped[str] = mapped_column(Text, nullable=False)    # what they saw
+    photo_url: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
+    journal_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("travel_journals.id", ondelete="CASCADE"),
+        nullable=True,
+    )
+    page_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at = mapped_column(
         TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
     )

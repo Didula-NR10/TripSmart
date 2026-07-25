@@ -1,13 +1,18 @@
+import { ReactNode } from 'react';
 import { Image, ImageSourcePropType, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
 
 /**
- * PageHero — the light, full-bleed banner header shared by Local Guide, Route
- * Intelligence and Ground Reports: a decorative photo fades into the canvas
- * from the top-right, with an optional icon badge, a big bold title and a
- * subtitle sitting on top of the clean (unobstructed) left side of it.
+ * PageHero — the light, full-bleed banner header shared by every tab (Local
+ * Guide, Route Intelligence, Ground Reports, Profile): a decorative photo
+ * fades into the canvas from the top-right, with an icon badge, a big bold
+ * title and a subtitle sitting on top of the clean (unobstructed) left side
+ * of it. `topRight` (e.g. Profile's settings/notification buttons) is
+ * absolutely positioned so it never shifts where the badge/title sit —
+ * every screen using this component gets the identical header height and
+ * text position, so switching tabs never jumps.
  *
  * Rendered as the first child of a screen's ScrollView; the negative margins
  * cancel that ScrollView's own padding so the photo can bleed edge-to-edge.
@@ -17,11 +22,13 @@ export function PageHero({
   title,
   subtitle,
   image,
+  topRight,
 }: {
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof Ionicons.glyphMap;
   title: string;
   subtitle: string;
   image: ImageSourcePropType;
+  topRight?: ReactNode;
 }) {
   return (
     <View style={styles.wrap}>
@@ -39,12 +46,15 @@ export function PageHero({
         style={StyleSheet.absoluteFill}
       />
 
+      {/* The hero box is already below the status bar (the screen's own
+          SafeAreaView handles that) — this only needs a small fixed offset,
+          not another safe-area inset on top of it. */}
+      {topRight ? <View style={styles.topRight}>{topRight}</View> : null}
+
       <View style={styles.content}>
-        {icon ? (
-          <View style={styles.badge}>
-            <Ionicons name={icon} size={22} color={Palette.onDark} />
-          </View>
-        ) : null}
+        <View style={styles.badge}>
+          <Ionicons name={icon} size={22} color={Palette.onDark} />
+        </View>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
       </View>
@@ -63,8 +73,17 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 40,
     paddingHorizontal: Space.lg,
+  },
+  topRight: {
+    position: 'absolute',
+    top: Space.sm,
+    right: Space.lg,
+    flexDirection: 'row',
+    gap: Space.sm,
+    zIndex: 2,
   },
   badge: {
     width: 44,

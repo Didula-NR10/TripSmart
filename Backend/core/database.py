@@ -85,6 +85,20 @@ def init_db() -> None:
             "ALTER TABLE public.users "
             "ADD COLUMN IF NOT EXISTS avatar_url TEXT NOT NULL DEFAULT ''"
         ))
+        # Journal feature: notes optionally live on one page of one book.
+        conn.execute(text(
+            "ALTER TABLE public.travel_notes "
+            "ADD COLUMN IF NOT EXISTS photo_url TEXT NOT NULL DEFAULT ''"
+        ))
+        conn.execute(text(
+            "ALTER TABLE public.travel_notes "
+            "ADD COLUMN IF NOT EXISTS journal_id UUID NULL "
+            "REFERENCES public.travel_journals(id) ON DELETE CASCADE"
+        ))
+        conn.execute(text(
+            "ALTER TABLE public.travel_notes "
+            "ADD COLUMN IF NOT EXISTS page_number INTEGER NULL"
+        ))
 
     # Seed the 25 districts the model serves. Imported here, not at module
     # top, to keep core free of forecast-package imports at load time.

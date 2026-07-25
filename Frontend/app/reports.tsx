@@ -126,6 +126,7 @@ export default function ReportsScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <PageHero
+          icon="chatbubbles"
           title="Ground Reports"
           subtitle="Live conditions from travellers on the ground. Every report expires after 24 hours."
           image={{ uri: heroForDistrict('badulla').url }}

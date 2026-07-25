@@ -10,6 +10,11 @@ import {
   Roboto_500Medium,
   Roboto_700Bold,
 } from '@expo-google-fonts/roboto';
+import { Caveat_400Regular, Caveat_700Bold } from '@expo-google-fonts/caveat';
+import {
+  PlayfairDisplay_600SemiBold,
+  PlayfairDisplay_700Bold,
+} from '@expo-google-fonts/playfair-display';
 import { TripProvider } from '../lib/store';
 import { AuthProvider } from '../lib/auth';
 import { Palette, Radius, Type } from '../constants/trip-theme';
@@ -32,6 +37,10 @@ export default function RootLayout() {
     Roboto: Roboto_400Regular,
     Roboto_500Medium,
     Roboto_700Bold,
+    Caveat_400Regular,
+    Caveat_700Bold,
+    PlayfairDisplay_600SemiBold,
+    PlayfairDisplay_700Bold,
   });
 
   useEffect(() => {
@@ -81,6 +90,7 @@ export default function RootLayout() {
           <Tabs.Screen name="saved" options={{ href: null }} />
           <Tabs.Screen name="trips" options={{ href: null }} />
           <Tabs.Screen name="search" options={{ href: null }} />
+          <Tabs.Screen name="journal" options={{ href: null }} />
         </Tabs>
       </TripProvider>
       </AuthProvider>
