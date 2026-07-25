@@ -68,7 +68,7 @@ export function NotificationInbox({
               <View style={styles.empty}>
                 <Ionicons name="notifications-off-outline" size={22} color={Palette.textDim} />
                 <Text style={styles.emptyText}>
-                  Nothing yet. Move around with location on in the Culture tab and you'll see
+                  Nothing yet. Move around with location on in the Culture tab and you&apos;ll see
                   local rules, specialties, and ground reports here as you enter districts.
                 </Text>
               </View>
