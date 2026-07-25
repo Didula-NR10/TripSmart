@@ -5,11 +5,14 @@ export default ({ config }) => ({
   ...config,
   android: {
     ...config.android,
-    package: "com.didulanr.tripsmart", // <-- Add this line here
+    package: 'com.didulanr.tripsmart',
     config: {
+      ...config.android?.config,
       googleMaps: {
         apiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY ?? '',
       },
     },
   },
+  // Append, never replace — app.json already declares expo-router and expo-splash-screen.
+  plugins: [...(config.plugins ?? []), 'expo-font'],
 });

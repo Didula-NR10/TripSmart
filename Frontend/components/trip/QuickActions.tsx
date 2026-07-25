@@ -1,50 +1,71 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+/**
+ * QuickActions — the 2x2 grid at the bottom of the Profile tab. Each tile
+ * routes to the closest real screen the app already has; "Help center" has
+ * no dedicated screen yet, so it surfaces a short in-app notice instead of a
+ * dead tap.
+ */
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { quickActions } from '../../constants/trip-data';
-import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
+import { Ionicons } from '@expo/vector-icons';
+import { Palette, Radius, Shadow, Space, Type } from '../../constants/trip-theme';
 
-const tones: Record<string, { fg: string; bg: string }> = {
-  accent: { fg: Palette.accent, bg: Palette.accentGlow },
-  cyan: { fg: Palette.cyan, bg: Palette.cyanGlow },
-  warn: { fg: Palette.warn, bg: Palette.warnGlow },
+type Action = {
+  key: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  title: string;
+  detail: string;
+  onPress: () => void;
 };
 
 export function QuickActions() {
   const router = useRouter();
 
+  const actions: Action[] = [
+    {
+      key: 'offline',
+      icon: 'cloud-download-outline',
+      title: 'Offline maps',
+      detail: 'Download for offline access',
+      onPress: () => router.push('/trips'),
+    },
+    {
+      key: 'saved',
+      icon: 'heart-outline',
+      title: 'Saved places',
+      detail: 'Your favorite destinations',
+      onPress: () => router.push('/saved'),
+    },
+    {
+      key: 'contribute',
+      icon: 'cloud-upload-outline',
+      title: 'Contribute',
+      detail: 'Share reports and help others',
+      onPress: () => router.push('/reports'),
+    },
+    {
+      key: 'help',
+      icon: 'help-circle-outline',
+      title: 'Help center',
+      detail: 'Get support and find answers',
+      onPress: () =>
+        Alert.alert(
+          'Help center',
+          'Support articles are coming soon. For now, post a ground report if something looks wrong.',
+        ),
+    },
+  ];
+
   return (
     <View style={styles.grid}>
-      {quickActions.map((action) => {
-        const tone = tones[action.tone];
-        return (
-          <Pressable
-            key={action.key}
-            style={({ pressed }) => [styles.tile, pressed && styles.tilePressed]}
-            onPress={() => router.push(action.route as never)}
-          >
-            <View style={[styles.iconWrap, { backgroundColor: tone.bg, borderColor: tone.fg }]}>
-              <Ionicons name={action.icon as never} size={16} color={tone.fg} />
-            </View>
-
-            <Text style={styles.title}>
-              <Text style={styles.bracket}>[ </Text>
-              {action.title}
-              <Text style={styles.bracket}> ]</Text>
-            </Text>
-            <Text style={styles.caption} numberOfLines={2}>
-              {action.caption}
-            </Text>
-
-            <Ionicons
-              name="arrow-forward"
-              size={13}
-              color={Palette.textDim}
-              style={styles.arrow}
-            />
-          </Pressable>
-        );
-      })}
+      {actions.map((a) => (
+        <Pressable key={a.key} style={styles.tile} onPress={a.onPress}>
+          <View style={styles.iconWrap}>
+            <Ionicons name={a.icon} size={17} color={Palette.primary} />
+          </View>
+          <Text style={styles.title}>{a.title}</Text>
+          <Text style={styles.detail}>{a.detail}</Text>
+        </Pressable>
+      ))}
     </View>
   );
 }
@@ -58,44 +79,29 @@ const styles = StyleSheet.create({
   tile: {
     flexGrow: 1,
     flexBasis: '46%',
-    minHeight: 122,
-    padding: Space.lg,
-    borderRadius: Radius.lg,
-    borderWidth: 1,
-    borderColor: Palette.border,
     backgroundColor: Palette.surface,
-  },
-  tilePressed: {
-    borderColor: Palette.accentEdge,
-    backgroundColor: Palette.surfaceRaised,
+    borderRadius: Radius.lg,
+    padding: Space.lg,
+    ...Shadow.soft,
   },
   iconWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: Radius.sm,
-    borderWidth: 1,
+    width: 34,
+    height: 34,
+    borderRadius: Radius.pill,
+    backgroundColor: Palette.primaryTint,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Space.md,
+    marginBottom: Space.sm,
   },
   title: {
     ...Type.label,
+    fontSize: 13,
     color: Palette.text,
   },
-  bracket: {
-    color: Palette.accent,
-    fontFamily: Type.metric.fontFamily,
-    fontSize: 11,
-  },
-  caption: {
+  detail: {
     ...Type.caption,
-    color: Palette.textDim,
-    marginTop: 4,
-    lineHeight: 16,
-  },
-  arrow: {
-    position: 'absolute',
-    right: Space.lg,
-    bottom: Space.lg,
+    fontSize: 10,
+    color: Palette.textMuted,
+    marginTop: 2,
   },
 });

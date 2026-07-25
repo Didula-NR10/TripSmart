@@ -1,14 +1,12 @@
 /**
- * AuthPanel — the whole account UI on the Profile tab.
- *
- * Logged out: login / signup / verify-OTP / forgot / reset forms.
- * Logged in:  the profile card with a sign-out button.
+ * AuthPanel — the logged-out account UI on the Profile tab: login / signup /
+ * verify-OTP / forgot / reset forms. Once logged in, ProfileOverview takes
+ * over (avatar, account facts, change password, sign out).
  */
 import { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Image,
   Modal,
   Pressable,
   StyleSheet,
@@ -17,10 +15,8 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
 import { countries } from '../../constants/countries';
 import { useAuth } from '../../lib/auth';
-import { cloudinaryConfigured, uploadAvatar } from '../../lib/cloudinary';
 import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
 
 type Mode = 'login' | 'signup' | 'verify' | 'forgot' | 'reset';
@@ -43,18 +39,6 @@ export function AuthPanel() {
   const [newPassword, setNewPassword] = useState('');
   const [pickingCountry, setPickingCountry] = useState(false);
   const [countryQuery, setCountryQuery] = useState('');
-  const [avatarBusy, setAvatarBusy] = useState(false);
-  const [avatarError, setAvatarError] = useState<string | null>(null);
-
-  // change-password (logged in) — separate state so it never collides with
-  // the logged-out forgot/reset fields above.
-  const [changingPw, setChangingPw] = useState(false);
-  const [pwSent, setPwSent] = useState(false);
-  const [pwOtp, setPwOtp] = useState('');
-  const [pwNew, setPwNew] = useState('');
-  const [pwBusy, setPwBusy] = useState(false);
-  const [pwError, setPwError] = useState<string | null>(null);
-  const [pwNotice, setPwNotice] = useState<string | null>(null);
 
   const switchMode = (m: Mode) => {
     setMode(m);
@@ -78,232 +62,7 @@ export function AuthPanel() {
   const showDevOtp = (devOtp?: string | null) =>
     devOtp ? ` DEV MODE (no SMTP configured): your code is ${devOtp}.` : '';
 
-  // Pick an image, push it to Cloudinary, store the URL on the account.
-  const changePhoto = async () => {
-    setAvatarError(null);
-    if (!cloudinaryConfigured()) {
-      setAvatarError(
-        'Cloudinary is not configured yet. Add EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME and ' +
-          'EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET to Frontend/.env (see the comments there), ' +
-          'then restart Expo.',
-      );
-      return;
-    }
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) {
-      setAvatarError('Photo permission denied.');
-      return;
-    }
-    const picked = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-      base64: true,
-    });
-    if (picked.canceled || !picked.assets?.[0]?.base64) return;
-
-    const asset = picked.assets[0];
-    setAvatarBusy(true);
-    try {
-      const url = await uploadAvatar(
-        `data:${asset.mimeType ?? 'image/jpeg'};base64,${asset.base64}`,
-      );
-      await auth.setAvatar(url);
-    } catch (e) {
-      setAvatarError(e instanceof Error ? e.message : 'Upload failed.');
-    } finally {
-      setAvatarBusy(false);
-    }
-  };
-
-  const openChangePassword = () => {
-    setChangingPw(true);
-    setPwSent(false);
-    setPwOtp('');
-    setPwNew('');
-    setPwError(null);
-    setPwNotice(null);
-  };
-
-  const sendPwCode = async () => {
-    setPwBusy(true);
-    setPwError(null);
-    try {
-      const r = await auth.changePasswordRequest();
-      setPwNotice(`${r.message}${showDevOtp(r.dev_otp)}`);
-      setPwSent(true);
-    } catch (e) {
-      setPwError(e instanceof Error ? e.message : 'Could not send the code.');
-    } finally {
-      setPwBusy(false);
-    }
-  };
-
-  const confirmPwChange = async () => {
-    setPwBusy(true);
-    setPwError(null);
-    try {
-      const r = await auth.changePasswordConfirm(pwOtp.trim(), pwNew);
-      setPwNotice(r.message);
-      setChangingPw(false);
-      setPwOtp('');
-      setPwNew('');
-    } catch (e) {
-      setPwError(e instanceof Error ? e.message : 'Could not change the password.');
-    } finally {
-      setPwBusy(false);
-    }
-  };
-
-  // ── logged in: the profile card ─────────────────────────────────────────
-  if (auth.user) {
-    const u = auth.user;
-    const joined = new Date(u.created_at);
-    return (
-      <View style={styles.card}>
-        <View style={styles.profileHead}>
-          <Pressable style={styles.avatar} onPress={changePhoto} disabled={avatarBusy}>
-            {u.avatar_url ? (
-              <Image source={{ uri: u.avatar_url }} style={styles.avatarImg} />
-            ) : (
-              <Text style={styles.avatarText}>{u.full_name.slice(0, 1).toUpperCase()}</Text>
-            )}
-            <View style={styles.camBadge}>
-              {avatarBusy ? (
-                <ActivityIndicator size={10} color={Palette.onDark} />
-              ) : (
-                <Ionicons name="camera" size={11} color={Palette.onDark} />
-              )}
-            </View>
-          </Pressable>
-          <View style={styles.profileBody}>
-            <Text style={styles.profileName}>{u.full_name}</Text>
-            <Text style={styles.profileMeta}>@{u.username}</Text>
-            <Text style={styles.avatarHint}>Tap the picture to change it</Text>
-          </View>
-          <View style={styles.verified}>
-            <Ionicons name="checkmark-circle" size={13} color={Palette.primary} />
-            <Text style={styles.verifiedText}>Verified</Text>
-          </View>
-        </View>
-
-        {avatarError ? (
-          <View style={styles.errorBox}>
-            <Ionicons name="alert-circle-outline" size={14} color={Palette.danger} />
-            <Text style={styles.errorText}>{avatarError}</Text>
-          </View>
-        ) : null}
-
-        <View style={styles.factRow}>
-          <Ionicons name="mail-outline" size={14} color={Palette.textMuted} />
-          <Text style={styles.factText}>{u.email}</Text>
-        </View>
-        <View style={styles.factRow}>
-          <Ionicons name="globe-outline" size={14} color={Palette.textMuted} />
-          <Text style={styles.factText}>{u.country}</Text>
-        </View>
-        <View style={styles.factRow}>
-          <Ionicons name="calendar-outline" size={14} color={Palette.textMuted} />
-          <Text style={styles.factText}>
-            Member since{' '}
-            {joined.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-          </Text>
-        </View>
-
-        {/* ── change password ─────────────────────────────────────────── */}
-        {!changingPw ? (
-          <Pressable style={styles.changePw} onPress={openChangePassword}>
-            <Ionicons name="key-outline" size={15} color={Palette.text} />
-            <Text style={styles.changePwText}>Change password</Text>
-            <Ionicons name="chevron-forward" size={14} color={Palette.textMuted} />
-          </Pressable>
-        ) : (
-          <View style={styles.pwBox}>
-            <Text style={styles.hint}>
-              {pwSent
-                ? `Enter the code sent to ${u.email} and choose a new password.`
-                : `We'll email a confirmation code to ${u.email} before changing anything.`}
-            </Text>
-
-            {pwNotice ? (
-              <View style={styles.notice}>
-                <Ionicons name="mail-unread-outline" size={14} color={Palette.primaryDeep} />
-                <Text style={styles.noticeText}>{pwNotice}</Text>
-              </View>
-            ) : null}
-            {pwError ? (
-              <View style={styles.errorBox}>
-                <Ionicons name="alert-circle-outline" size={14} color={Palette.danger} />
-                <Text style={styles.errorText}>{pwError}</Text>
-              </View>
-            ) : null}
-
-            {pwSent ? (
-              <>
-                <TextInput
-                  style={styles.input}
-                  value={pwOtp}
-                  onChangeText={setPwOtp}
-                  placeholder="6-digit code"
-                  placeholderTextColor={Palette.textDim}
-                  keyboardType="number-pad"
-                />
-                <TextInput
-                  style={styles.input}
-                  value={pwNew}
-                  onChangeText={setPwNew}
-                  placeholder="New password (min 8 characters)"
-                  placeholderTextColor={Palette.textDim}
-                  secureTextEntry
-                  autoCapitalize="none"
-                />
-                <Pressable
-                  style={[styles.primary, pwBusy && styles.primaryBusy]}
-                  onPress={confirmPwChange}
-                  disabled={pwBusy || pwOtp.trim().length !== 6 || pwNew.length < 8}
-                >
-                  {pwBusy ? <ActivityIndicator size="small" color={Palette.onDark} /> : null}
-                  <Text style={styles.primaryText}>Confirm new password</Text>
-                </Pressable>
-                <Pressable onPress={sendPwCode} disabled={pwBusy}>
-                  <Text style={styles.link}>Resend code</Text>
-                </Pressable>
-              </>
-            ) : (
-              <Pressable
-                style={[styles.primary, pwBusy && styles.primaryBusy]}
-                onPress={sendPwCode}
-                disabled={pwBusy}
-              >
-                {pwBusy ? <ActivityIndicator size="small" color={Palette.onDark} /> : null}
-                <Text style={styles.primaryText}>Send confirmation code</Text>
-              </Pressable>
-            )}
-
-            <Pressable onPress={() => setChangingPw(false)} disabled={pwBusy}>
-              <Text style={styles.link}>Cancel</Text>
-            </Pressable>
-          </View>
-        )}
-
-        <Pressable
-          style={styles.signOut}
-          onPress={() => run(async () => auth.logout())}
-          disabled={busy}
-        >
-          {busy ? (
-            <ActivityIndicator size="small" color={Palette.danger} />
-          ) : (
-            <Ionicons name="log-out-outline" size={16} color={Palette.danger} />
-          )}
-          <Text style={styles.signOutText}>Sign out</Text>
-        </Pressable>
-      </View>
-    );
-  }
-
-  // ── logged out: the forms ───────────────────────────────────────────────
+  // ── the forms ────────────────────────────────────────────────────────────
   const field = (
     value: string,
     set: (v: string) => void,
@@ -652,123 +411,6 @@ const styles = StyleSheet.create({
     color: '#7E2A20',
     flex: 1,
     lineHeight: 15,
-  },
-  // profile card
-  profileHead: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Space.md,
-    marginBottom: Space.lg,
-  },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: Radius.pill,
-    backgroundColor: Palette.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarImg: {
-    width: 52,
-    height: 52,
-    borderRadius: Radius.pill,
-  },
-  avatarText: {
-    ...Type.title,
-    color: Palette.onDark,
-  },
-  camBadge: {
-    position: 'absolute',
-    right: -2,
-    bottom: -2,
-    width: 20,
-    height: 20,
-    borderRadius: Radius.pill,
-    backgroundColor: Palette.primaryDeep,
-    borderWidth: 2,
-    borderColor: Palette.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarHint: {
-    ...Type.caption,
-    fontSize: 9,
-    color: Palette.textDim,
-    marginTop: 2,
-  },
-  profileBody: { flex: 1 },
-  profileName: {
-    ...Type.title,
-    fontSize: 16,
-    color: Palette.text,
-  },
-  profileMeta: {
-    ...Type.caption,
-    color: Palette.textMuted,
-    marginTop: 2,
-  },
-  verified: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    backgroundColor: Palette.primaryTint,
-    borderRadius: Radius.pill,
-    paddingHorizontal: Space.sm,
-    paddingVertical: 4,
-  },
-  verifiedText: {
-    ...Type.caption,
-    fontSize: 9,
-    color: Palette.primaryDeep,
-  },
-  factRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Space.sm,
-    paddingVertical: Space.sm,
-  },
-  factText: {
-    ...Type.body,
-    fontSize: 12,
-    color: Palette.textMuted,
-  },
-  changePw: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Space.sm,
-    marginTop: Space.lg,
-    paddingVertical: Space.md,
-    paddingHorizontal: Space.md,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    backgroundColor: Palette.canvas,
-  },
-  changePwText: {
-    ...Type.label,
-    fontSize: 12,
-    color: Palette.text,
-    flex: 1,
-  },
-  pwBox: {
-    marginTop: Space.lg,
-    paddingTop: Space.lg,
-    borderTopWidth: 1,
-    borderTopColor: Palette.borderSoft,
-  },
-  signOut: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Space.sm,
-    marginTop: Space.lg,
-    paddingVertical: Space.md,
-    borderRadius: Radius.md,
-    backgroundColor: Palette.dangerSoft,
-  },
-  signOutText: {
-    ...Type.label,
-    color: Palette.danger,
   },
   // country sheet
   sheetScrim: {
