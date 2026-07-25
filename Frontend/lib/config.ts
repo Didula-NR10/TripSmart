@@ -5,4 +5,4 @@
  * a different backend (e.g. http://<your-PC-LAN-IP>:8000 for local dev on a
  * phone — localhost on a phone means the phone itself).
  */
-export const API_BASE_URL = 'https://didulanr-mandhodhini-backend.hf.space';
+export const API_BASE_URL = 'http://localhost:8000';
