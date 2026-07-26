@@ -129,6 +129,52 @@ ready to paste into `model_pipeline.py` and `Backend/forecast/utils.py`.
 
 This is what was used to produce the tables currently shipped — see below.
 
+### `plot_ground_truth_comparison.py` — GRU vs REAL ground truth, one chart
+
+```bash
+python plot_ground_truth_comparison.py            # Colombo
+python plot_ground_truth_comparison.py Kandy
+```
+
+What it does: picks the most recent 168h context window whose following 24h
+have already elapsed, runs the model (both raw and with the shipped
+per-district correction applied — the exact production code path), and
+plots both against Open-Meteo's **historical archive** (real recorded
+weather) for that same window. Unlike `compare_with_openmeteo.py`, nothing
+here is a forecast still waiting to happen — every line covers hours that
+are already over. Saves `output/ground_truth_<district>.png`.
+
+### `predict_8h.py` + `verify_predictions.py` — GRU vs Open-Meteo's forecast vs what actually happens
+
+Two-step, because Open-Meteo doesn't archive its own past forecasts — the
+only way to know "what did Open-Meteo predict, and was it right" is to
+save its prediction now and check back after the hours it covers have
+actually passed.
+
+**Step 1 — right now**, log a prediction:
+```bash
+python predict_8h.py Colombo              # next 8h by default
+python predict_8h.py Kandy --hours 6
+```
+Fetches context, gets the GRU's prediction AND Open-Meteo's own forecast
+for the same next N hours, plots them against each other (predictions
+only — neither has happened yet), and appends the prediction to
+`output/prediction_log.jsonl` for later checking.
+
+**Step 2 — after those hours have passed**, verify:
+```bash
+python verify_predictions.py Colombo      # or omit the district to check all logged predictions
+```
+Fetches what actually happened for that exact window, then plots the
+3-way comparison (GRU predicted / Open-Meteo predicted / real weather) to
+`output/verified_<district>_<timestamp>.png`, and prints a MAE table
+showing which of GRU or Open-Meteo was actually closer to reality. Running
+it before the window has elapsed just tells you to check back later — it
+doesn't error or guess.
+
+Run `predict_8h.py` regularly (e.g. daily) to build up a real track record
+over time rather than a one-off snapshot.
+
 ### `model_pipeline.py` — not run directly
 
 The shared engine all the scripts above import: feature engineering,
