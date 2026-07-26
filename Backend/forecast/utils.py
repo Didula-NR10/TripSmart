@@ -108,9 +108,56 @@ def inverse_transform_targets(raw_pred: np.ndarray, scaler: Any, horizon: int) -
     return real_values[:, TARGET_INDICES]
 
 
-def clamp_physical(temp: float, rain: float, humidity: float) -> tuple[float, float, float]:
+# MSE-trained regressors never predict an exact 0 on zero-inflated targets like
+# rain: dry hours come out as a small positive "noise floor" instead of 0.0
+# (observed ~0.13-0.4mm on dry hours during evaluation). Snapping anything at
+# or below this floor to 0 trades a little sensitivity to genuine light drizzle
+# for removing that persistent phantom-rain bias.
+RAIN_ZERO_FLOOR_MM = 0.3
+
+# Per-lead-hour bias correction (index 0 = hour+1 ... index 23 = hour+24),
+# added to the raw prediction before rounding/clamping.
+#
+# History: a first pass (extra/compute_bias_correction.py) compared the GRU
+# against Open-Meteo's own FORECAST at a single point in time across 24
+# districts. It suggested a large, consistent temperature correction — but
+# that was chasing Open-Meteo's forecast bias at that one moment, not a real
+# model error. extra/backtest.py then validated properly: 165 origins over 48
+# days of Open-Meteo's HISTORICAL ARCHIVE (actual recorded weather, real
+# ground truth), fit on the first 70% chronologically and *evaluated on the
+# untouched last 30%*. Result: the raw, uncorrected model already beats every
+# temperature correction tried (holdout MAE 0.37 degC raw vs 0.72 with the
+# single-snapshot table) — the "bias" it appeared to have wasn't real, so
+# TEMP_BIAS_CORRECTION_C is intentionally left at zero. Humidity did carry a
+# genuine, generalizing bias (holdout MAE 3.69% raw -> 3.08% corrected), so
+# that table is populated below. Computed 2026-07-26 for Colombo; rerun
+# extra/backtest.py per-district (or pooled) if you want a less Colombo-
+# specific table, and regenerate both lists if the model is retrained.
+TEMP_BIAS_CORRECTION_C: List[float] = [0.0] * 24
+HUMIDITY_BIAS_CORRECTION_PCT: List[float] = [
+    0.154, 0.438, -0.311, -0.819, -1.026, -1.087, -0.155, -0.098,
+    -0.879, -1.404, -1.859, -2.039, -1.231, -1.085, -1.811, -2.058,
+    -2.106, -2.108, -1.281, -1.207, -1.992, -2.228, -2.204, -2.026,
+]
+
+
+def clamp_physical(
+    temp: float, rain: float, humidity: float, hour_index: int | None = None
+) -> tuple[float, float, float]:
     """The model is a regressor: nothing stops it predicting -2 mm of rain.
-    Physics does. Clamp before anyone sees a number."""
+    Physics does. Clamp before anyone sees a number.
+
+    `hour_index` (0-based lead hour, 0 = 1h ahead) applies the empirical
+    per-lead-hour bias correction when known; omit it (e.g. bring-your-own-
+    context inference with no fixed horizon anchor) to skip correction.
+    """
+    if hour_index is not None:
+        temp += TEMP_BIAS_CORRECTION_C[hour_index]
+        humidity += HUMIDITY_BIAS_CORRECTION_PCT[hour_index]
+
+    if rain <= RAIN_ZERO_FLOOR_MM:
+        rain = 0.0
+
     return (
         round(float(temp), 1),
         round(max(0.0, float(rain)), 3),
