@@ -100,7 +100,9 @@ class ForecastService:
         forecast: List[Dict[str, Any]] = []
 
         for i in range(settings.TARGET_HORIZON):
-            temp, rain, humidity = clamp_physical(real[i][0], real[i][1], real[i][2], hour_index=i)
+            temp, rain, humidity = clamp_physical(
+                real[i][0], real[i][1], real[i][2], hour_index=i, district=district
+            )
             valid = last_obs_local + timedelta(hours=i + 1)
             advisory = hourly_advisory(temp, rain, humidity)
 
@@ -230,7 +232,9 @@ class ForecastService:
 
             new_rows: List[Dict[str, Any]] = []
             for i in range(settings.TARGET_HORIZON):
-                temp, rain, humidity = clamp_physical(real[i][0], real[i][1], real[i][2], hour_index=i)
+                temp, rain, humidity = clamp_physical(
+                    real[i][0], real[i][1], real[i][2], hour_index=i, district=district
+                )
                 valid = last_dt + pd.Timedelta(hours=i + 1)
                 hour = int(valid.hour)
 

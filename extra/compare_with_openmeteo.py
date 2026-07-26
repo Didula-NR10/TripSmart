@@ -55,7 +55,9 @@ def build_comparison(district: str) -> pd.DataFrame:
 
     predicted_rows = []
     for i in range(TARGET_HORIZON):
-        temp, rain, humidity = clamp_physical(real[i][0], real[i][1], real[i][2], hour_index=i)
+        temp, rain, humidity = clamp_physical(
+            real[i][0], real[i][1], real[i][2], hour_index=i, district=district
+        )
         valid = last_obs + pd.Timedelta(hours=i + 1)
         predicted_rows.append({
             "valid_time": valid,

@@ -110,16 +110,21 @@ def apply_floor(rain: np.ndarray, floor: float = RAIN_ZERO_FLOOR_MM) -> np.ndarr
     return np.where(rain <= floor, 0.0, rain)
 
 
-def evaluate(district: str, data: dict) -> None:
+ZERO_24 = [0.0] * 24
+
+
+def fit_and_evaluate(district: str, data: dict) -> dict:
+    """All the numbers, no printing — used by both this file's CLI and
+    backtest_all_districts.py. Fits any correction on the first
+    TRAIN_FRACTION of origins (chronologically), reports MAE on the rest."""
     n = len(data["raw_temp"])
     split = int(n * TRAIN_FRACTION)
     if split < 5 or n - split < 5:
-        raise SystemExit(f"Not enough origins ({n}) for a train/holdout split — widen the date range.")
+        raise ValueError(f"Not enough origins ({n}) for a train/holdout split — widen the date range.")
 
     train = slice(0, split)
     hold = slice(split, n)
 
-    # ---- bias correction: fit on train, evaluate on holdout only ----
     temp_bias = np.mean(data["actual_temp"][train] - data["raw_temp"][train], axis=0)
     hum_bias = np.mean(data["actual_hum"][train] - data["raw_hum"][train], axis=0)
 
@@ -129,42 +134,66 @@ def evaluate(district: str, data: dict) -> None:
 
     corrected_temp_hold = raw_temp_hold + temp_bias
     corrected_hum_hold = raw_hum_hold + hum_bias
-    shipped_temp_hold = raw_temp_hold + np.array(SHIPPED_TEMP_BIAS)
-    shipped_hum_hold = raw_hum_hold + np.array(SHIPPED_HUMIDITY_BIAS)
-
-    print(f"\n{'=' * 72}")
-    print(f"BACKTEST RESULTS — {district}  ({n} origins total, {split} train / {n - split} holdout)")
-    print(f"{'=' * 72}")
-
-    print(f"\nTemperature MAE on HELD-OUT origins (deg C):")
-    print(f"  raw model (no correction):        {mae(raw_temp_hold, actual_temp_hold):.3f}")
-    print(f"  currently shipped correction:     {mae(shipped_temp_hold, actual_temp_hold):.3f}")
-    print(f"  backtest-derived correction:      {mae(corrected_temp_hold, actual_temp_hold):.3f}")
-
-    print(f"\nHumidity MAE on HELD-OUT origins (%):")
-    print(f"  raw model (no correction):        {mae(raw_hum_hold, actual_hum_hold):.3f}")
-    print(f"  currently shipped correction:     {mae(shipped_hum_hold, actual_hum_hold):.3f}")
-    print(f"  backtest-derived correction:      {mae(corrected_hum_hold, actual_hum_hold):.3f}")
+    shipped_temp = np.array(SHIPPED_TEMP_BIAS.get(district, ZERO_24) if isinstance(SHIPPED_TEMP_BIAS, dict) else SHIPPED_TEMP_BIAS)
+    shipped_hum = np.array(SHIPPED_HUMIDITY_BIAS.get(district, ZERO_24) if isinstance(SHIPPED_HUMIDITY_BIAS, dict) else SHIPPED_HUMIDITY_BIAS)
+    shipped_temp_hold = raw_temp_hold + shipped_temp
+    shipped_hum_hold = raw_hum_hold + shipped_hum
 
     floored_hold = apply_floor(raw_rain_hold)
     dry_hours = actual_rain_hold <= 0.0
-    print(f"\nPrecipitation on HELD-OUT origins (mm), {int(dry_hours.sum())} of "
-          f"{dry_hours.size} hours were genuinely dry:")
-    print(f"  raw model MAE (no floor):         {mae(raw_rain_hold, actual_rain_hold):.3f}")
-    print(f"  with {RAIN_ZERO_FLOOR_MM}mm zero-floor MAE:    {mae(floored_hold, actual_rain_hold):.3f}")
-    print(f"  raw model, mean predicted rain on dry hours:      {raw_rain_hold[dry_hours].mean():.3f} mm"
-          if dry_hours.any() else "")
-    print(f"  floored model, mean predicted rain on dry hours:  {floored_hold[dry_hours].mean():.3f} mm"
-          if dry_hours.any() else "")
 
-    print(f"\nNew backtest-derived correction (paste into model_pipeline.py AND "
-          f"Backend/forecast/utils.py):\n")
-    print("TEMP_BIAS_CORRECTION_C = [")
-    print("    " + ", ".join(f"{v:.3f}" for v in temp_bias))
-    print("]")
-    print("\nHUMIDITY_BIAS_CORRECTION_PCT = [")
-    print("    " + ", ".join(f"{v:.3f}" for v in hum_bias))
-    print("]")
+    temp_mae_raw = mae(raw_temp_hold, actual_temp_hold)
+    temp_mae_backtest = mae(corrected_temp_hold, actual_temp_hold)
+    hum_mae_raw = mae(raw_hum_hold, actual_hum_hold)
+    hum_mae_backtest = mae(corrected_hum_hold, actual_hum_hold)
+
+    return {
+        "district": district,
+        "n_total": n, "n_train": split, "n_holdout": n - split,
+        "temp_bias": temp_bias, "hum_bias": hum_bias,
+        "temp_mae_raw": temp_mae_raw,
+        "temp_mae_shipped": mae(shipped_temp_hold, actual_temp_hold),
+        "temp_mae_backtest": temp_mae_backtest,
+        "use_temp_correction": temp_mae_backtest < temp_mae_raw,
+        "hum_mae_raw": hum_mae_raw,
+        "hum_mae_shipped": mae(shipped_hum_hold, actual_hum_hold),
+        "hum_mae_backtest": hum_mae_backtest,
+        "use_hum_correction": hum_mae_backtest < hum_mae_raw,
+        "rain_mae_raw": mae(raw_rain_hold, actual_rain_hold),
+        "rain_mae_floored": mae(floored_hold, actual_rain_hold),
+        "dry_hours": int(dry_hours.sum()), "total_hours": int(dry_hours.size),
+    }
+
+
+def evaluate(district: str, data: dict) -> None:
+    r = fit_and_evaluate(district, data)
+    n, split = r["n_total"], r["n_train"]
+
+    print(f"\n{'=' * 72}")
+    print(f"BACKTEST RESULTS — {district}  ({n} origins total, {split} train / {r['n_holdout']} holdout)")
+    print(f"{'=' * 72}")
+
+    print(f"\nTemperature MAE on HELD-OUT origins (deg C):")
+    print(f"  raw model (no correction):        {r['temp_mae_raw']:.3f}")
+    print(f"  currently shipped correction:     {r['temp_mae_shipped']:.3f}")
+    print(f"  backtest-derived correction:      {r['temp_mae_backtest']:.3f}"
+          f"  ({'HELPS' if r['use_temp_correction'] else 'does NOT help — keep raw'})")
+
+    print(f"\nHumidity MAE on HELD-OUT origins (%):")
+    print(f"  raw model (no correction):        {r['hum_mae_raw']:.3f}")
+    print(f"  currently shipped correction:     {r['hum_mae_shipped']:.3f}")
+    print(f"  backtest-derived correction:      {r['hum_mae_backtest']:.3f}"
+          f"  ({'HELPS' if r['use_hum_correction'] else 'does NOT help — keep raw'})")
+
+    print(f"\nPrecipitation on HELD-OUT origins (mm), {r['dry_hours']} of "
+          f"{r['total_hours']} hours were genuinely dry:")
+    print(f"  raw model MAE (no floor):         {r['rain_mae_raw']:.3f}")
+    print(f"  with {RAIN_ZERO_FLOOR_MM}mm zero-floor MAE:    {r['rain_mae_floored']:.3f}")
+
+    print(f"\nBacktest-derived correction for {district} "
+          f"(paste into the per-district dict in model_pipeline.py AND Backend/forecast/utils.py):\n")
+    print(f'"{district}": [' + ", ".join(f"{v:.3f}" for v in r["temp_bias"]) + "],  # temp")
+    print(f'"{district}": [' + ", ".join(f"{v:.3f}" for v in r["hum_bias"]) + "],  # humidity")
 
     OUTPUT_DIR.mkdir(exist_ok=True)
     out = pd.DataFrame({

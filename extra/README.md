@@ -87,7 +87,7 @@ unreliable (see below) and were superseded by `backtest.py`. Takes a few
 minutes (25 districts, 1 request/sec to be polite to Open-Meteo). Saves raw
 numbers to `output/bias_residuals_temp.csv` / `bias_residuals_humidity.csv`.
 
-### `backtest.py` — the real accuracy test (recommended)
+### `backtest.py` — the real accuracy test, one district
 
 ```bash
 python backtest.py                    # Colombo, 40 days back, every 6 hours
@@ -104,42 +104,69 @@ against what really happened next. It fits any bias correction on the first
 temperature/humidity/rain (raw vs corrected), plus a ready-to-paste
 correction table. Saves per-origin results to `output/backtest_<district>.csv`.
 
-This is what to re-run any time you want to know if the model — or a
-proposed fix — is actually working, and it's what should be used before
-trusting any new correction table.
+Re-run this for a single district any time you want to sanity-check the
+model, or a proposed fix, for just that district.
+
+### `backtest_all_districts.py` — the real accuracy test, all 25 districts (recommended)
+
+```bash
+python backtest_all_districts.py              # all 25, 40 days back, every 6 hours
+python backtest_all_districts.py 30 8         # days_back, step_hours
+```
+
+What it does: runs `backtest.py`'s exact holdout method separately for every
+one of the 25 districts (climate varies a lot across Sri Lanka — coastal vs
+hill-country vs dry-zone — so a correction fitted on one district doesn't
+necessarily transfer to another). For each district it only keeps a
+temperature/humidity correction if it actually beats the raw model on that
+district's own held-out data; otherwise that district falls back to no
+correction. Takes a while — 25 districts × ~165 origins each, likely
+20–40 minutes. Saves progress incrementally to
+`output/backtest_all_summary.csv` and `output/backtest_all_results.json`
+(so a mid-run failure doesn't lose earlier districts), and at the end prints
+the final `TEMP_BIAS_CORRECTION_C` / `HUMIDITY_BIAS_CORRECTION_PCT` dicts
+ready to paste into `model_pipeline.py` and `Backend/forecast/utils.py`.
+
+This is what was used to produce the tables currently shipped — see below.
 
 ### `model_pipeline.py` — not run directly
 
 The shared engine all the scripts above import: feature engineering,
 scaling, model inference, inverse-scaling, Open-Meteo fetch (both the live
-forecast and the historical archive), the rain zero-floor, and the bias
-correction table. Mirrors `Backend/forecast/utils.py` +
+forecast and the historical archive), the rain zero-floor, and the
+per-district bias correction tables. Mirrors `Backend/forecast/utils.py` +
 `Backend/forecast/repositories.py` exactly. You don't run this one yourself.
 
 ## 3. Accuracy fixes already applied (2026-07-26)
 
-Two fixes are baked into both this copy and the real backend
-(`Backend/forecast/utils.py`), validated with `backtest.py`'s train/holdout
-method against real historical weather:
+Baked into both this copy and the real backend (`Backend/forecast/utils.py`),
+validated with `backtest_all_districts.py`'s per-district train/holdout
+method against real historical weather (165 origins, 48 days, per district):
 
 - **Rain zero-floor** — the model, trained with MSE on zero-inflated rain
   data, never predicted an exact 0 on dry hours (it hovered at 0.13–0.4mm).
-  Predictions at or below `RAIN_ZERO_FLOOR_MM = 0.3` now snap to 0.
-  Backtested MAE: 0.195mm raw → 0.163mm floored.
-- **Humidity bias correction** — a genuine, generalizing per-lead-hour bias
-  (`HUMIDITY_BIAS_CORRECTION_PCT`). Backtested holdout MAE: 3.69% raw →
-  3.08% corrected. Derived from Colombo's backtest and applied to all 25
-  districts (not district-specific).
-- **Temperature bias correction was tried and rejected** — the first-pass
-  table (`compute_bias_correction.py`, compared against Open-Meteo's
-  forecast) looked like an improvement, but `backtest.py`'s holdout
-  validation against real ground truth showed the raw, uncorrected model
-  wins (0.37°C MAE raw vs 0.72°C with that correction). So
-  `TEMP_BIAS_CORRECTION_C` is intentionally left at all zeros.
+  Predictions at or below `RAIN_ZERO_FLOOR_MM = 0.3` now snap to 0. One fixed
+  threshold, applied to all districts (validated on Colombo: MAE 0.195mm raw
+  → 0.163mm floored).
+- **Per-district temperature & humidity bias correction** — each of the 25
+  districts was backtested independently; a district only gets a correction
+  if it beats the raw model on that district's own held-out data.
+  **19/25 districts get a temperature correction, 21/25 get a humidity
+  correction.** The other districts (e.g. Colombo's temperature: raw 0.37°C
+  MAE beats corrected 0.40°C) are *intentionally* left at zero — that's a
+  measured result, not a district that was skipped. See
+  `output/backtest_all_summary.csv` for the full per-district before/after
+  numbers.
 
-Both corrections currently apply the same numbers to all 25 districts (fit
-on Colombo only). Run `backtest.py` per-district if you want district-specific
-tuning instead.
+Earlier, less rigorous attempts along the way (kept for reference, both
+superseded):
+- A single-snapshot comparison against Open-Meteo's own *forecast*
+  (`compute_bias_correction.py`) suggested one shared correction table for
+  all districts. It looked promising but didn't hold up against real ground
+  truth — an early sign that "agrees with Open-Meteo's forecast" isn't the
+  same as "accurate."
+- Applying that one table to every district uniformly, before it was clear
+  that per-district behavior differs enough to need separate tables.
 
 ## 4. Keeping this in sync
 
