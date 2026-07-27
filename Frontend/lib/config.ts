@@ -13,4 +13,4 @@
  * If your PC's LAN IP changes (new Wi-Fi network, router reassigns it via
  * DHCP), find the new one with `ipconfig` and update it here.
  */
-export const API_BASE_URL = 'http://192.168.8.103:8000';
+export const API_BASE_URL = 'http://10.44.191.220:8000';
