@@ -234,21 +234,26 @@ def hourly_advisory(temp: float, rain: float, humidity: float) -> Dict[str, str]
 def daily_summary(forecast: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Roll 24 hours up into the one line a traveler actually reads.
 
-    Rain is a [low, high] range per hour (see ForecastService._rain_range),
-    not a single point estimate — the daily total and the GOOD/CAUTION/AVOID
-    call both react to the HIGH end, since "could reach up to X mm" should
-    drive caution, not an average that might understate real risk.
+    Rain is a [low, high] range per hour (see ForecastService._rain_range).
+    rain_mm_low/rain_mm_high mirror temp_min_c/temp_max_c and
+    humidity_min_pct/humidity_max_pct exactly — the calmest hour's low bound
+    to the wettest hour's high bound across the day, NOT a daily cumulative
+    total (24 individually-tiny hours can sum to a number that looks alarming
+    despite no single hour ever feeling properly wet; the per-hour peak is
+    the more honest "how bad could the worst hour get" read). The
+    GOOD/CAUTION/AVOID call uses the same thresholds as `hourly_advisory`,
+    since both now describe the same thing: a single hour's rain intensity.
     """
     temps = [h["temperature_c"] for h in forecast]
     rains_low = [h["precipitation_mm_low"] for h in forecast]
     rains_high = [h["precipitation_mm_high"] for h in forecast]
     humids = [h["humidity_pct"] for h in forecast]
 
-    total_rain_high = sum(rains_high)
+    peak_rain_high = max(rains_high)
 
-    if total_rain_high > 20:
+    if peak_rain_high > 10.0:
         level, verdict = ADVISORY_AVOID, "Not recommended for travel"
-    elif total_rain_high > 5:
+    elif peak_rain_high > 3.0:
         level, verdict = ADVISORY_CAUTION, "Travel with caution"
     else:
         level, verdict = ADVISORY_GOOD, "Good day to travel"
@@ -259,8 +264,8 @@ def daily_summary(forecast: List[Dict[str, Any]]) -> Dict[str, Any]:
         "temp_min_c": round(min(temps), 1),
         "temp_max_c": round(max(temps), 1),
         "temp_avg_c": round(sum(temps) / len(temps), 1),
-        "total_rain_mm_low": round(sum(rains_low), 2),
-        "total_rain_mm_high": round(total_rain_high, 2),
+        "rain_mm_low": round(min(rains_low), 2),
+        "rain_mm_high": round(peak_rain_high, 2),
         "humidity_min_pct": round(min(humids), 1),
         "humidity_max_pct": round(max(humids), 1),
         "wet_hours": wet_hours,

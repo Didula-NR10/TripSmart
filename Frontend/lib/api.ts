@@ -36,7 +36,8 @@ export type Hour24 = {
   validTime: string;     // "2026-07-15 14:00" local (Asia/Colombo)
   label: string;         // "2 PM"
   temp: number;
-  rain: number;
+  rain: number;          // high end of the range — drives the advisory
+  rainLow: number;
   humidity: number;
   advisoryLevel: AdvisoryLevel;
   advisoryReason: string;
@@ -46,7 +47,11 @@ export type Summary24 = {
   tempMin: number;
   tempMax: number;
   tempAvg: number;
-  totalRain: number;
+  // Calmest hour's low estimate to wettest hour's high estimate — mirrors
+  // tempMin/tempMax exactly, NOT a daily cumulative sum (see
+  // Backend/forecast/utils.py daily_summary()).
+  rainLow: number;
+  rainHigh: number;
   humidityMin: number;
   humidityMax: number;
   wetHours: number;
@@ -91,8 +96,8 @@ type ApiResponse = {
     temp_min_c: number;
     temp_max_c: number;
     temp_avg_c: number;
-    total_rain_mm_low: number;
-    total_rain_mm_high: number;
+    rain_mm_low: number;
+    rain_mm_high: number;
     humidity_min_pct: number;
     humidity_max_pct: number;
     wet_hours: number;
@@ -146,6 +151,7 @@ export async function fetchForecastBundle(
       label: hourLabel(clockHour),
       temp: f.temperature_c,
       rain: f.precipitation_mm_high,
+      rainLow: f.precipitation_mm_low,
       humidity: f.humidity_pct,
       advisoryLevel: f.advisory_level,
       advisoryReason: f.advisory_reason,
@@ -162,7 +168,8 @@ export async function fetchForecastBundle(
         tempMin: data.summary.temp_min_c,
         tempMax: data.summary.temp_max_c,
         tempAvg: data.summary.temp_avg_c,
-        totalRain: data.summary.total_rain_mm_high,
+        rainHigh: data.summary.rain_mm_high,
+        rainLow: data.summary.rain_mm_low,
         humidityMin: data.summary.humidity_min_pct,
         humidityMax: data.summary.humidity_max_pct,
         wetHours: data.summary.wet_hours,
@@ -183,7 +190,10 @@ export type OutlookDay = {
   tempMin: number;
   tempMax: number;
   tempAvg: number;
-  totalRain: number;
+  // Calmest hour's low estimate to wettest hour's high estimate for this day
+  // — mirrors tempMin/tempMax, NOT a daily cumulative sum.
+  rainLow: number;
+  rainHigh: number;
   wetHours: number;
   advisoryLevel: AdvisoryLevel;
   verdict: string;
@@ -198,8 +208,8 @@ type ApiWeeklyDay = {
   temp_min_c: number;
   temp_max_c: number;
   temp_avg_c: number;
-  total_rain_mm_low: number;
-  total_rain_mm_high: number;
+  rain_mm_low: number;
+  rain_mm_high: number;
   wet_hours: number;
   advisory_level: AdvisoryLevel;
   verdict: string;
@@ -227,7 +237,8 @@ export async function fetchWeeklyOutlook(districtKey: string): Promise<OutlookDa
     tempMin: d.temp_min_c,
     tempMax: d.temp_max_c,
     tempAvg: d.temp_avg_c,
-    totalRain: d.total_rain_mm_high,
+    rainLow: d.rain_mm_low,
+    rainHigh: d.rain_mm_high,
     wetHours: d.wet_hours,
     advisoryLevel: d.advisory_level,
     verdict: d.verdict,
@@ -545,6 +556,25 @@ type CachedRun = { at: number; bundle: ForecastBundle };
 
 const cacheKey = (districtKey: string) => `forecast:${districtKey}`;
 
+// JSON.parse + `as CachedRun` is a compile-time assertion only — it can't
+// catch a bundle written under an older API shape (e.g. rain used to be a
+// single `precipitation_mm` number, not a { rainLow, rainHigh } range). That
+// mismatch doesn't fail to parse, it parses fine and then crashes later when
+// a component reads a field the old bundle never had. Guard for it here, at
+// the one place stored JSON re-enters the typed world, rather than at every
+// call site that reads a field which might not exist.
+function isCurrentBundleShape(bundle: unknown): bundle is ForecastBundle {
+  const b = bundle as Partial<ForecastBundle> | null | undefined;
+  const summary = b?.live?.summary as Partial<Summary24> | undefined;
+  const hours = b?.live?.hours;
+  return (
+    typeof summary?.rainLow === 'number' &&
+    typeof summary?.rainHigh === 'number' &&
+    Array.isArray(hours) &&
+    hours.every((h) => typeof (h as Partial<Hour24>).rainLow === 'number')
+  );
+}
+
 export async function cacheForecast(districtKey: string, bundle: ForecastBundle) {
   try {
     const entry: CachedRun = { at: Date.now(), bundle };
@@ -561,6 +591,12 @@ export async function loadCachedForecast(districtKey: string): Promise<CachedRun
     const entry = JSON.parse(raw) as CachedRun;
     if (Date.now() - entry.at > CACHE_TTL_MS) {
       // A prediction older than its own horizon is not a forecast any more.
+      await AsyncStorage.removeItem(cacheKey(districtKey));
+      return null;
+    }
+    if (!isCurrentBundleShape(entry.bundle)) {
+      // Cached under an older API shape — treat as a miss (forces a fresh
+      // fetch) rather than crash whatever component reads the missing field.
       await AsyncStorage.removeItem(cacheKey(districtKey));
       return null;
     }

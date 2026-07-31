@@ -165,6 +165,22 @@ class ForecastService:
 
     # ---- public entry points ----
 
+    @staticmethod
+    def _payload_matches_schema(payload: dict) -> bool:
+        """Guards against serving a forecast_runs row saved under an older
+        response shape (e.g. before rain became a [low, high] range instead
+        of a single point value) — FastAPI's response_model validation would
+        otherwise 500 on the mismatch. A schema change should degrade to
+        "treat as a cache miss, run fresh" here, not a crash whenever a
+        pre-change row is next read from the cache."""
+        summary = payload.get("summary", {})
+        if "rain_mm_low" not in summary or "rain_mm_high" not in summary:
+            return False
+        return all(
+            "precipitation_mm_low" in h and "precipitation_mm_high" in h
+            for h in payload.get("forecast", [])
+        )
+
     async def forecast_district(self, district: str, refresh: bool = False) -> dict:
         """The one the UI calls: fetch context, predict, advise."""
         if district not in DISTRICT_COORDS:
@@ -175,7 +191,7 @@ class ForecastService:
 
         if not refresh:
             cached = forecast_repo.get_fresh(district)
-            if cached:
+            if cached and self._payload_matches_schema(cached["payload"]):
                 payload = cached["payload"]
                 payload["cached"] = True
                 return payload
@@ -194,7 +210,7 @@ class ForecastService:
             # "predict" button otherwise looks broken during a transient upstream
             # rate limit.
             stale = forecast_repo.get_stale(district)
-            if stale:
+            if stale and self._payload_matches_schema(stale["payload"]):
                 payload = stale["payload"]
                 payload["cached"] = True
                 payload["stale"] = True

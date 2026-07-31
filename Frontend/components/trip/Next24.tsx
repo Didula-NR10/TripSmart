@@ -25,7 +25,9 @@ function HourBox({ h }: { h: Hour24 }) {
       {h.rain > 0.05 ? (
         <View style={styles.boxRow}>
           <Ionicons name="rainy-outline" size={10} color={s.fg} />
-          <Text style={[styles.boxMeta, { color: s.fg }]}>{h.rain.toFixed(1)}</Text>
+          <Text style={[styles.boxMeta, { color: s.fg }]}>
+            {h.rainLow < h.rain - 0.05 ? `${h.rainLow.toFixed(1)}-${h.rain.toFixed(1)}` : h.rain.toFixed(1)}
+          </Text>
         </View>
       ) : null}
     </View>
@@ -74,7 +76,7 @@ export function Next24Summary({ forecast }: { forecast: Forecast24 }) {
       <View style={styles.stats}>
         <Stat label="Temperature" value={`${s.tempMin.toFixed(1)}–${s.tempMax.toFixed(1)}°`} />
         <Stat label="Average" value={`${s.tempAvg.toFixed(1)}°`} />
-        <Stat label="Total rain" value={`${s.totalRain.toFixed(2)} mm`} />
+        <Stat label="Rainfall" value={`${s.rainLow.toFixed(2)}–${s.rainHigh.toFixed(2)} mm`} />
       </View>
       <View style={styles.stats}>
         <Stat label="Humidity" value={`${s.humidityMin.toFixed(0)}–${s.humidityMax.toFixed(0)}%`} />

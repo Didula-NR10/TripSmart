@@ -371,7 +371,7 @@ function Row({
       <View style={styles.rowBody}>
         <Text style={styles.rowName}>{name}</Text>
         <Text style={styles.rowMeta}>
-          {s.totalRain} mm rain · {s.tempMin}–{s.tempMax}°C · {s.wetHours} wet h · {score}/100
+          {s.rainLow.toFixed(1)}–{s.rainHigh.toFixed(1)} mm rain · {s.tempMin}–{s.tempMax}°C · {s.wetHours} wet h · {score}/100
         </Text>
         <Text style={styles.rowVerdict} numberOfLines={2}>
           {s.verdict}

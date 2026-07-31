@@ -31,8 +31,12 @@ class DailySummary(BaseModel):
     temp_min_c: float
     temp_max_c: float
     temp_avg_c: float
-    total_rain_mm_low: float
-    total_rain_mm_high: float
+    rain_mm_low: float = Field(
+        ..., description="Calmest hour's low-end rain estimate — mirrors temp_min_c, not a daily sum"
+    )
+    rain_mm_high: float = Field(
+        ..., description="Wettest hour's high-end rain estimate — mirrors temp_max_c, not a daily sum"
+    )
     humidity_min_pct: float
     humidity_max_pct: float
     wet_hours: int
@@ -63,8 +67,8 @@ class WeeklyDay(BaseModel):
     temp_min_c: float
     temp_max_c: float
     temp_avg_c: float
-    total_rain_mm_low: float
-    total_rain_mm_high: float
+    rain_mm_low: float
+    rain_mm_high: float
     humidity_min_pct: float
     humidity_max_pct: float
     wet_hours: int

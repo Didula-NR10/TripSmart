@@ -88,7 +88,7 @@ export function HybridTimeline({ district }: { district: District }) {
                     </View>
                   </View>
                   <Text style={styles.meta}>
-                    {Math.round(day.tempMin)}–{Math.round(day.tempMax)}° · {day.totalRain} mm
+                    {Math.round(day.tempMin)}–{Math.round(day.tempMax)}° · {day.rainLow.toFixed(1)}–{day.rainHigh.toFixed(1)} mm
                     {day.wetHours > 0 ? ` · ${day.wetHours} wet h` : ''}
                   </Text>
                   <Text style={[styles.verdict, { color: advisoryColor[day.advisoryLevel] }]}>
