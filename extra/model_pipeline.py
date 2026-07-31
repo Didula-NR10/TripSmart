@@ -15,8 +15,11 @@ into extra/models/ to update this copy too.
 """
 from __future__ import annotations
 
+import os
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
@@ -334,6 +337,109 @@ def split_context_and_future(df: pd.DataFrame):
             f"Only {len(context)} hours of past observations available; {INPUT_WINDOW} are required."
         )
     return context, future
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# WeatherAPI.com — mirrors Backend/forecast/repositories.py's WeatherRepository
+# ──────────────────────────────────────────────────────────────────────────────
+
+WEATHERAPI_BASE_URL = "https://api.weatherapi.com/v1"
+# WeatherAPI's free/standard plans expose no solar-irradiance (W/m2) field, so
+# DaylightScore is approximated from UV index instead — 11 is a "very high"
+# tropical UV reading. Mirrors Backend/forecast/repositories.py exactly.
+MAX_UV_INDEX = 11.0
+
+
+def load_weatherapi_key() -> str:
+    """Reads WEATHERAPI_KEY from the environment, falling back to Backend/.env."""
+    key = os.environ.get("WEATHERAPI_KEY", "").strip()
+    if key:
+        return key
+
+    env_path = BASE_DIR.parent / "Backend" / ".env"
+    if env_path.exists():
+        for line in env_path.read_text(encoding="utf-8").splitlines():
+            if line.strip().startswith("WEATHERAPI_KEY="):
+                value = line.split("=", 1)[1].strip()
+                if value:
+                    return value
+
+    raise RuntimeError(
+        "No WeatherAPI key found. Set the WEATHERAPI_KEY environment variable, "
+        "or add WEATHERAPI_KEY=... to Backend/.env (get a free key at "
+        "https://www.weatherapi.com/signup.aspx)."
+    )
+
+
+def _weatherapi_get(path: str, params: dict, key: str) -> dict:
+    resp = requests.get(f"{WEATHERAPI_BASE_URL}/{path}", params={**params, "key": key}, timeout=15)
+    resp.raise_for_status()
+    return resp.json()
+
+
+def _frame_from_weatherapi_hours(hours: List[dict]) -> pd.DataFrame:
+    df = pd.DataFrame({
+        "datetime": pd.to_datetime([h["time"] for h in hours]),
+        "Temperature_C": [h["temp_c"] for h in hours],
+        "Precipitation_mm": [h["precip_mm"] for h in hours],
+        "Humidity_%": [h["humidity"] for h in hours],
+        "CloudCover_%": [h["cloud"] for h in hours],
+        "WindSpeed_kmh": [h["wind_kph"] for h in hours],
+        "WindGusts_kmh": [h["gust_kph"] for h in hours],
+        "DaylightScore": [(h["uv"] / MAX_UV_INDEX) if h.get("is_day") else 0.0 for h in hours],
+    })
+    # Independent calls (history x7 + forecast) can overlap at day boundaries.
+    df = df.drop_duplicates(subset="datetime").sort_values("datetime").reset_index(drop=True)
+    df["DaylightScore"] = df["DaylightScore"].clip(0.0, 1.0)
+    df["Hour"] = df["datetime"].dt.hour
+    df["Month"] = df["datetime"].dt.month
+    return df
+
+
+def fetch_weatherapi(district: str, key: str, forecast_days: int = 2) -> pd.DataFrame:
+    """168h of real observations (7 history days + today) PLUS WeatherAPI's own
+    forecast for `forecast_days` ahead, all in one frame — mirrors
+    Backend/forecast/repositories.py's WeatherRepository.fetch_context_window."""
+    if district not in DISTRICT_COORDS:
+        raise ValueError(f"Unknown district: '{district}'. See DISTRICT_COORDS.")
+
+    coords = DISTRICT_COORDS[district]
+    q = f"{coords['lat']},{coords['lon']}"
+    today = datetime.now(ZoneInfo("Asia/Colombo")).date()
+
+    forecast_payload = _weatherapi_get(
+        "forecast.json", {"q": q, "days": forecast_days, "aqi": "no", "alerts": "no"}, key
+    )
+    history_payloads = [
+        _weatherapi_get("history.json", {"q": q, "dt": (today - timedelta(days=d)).isoformat()}, key)
+        for d in range(1, 8)
+    ]
+
+    hours: List[dict] = []
+    for forecastday in forecast_payload["forecast"]["forecastday"]:
+        hours.extend(forecastday["hour"])
+    for payload in history_payloads:
+        hours.extend(payload["forecast"]["forecastday"][0]["hour"])
+
+    return _frame_from_weatherapi_hours(hours)
+
+
+def fetch_weatherapi_actual(district: str, dates: List, key: str) -> pd.DataFrame:
+    """Real recorded observations for specific calendar dates, via WeatherAPI's
+    history endpoint. Used as ground truth once a prediction window has
+    elapsed — `dates` is a list of `datetime.date` objects."""
+    if district not in DISTRICT_COORDS:
+        raise ValueError(f"Unknown district: '{district}'. See DISTRICT_COORDS.")
+
+    coords = DISTRICT_COORDS[district]
+    q = f"{coords['lat']},{coords['lon']}"
+
+    hours: List[dict] = []
+    for d in dates:
+        payload = _weatherapi_get("history.json", {"q": q, "dt": d.isoformat()}, key)
+        hours.extend(payload["forecast"]["forecastday"][0]["hour"])
+
+    return _frame_from_weatherapi_hours(hours)
 
 
 def predict_next_24h(district: str) -> Dict[str, Any]:

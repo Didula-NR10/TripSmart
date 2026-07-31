@@ -70,7 +70,14 @@ type ApiHour = {
   forecast_hour: number;
   valid_time: string;
   temperature_c: number;
-  precipitation_mm: number;
+  // Rain is a [low, high] range, not a single point estimate — the GRU's own
+  // regression output is systematically biased toward zero on this mostly-dry
+  // variable, so the backend instead cross-checks a same-hour historical
+  // analog against WeatherAPI's own forecast. See Backend/forecast/services.py
+  // ForecastService._rain_range. The app surfaces the high end (below) since
+  // that's what should drive caution, not an average that could mask real risk.
+  precipitation_mm_low: number;
+  precipitation_mm_high: number;
   humidity_pct: number;
   advisory_level: AdvisoryLevel;
   advisory_reason: string;
@@ -84,7 +91,8 @@ type ApiResponse = {
     temp_min_c: number;
     temp_max_c: number;
     temp_avg_c: number;
-    total_rain_mm: number;
+    total_rain_mm_low: number;
+    total_rain_mm_high: number;
     humidity_min_pct: number;
     humidity_max_pct: number;
     wet_hours: number;
@@ -127,7 +135,7 @@ export async function fetchForecastBundle(
     hours[clockHour] = {
       hour: clockHour,
       temp: f.temperature_c,
-      rain: f.precipitation_mm,
+      rain: f.precipitation_mm_high,
       humidity: f.humidity_pct,
       wind: hours[clockHour].wind,
     };
@@ -137,7 +145,7 @@ export async function fetchForecastBundle(
       validTime: f.valid_time,
       label: hourLabel(clockHour),
       temp: f.temperature_c,
-      rain: f.precipitation_mm,
+      rain: f.precipitation_mm_high,
       humidity: f.humidity_pct,
       advisoryLevel: f.advisory_level,
       advisoryReason: f.advisory_reason,
@@ -154,7 +162,7 @@ export async function fetchForecastBundle(
         tempMin: data.summary.temp_min_c,
         tempMax: data.summary.temp_max_c,
         tempAvg: data.summary.temp_avg_c,
-        totalRain: data.summary.total_rain_mm,
+        totalRain: data.summary.total_rain_mm_high,
         humidityMin: data.summary.humidity_min_pct,
         humidityMax: data.summary.humidity_max_pct,
         wetHours: data.summary.wet_hours,
@@ -190,7 +198,8 @@ type ApiWeeklyDay = {
   temp_min_c: number;
   temp_max_c: number;
   temp_avg_c: number;
-  total_rain_mm: number;
+  total_rain_mm_low: number;
+  total_rain_mm_high: number;
   wet_hours: number;
   advisory_level: AdvisoryLevel;
   verdict: string;
@@ -218,14 +227,14 @@ export async function fetchWeeklyOutlook(districtKey: string): Promise<OutlookDa
     tempMin: d.temp_min_c,
     tempMax: d.temp_max_c,
     tempAvg: d.temp_avg_c,
-    totalRain: d.total_rain_mm,
+    totalRain: d.total_rain_mm_high,
     wetHours: d.wet_hours,
     advisoryLevel: d.advisory_level,
     verdict: d.verdict,
   }));
 }
 
-// ── Current conditions — live Open-Meteo snapshot, no model ──────────────────
+// ── Current conditions — live WeatherAPI snapshot, no model ──────────────────
 
 export type CurrentConditions = {
   districtKey: string;

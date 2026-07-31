@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -29,7 +29,6 @@ from forecast.utils import (
     engineer_features,
     hourly_advisory,
     inverse_transform_targets,
-    weather_condition_text,
 )
 
 log = logging.getLogger("trip_smart.forecast.service")
@@ -82,12 +81,45 @@ class ForecastService:
 
         return inverse_transform_targets(raw, scaler, settings.TARGET_HORIZON)
 
+    # ---- rain: analog + WeatherAPI's own forecast, not the GRU's regressor ----
+    #
+    # A GRU trained with MSE on a mostly-dry variable learns that predicting
+    # near-zero is usually "safe" — it systematically underpredicts real light
+    # rain rather than being randomly noisy around it (proven: a real overnight
+    # test predicted flat 0.0mm for 8 straight hours while actual rain reached
+    # 1.3mm). No amount of retrying fixes a training-objective bias, so rain
+    # doesn't use the GRU's own regression output at all. Instead: how much did
+    # it typically rain at this exact clock hour over the past 7 real days
+    # (the "analog"), cross-checked against WeatherAPI's own forecast for that
+    # hour (an independently-modeled second opinion, not our regressor's
+    # guess) — reported as a [low, high] range, not a single misleadingly
+    # precise number. Both signals come from WeatherAPI only.
+
+    def _analog_rain_by_hour(self, frame: pd.DataFrame) -> Dict[int, float]:
+        """Average recorded rain at each clock hour, from a 168h (or shorter,
+        for bring-your-own-context) window of real observations."""
+        return frame.groupby("Hour")["Precipitation_mm"].mean().to_dict()
+
+    def _rain_range(
+        self,
+        analog_by_hour: Dict[int, float],
+        future_lookup: "Optional[pd.Series]",
+        valid: datetime,
+    ) -> tuple[float, float]:
+        analog_rain = float(analog_by_hour.get(valid.hour, 0.0))
+        wx_rain = 0.0
+        if future_lookup is not None and valid in future_lookup.index:
+            wx_rain = float(future_lookup.loc[valid])
+        return round(min(analog_rain, wx_rain), 3), round(max(analog_rain, wx_rain), 3)
+
     def _assemble(
         self,
         district: str,
         real: np.ndarray,
         origin: datetime,
         last_obs_local: datetime,
+        analog_by_hour: Dict[int, float],
+        future_lookup: "Optional[pd.Series]" = None,
         cached: bool = False,
     ) -> dict:
         """Predictions → the shape the UI consumes, advisories included.
@@ -100,17 +132,23 @@ class ForecastService:
         forecast: List[Dict[str, Any]] = []
 
         for i in range(settings.TARGET_HORIZON):
-            temp, rain, humidity = clamp_physical(
+            # real[i][1] (the GRU's own rain channel) is deliberately unused —
+            # see _rain_range's docstring above.
+            temp, _, humidity = clamp_physical(
                 real[i][0], real[i][1], real[i][2], hour_index=i, district=district
             )
             valid = last_obs_local + timedelta(hours=i + 1)
-            advisory = hourly_advisory(temp, rain, humidity)
+            rain_low, rain_high = self._rain_range(analog_by_hour, future_lookup, valid)
+            # The advisory reacts to the high end — "could reach up to X mm"
+            # should drive caution, not an average that might mask real risk.
+            advisory = hourly_advisory(temp, rain_high, humidity)
 
             forecast.append({
                 "forecast_hour": i + 1,
                 "valid_time": valid.strftime("%Y-%m-%d %H:00"),
                 "temperature_c": temp,
-                "precipitation_mm": rain,
+                "precipitation_mm_low": rain_low,
+                "precipitation_mm_high": rain_high,
                 "humidity_pct": humidity,
                 "advisory_level": advisory["level"],
                 "advisory_reason": advisory["reason"],
@@ -151,10 +189,10 @@ class ForecastService:
         try:
             frame = await weather_repo.fetch_context_window(district)
         except RuntimeError as e:
-            # Open-Meteo is unreachable/rate-limited even after retries. Serving
+            # WeatherAPI is unreachable/rate-limited even after retries. Serving
             # the last known-good forecast beats a hard error — the frontend's
             # "predict" button otherwise looks broken during a transient upstream
-            # rate limit, which is the common case on shared-IP hosts.
+            # rate limit.
             stale = forecast_repo.get_stale(district)
             if stale:
                 payload = stale["payload"]
@@ -174,7 +212,12 @@ class ForecastService:
         # The final context row is the current hour in Colombo; hour +1 of the
         # forecast is the hour after the user asked.
         last_obs_local = frame["datetime"].iloc[-1].to_pydatetime()
-        result = self._assemble(district, real, origin, last_obs_local)
+
+        analog_by_hour = self._analog_rain_by_hour(frame)
+        future = weather_repo.get_future_forecast(district, settings.TARGET_HORIZON)
+        future_lookup = future.set_index("datetime")["Precipitation_mm"] if future is not None and not future.empty else None
+
+        result = self._assemble(district, real, origin, last_obs_local, analog_by_hour, future_lookup)
 
         forecast_repo.save(district, origin, result)
         return result
@@ -221,6 +264,13 @@ class ForecastService:
             ["CloudCover_%", "WindSpeed_kmh", "WindGusts_kmh", "DaylightScore"]
         ].mean()
 
+        # WeatherAPI's own forecast only reaches ~48h out (see
+        # WeatherRepository.fetch_context_window); rollout days beyond that
+        # naturally fall back to the analog-only [0, analog] range inside
+        # _rain_range (future_lookup simply won't have those hours).
+        future = weather_repo.get_future_forecast(district, settings.TARGET_HORIZON)
+        future_lookup = future.set_index("datetime")["Precipitation_mm"] if future is not None and not future.empty else None
+
         origin = datetime.now(timezone.utc)
         work = frame.copy()
         predicted_hours: List[Dict[str, Any]] = []
@@ -229,26 +279,36 @@ class ForecastService:
             window = work.tail(settings.INPUT_WINDOW).reset_index(drop=True)
             real = self._run_model(window)
             last_dt = work["datetime"].iloc[-1]
+            # Recomputed each day: `work` keeps growing with the model's own
+            # prior predictions, so the analog reflects the latest 168h view.
+            analog_by_hour = self._analog_rain_by_hour(window)
 
             new_rows: List[Dict[str, Any]] = []
             for i in range(settings.TARGET_HORIZON):
-                temp, rain, humidity = clamp_physical(
+                # real[i][1] (the GRU's own rain channel) is deliberately
+                # unused — see ForecastService._rain_range's docstring.
+                temp, _, humidity = clamp_physical(
                     real[i][0], real[i][1], real[i][2], hour_index=i, district=district
                 )
                 valid = last_dt + pd.Timedelta(hours=i + 1)
                 hour = int(valid.hour)
+                rain_low, rain_high = self._rain_range(analog_by_hour, future_lookup, valid)
 
                 predicted_hours.append({
                     "forecast_hour": day * settings.TARGET_HORIZON + i + 1,
                     "valid_time": valid.strftime("%Y-%m-%d %H:00"),
                     "temperature_c": temp,
-                    "precipitation_mm": rain,
+                    "precipitation_mm_low": rain_low,
+                    "precipitation_mm_high": rain_high,
                     "humidity_pct": humidity,
                 })
                 new_rows.append({
                     "datetime": valid,
                     "Temperature_C": temp,
-                    "Precipitation_mm": rain,
+                    # Feed the rollout's own memory with the range's high end
+                    # (the more cautious estimate) rather than reintroducing
+                    # the GRU's own biased-toward-zero rain guess.
+                    "Precipitation_mm": rain_high,
                     "Humidity_%": humidity,
                     "CloudCover_%": float(pattern.loc[hour, "CloudCover_%"]),
                     "WindSpeed_kmh": float(pattern.loc[hour, "WindSpeed_kmh"]),
@@ -308,17 +368,22 @@ class ForecastService:
             "WindGusts_kmh": r.WindGusts_kmh,
             "DaylightScore": r.DaylightScore,
         } for r in records]
+        frame = pd.DataFrame(rows)
 
-        real = self._run_model(pd.DataFrame(rows))
+        real = self._run_model(frame)
         # Caller-supplied records carry no timestamps; anchor to the current
         # Colombo hour, which is what the last record is expected to be.
         now_lk = datetime.now(ZoneInfo("Asia/Colombo")).replace(
             minute=0, second=0, microsecond=0, tzinfo=None
         )
-        return self._assemble(district, real, datetime.now(timezone.utc), now_lk)
+        # No live WeatherAPI fetch here (caller supplied the context), so rain
+        # is analog-only — _rain_range degrades to [0, analog] with no
+        # future_lookup, still better than trusting the GRU's zero-biased guess.
+        analog_by_hour = self._analog_rain_by_hour(frame)
+        return self._assemble(district, real, datetime.now(timezone.utc), now_lk, analog_by_hour)
 
     async def current_conditions(self, district: str) -> dict:
-        """A live Open-Meteo snapshot for `district` — no model, just what the
+        """A live WeatherAPI snapshot for `district` — no model, just what the
         sky is doing right now. Powers the "current conditions" comparer mode."""
         if district not in DISTRICT_COORDS:
             raise HTTPException(
@@ -332,19 +397,19 @@ class ForecastService:
 
         return {
             "district": district,
-            "observed_at": current["time"],
-            "temperature_c": current["temperature_2m"],
-            "feels_like_c": current["apparent_temperature"],
-            "humidity_pct": current["relative_humidity_2m"],
-            "precipitation_mm": current["precipitation"],
-            "cloud_cover_pct": current["cloud_cover"],
-            "pressure_msl_hpa": current["pressure_msl"],
-            "wind_speed_kmh": current["wind_speed_10m"],
-            "wind_gusts_kmh": current["wind_gusts_10m"],
-            "wind_direction_deg": current["wind_direction_10m"],
-            "uv_index": current["uv_index"],
+            "observed_at": current["last_updated"],
+            "temperature_c": current["temp_c"],
+            "feels_like_c": current["feelslike_c"],
+            "humidity_pct": current["humidity"],
+            "precipitation_mm": current["precip_mm"],
+            "cloud_cover_pct": current["cloud"],
+            "pressure_msl_hpa": current["pressure_mb"],
+            "wind_speed_kmh": current["wind_kph"],
+            "wind_gusts_kmh": current["gust_kph"],
+            "wind_direction_deg": current["wind_degree"],
+            "uv_index": current["uv"],
             "is_day": bool(current["is_day"]),
-            "condition": weather_condition_text(current["weather_code"]),
+            "condition": current["condition"]["text"],
         }
 
     def history(self, district: str, limit: int = 10) -> List[dict]:

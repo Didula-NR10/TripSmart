@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Districts — Open-Meteo works from lat/lon
+# Districts — the upstream weather API works from lat/lon
 # ──────────────────────────────────────────────────────────────────────────────
 
 DISTRICT_COORDS: Dict[str, Dict[str, float]] = {
@@ -68,9 +68,6 @@ FINAL_FEATURE_COLS: List[str] = [
 
 TARGET_COLS: List[str] = ["Temperature_C", "Precipitation_mm", "Humidity_%"]
 TARGET_INDICES: List[int] = [FINAL_FEATURE_COLS.index(c) for c in TARGET_COLS]  # [0, 1, 2]
-
-# Sri Lanka peaks around ~1000 W/m² of direct radiation; used to normalise daylight.
-MAX_RADIATION_WM2 = 1000.0
 
 
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
@@ -234,50 +231,36 @@ def hourly_advisory(temp: float, rain: float, humidity: float) -> Dict[str, str]
     return {"level": ADVISORY_GOOD, "reason": "Clear conditions"}
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# WMO weather codes — Open-Meteo's `current` block reports a code, not text.
-# ──────────────────────────────────────────────────────────────────────────────
-
-WMO_CODE_TEXT: Dict[int, str] = {
-    0: "Clear sky", 1: "Mostly clear", 2: "Partly cloudy", 3: "Overcast",
-    45: "Fog", 48: "Depositing rime fog",
-    51: "Light drizzle", 53: "Drizzle", 55: "Dense drizzle",
-    56: "Freezing drizzle", 57: "Dense freezing drizzle",
-    61: "Slight rain", 63: "Rain", 65: "Heavy rain",
-    66: "Freezing rain", 67: "Heavy freezing rain",
-    71: "Slight snow", 73: "Snow", 75: "Heavy snow", 77: "Snow grains",
-    80: "Slight rain showers", 81: "Rain showers", 82: "Violent rain showers",
-    85: "Slight snow showers", 86: "Heavy snow showers",
-    95: "Thunderstorm", 96: "Thunderstorm with hail", 99: "Severe thunderstorm with hail",
-}
-
-
-def weather_condition_text(code: int) -> str:
-    return WMO_CODE_TEXT.get(int(code), "Unknown")
-
-
 def daily_summary(forecast: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Roll 24 hours up into the one line a traveler actually reads."""
+    """Roll 24 hours up into the one line a traveler actually reads.
+
+    Rain is a [low, high] range per hour (see ForecastService._rain_range),
+    not a single point estimate — the daily total and the GOOD/CAUTION/AVOID
+    call both react to the HIGH end, since "could reach up to X mm" should
+    drive caution, not an average that might understate real risk.
+    """
     temps = [h["temperature_c"] for h in forecast]
-    rains = [h["precipitation_mm"] for h in forecast]
+    rains_low = [h["precipitation_mm_low"] for h in forecast]
+    rains_high = [h["precipitation_mm_high"] for h in forecast]
     humids = [h["humidity_pct"] for h in forecast]
 
-    total_rain = sum(rains)
+    total_rain_high = sum(rains_high)
 
-    if total_rain > 20:
+    if total_rain_high > 20:
         level, verdict = ADVISORY_AVOID, "Not recommended for travel"
-    elif total_rain > 5:
+    elif total_rain_high > 5:
         level, verdict = ADVISORY_CAUTION, "Travel with caution"
     else:
         level, verdict = ADVISORY_GOOD, "Good day to travel"
 
-    wet_hours = sum(1 for r in rains if r > 0.5)
+    wet_hours = sum(1 for r in rains_high if r > 0.5)
 
     return {
         "temp_min_c": round(min(temps), 1),
         "temp_max_c": round(max(temps), 1),
         "temp_avg_c": round(sum(temps) / len(temps), 1),
-        "total_rain_mm": round(total_rain, 2),
+        "total_rain_mm_low": round(sum(rains_low), 2),
+        "total_rain_mm_high": round(total_rain_high, 2),
         "humidity_min_pct": round(min(humids), 1),
         "humidity_max_pct": round(max(humids), 1),
         "wet_hours": wet_hours,

@@ -48,15 +48,20 @@ class Settings(BaseSettings):
     INPUT_WINDOW: int = 168
     TARGET_HORIZON: int = 24
 
-    # ---- Upstream weather source (no API key required) ----
-    OPEN_METEO_URL: str = "https://api.open-meteo.com/v1/forecast"
-    OPEN_METEO_TIMEOUT: int = 15
-    OPEN_METEO_MAX_RETRIES: int = 3          # attempts on 429/5xx before giving up
-    OPEN_METEO_RETRY_BASE_SECONDS: float = 1.5  # doubles each attempt
+    # ---- Upstream weather source (WeatherAPI.com — needs a free API key) ----
+    # Open-Meteo's free tier is keyless and shared across every caller on a
+    # host's egress IP, which is exactly what made it 429 under Hugging Face
+    # Spaces' shared IPs. WeatherAPI.com requires a key but keys are per-account,
+    # so this app's quota is no longer shared with strangers.
+    WEATHERAPI_KEY: str = ""
+    WEATHERAPI_BASE_URL: str = "https://api.weatherapi.com/v1"
+    WEATHERAPI_TIMEOUT: int = 15
+    WEATHERAPI_MAX_RETRIES: int = 3          # attempts on 429/5xx before giving up
+    WEATHERAPI_RETRY_BASE_SECONDS: float = 1.5  # doubles each attempt
     # How long a raw fetched observation window is reused across endpoints
     # (forecast + weekly-outlook both want "the last 168 hours" for the same
-    # district within seconds of each other) instead of re-hitting Open-Meteo.
-    OPEN_METEO_WINDOW_CACHE_MINUTES: int = 15
+    # district within seconds of each other) instead of re-hitting WeatherAPI.
+    WEATHERAPI_WINDOW_CACHE_MINUTES: int = 15
 
     # A forecast run is reused for this long rather than re-running the model.
     # The upstream data is hourly, so anything finer buys nothing.

@@ -14,7 +14,7 @@ FastAPI service behind the Tripsmart / Rawana Ceylon app: the GRU weather
 forecaster, district law/specialty data, ground reports, and accounts
 (signup, OTP email verification, login, password reset/change).
 
-Layered as `routers → services → repositories → (model | Open-Meteo | Supabase)`.
+Layered as `routers → services → repositories → (model | WeatherAPI | Supabase)`.
 
 ## Deploying this Space
 

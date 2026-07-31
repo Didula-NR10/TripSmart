@@ -16,7 +16,12 @@ class HourlyForecast(BaseModel):
     forecast_hour: int = Field(..., description="Hours ahead of the forecast origin (1-24)")
     valid_time: str = Field(..., description="Local (Asia/Colombo) timestamp this hour refers to")
     temperature_c: float
-    precipitation_mm: float
+    precipitation_mm_low: float = Field(
+        ..., description="Lower end of the plausible rain range for this hour — not the GRU's own regression output (see services._rain_range)"
+    )
+    precipitation_mm_high: float = Field(
+        ..., description="Upper end of the plausible rain range for this hour; the GOOD/CAUTION/AVOID call reacts to this, not the low end"
+    )
     humidity_pct: float
     advisory_level: str = Field(..., description="GOOD | CAUTION | AVOID")
     advisory_reason: str
@@ -26,7 +31,8 @@ class DailySummary(BaseModel):
     temp_min_c: float
     temp_max_c: float
     temp_avg_c: float
-    total_rain_mm: float
+    total_rain_mm_low: float
+    total_rain_mm_high: float
     humidity_min_pct: float
     humidity_max_pct: float
     wet_hours: int
@@ -41,7 +47,7 @@ class ForecastResponse(BaseModel):
     cached: bool = False
     stale: bool = Field(
         default=False,
-        description="True when Open-Meteo was unreachable and this is the last known-good run, not a fresh one",
+        description="True when WeatherAPI was unreachable and this is the last known-good run, not a fresh one",
     )
     stale_reason: Optional[str] = None
     summary: DailySummary
@@ -57,7 +63,8 @@ class WeeklyDay(BaseModel):
     temp_min_c: float
     temp_max_c: float
     temp_avg_c: float
-    total_rain_mm: float
+    total_rain_mm_low: float
+    total_rain_mm_high: float
     humidity_min_pct: float
     humidity_max_pct: float
     wet_hours: int

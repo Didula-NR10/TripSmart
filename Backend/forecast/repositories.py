@@ -12,6 +12,7 @@ import json
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
+from zoneinfo import ZoneInfo
 
 import httpx
 import numpy as np
@@ -21,7 +22,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from core.config import settings
 from core.database import db_available, get_session
 from core.models import District, ForecastRun, WeatherObservation
-from forecast.utils import DISTRICT_COORDS, MAX_RADIATION_WM2
+from forecast.utils import DISTRICT_COORDS
 
 log = logging.getLogger("trip_smart.forecast.repo")
 
@@ -82,180 +83,186 @@ class ModelRepository:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 2. Upstream observations — Open-Meteo
+# 2. Upstream observations — WeatherAPI.com
 # ──────────────────────────────────────────────────────────────────────────────
 
 class WeatherRepository:
     """Fetches the 168-hour context window the model needs to see."""
 
-    HOURLY_FIELDS = [
-        "temperature_2m",
-        "precipitation",
-        "relativehumidity_2m",
-        "cloudcover",
-        "windspeed_10m",
-        "windgusts_10m",
-        "direct_radiation",
-    ]
+    # WeatherAPI.com's free/standard plans don't expose solar irradiance
+    # (W/m2) the way Open-Meteo did, so DaylightScore is approximated from the
+    # UV index instead: uv/MAX_UV_INDEX while the sun's up, 0.0 at night. 11
+    # is a "very high" tropical UV reading, which Sri Lanka regularly sees
+    # around midday — close enough to the model's original 0-1 daylight signal
+    # without inventing a fake W/m2 number.
+    MAX_UV_INDEX = 11.0
 
-    # district -> (fetched_at, raw "hourly" JSON block). Open-Meteo's free tier
-    # is keyless and shared — on hosts like Hugging Face Spaces many containers
-    # share one egress IP, so 429s are routine rather than exceptional. Reusing
+    # district -> (fetched_at, flat list of WeatherAPI "hour" objects). Reusing
     # a just-fetched window across forecast/weekly (which both want "the last
-    # 168 hours" for the same district within moments of each other) roughly
-    # halves real-world call volume without changing what the model sees, since
-    # upstream data only changes once an hour anyway.
+    # 168 hours" for the same district within moments of each other) cuts
+    # real-world call volume, since upstream data only changes once an hour.
     _window_cache: Dict[str, tuple] = {}
 
-    async def _get_with_retry(self, params: dict) -> dict:
-        """GET against Open-Meteo, retrying 429/5xx with backoff before giving up.
-
-        A plain timeout retry already existed here; this generalizes it to also
-        cover rate-limiting, which is the far more common failure in practice.
-        """
-        delay = settings.OPEN_METEO_RETRY_BASE_SECONDS
+    async def _get_with_retry(self, path: str, params: dict) -> dict:
+        """GET against WeatherAPI.com, retrying 429/5xx with backoff before giving up."""
+        url = f"{settings.WEATHERAPI_BASE_URL}/{path}"
+        params = {**params, "key": settings.WEATHERAPI_KEY}
+        delay = settings.WEATHERAPI_RETRY_BASE_SECONDS
         last_error: Optional[str] = None
 
-        async with httpx.AsyncClient(timeout=settings.OPEN_METEO_TIMEOUT) as client:
-            for attempt in range(settings.OPEN_METEO_MAX_RETRIES):
+        async with httpx.AsyncClient(timeout=settings.WEATHERAPI_TIMEOUT) as client:
+            for attempt in range(settings.WEATHERAPI_MAX_RETRIES):
                 try:
-                    response = await client.get(settings.OPEN_METEO_URL, params=params)
+                    response = await client.get(url, params=params)
                 except httpx.TimeoutException:
-                    last_error = "Open-Meteo request timed out"
+                    last_error = "WeatherAPI request timed out"
                     wait = delay
                 else:
                     if response.status_code == 200:
                         return response.json()
 
-                    last_error = f"Open-Meteo returned {response.status_code}: {response.text[:200]}"
+                    last_error = f"WeatherAPI returned {response.status_code}: {response.text[:200]}"
                     if response.status_code != 429 and response.status_code < 500:
-                        # Not a transient failure (bad request, etc.) — retrying won't help.
+                        # Not a transient failure (bad key, bad query, etc.) — retrying won't help.
                         raise RuntimeError(last_error)
 
                     retry_after = response.headers.get("retry-after")
                     wait = float(retry_after) if retry_after and retry_after.strip().isdigit() else delay
 
-                if attempt < settings.OPEN_METEO_MAX_RETRIES - 1:
+                if attempt < settings.WEATHERAPI_MAX_RETRIES - 1:
                     log.warning(
-                        "Open-Meteo attempt %d/%d failed (%s) — retrying in %.1fs",
-                        attempt + 1, settings.OPEN_METEO_MAX_RETRIES, last_error, wait,
+                        "WeatherAPI attempt %d/%d failed (%s) — retrying in %.1fs",
+                        attempt + 1, settings.WEATHERAPI_MAX_RETRIES, last_error, wait,
                     )
                     await asyncio.sleep(wait)
                     delay *= 2
 
-        raise RuntimeError(last_error or "Open-Meteo request failed")
+        raise RuntimeError(last_error or "WeatherAPI request failed")
 
     async def fetch_context_window(self, district: str) -> pd.DataFrame:
         """The last 168 consecutive hours of RECORDED weather for a district.
 
-        `past_days=7` gives exactly 168 hours of actuals. We ask for one forecast
-        day too because Open-Meteo requires a non-zero horizon — those future
-        rows are then discarded, since feeding the model a forecast as if it were
-        an observation would quietly corrupt the context.
+        WeatherAPI.com has no single "past N days" call like Open-Meteo did.
+        Today (+ tomorrow, so there's always a full 24h of WeatherAPI's own
+        forecast available regardless of what time "now" is) comes from
+        `forecast.json` (whose hour rows are real observations for every hour
+        already elapsed, and forecast for the rest — the not-yet-elapsed rows
+        get trimmed off the *context* below, but stay available via
+        `get_future_forecast()`). Each of the 7 days before today needs its
+        own `history.json` call, since a date *range* in one call needs a
+        paid plan. All 9 calls run concurrently so this costs one
+        round-trip's worth of latency, not nine sequential ones.
         """
         if district not in DISTRICT_COORDS:
             raise ValueError(f"Unknown district: '{district}'")
 
         cached = self._window_cache.get(district)
         if cached:
-            fetched_at, hourly = cached
+            fetched_at, hours = cached
             age = datetime.now(timezone.utc) - fetched_at
-            if age < timedelta(minutes=settings.OPEN_METEO_WINDOW_CACHE_MINUTES):
-                return self._frame_from_hourly(hourly)
+            if age < timedelta(minutes=settings.WEATHERAPI_WINDOW_CACHE_MINUTES):
+                return self._context_from_frame(self._frame_from_hours(hours))
 
         coords = DISTRICT_COORDS[district]
-        params = {
-            "latitude": coords["lat"],
-            "longitude": coords["lon"],
-            "hourly": ",".join(self.HOURLY_FIELDS),
-            "past_days": 7,
-            "forecast_days": 1,
-            "timezone": "Asia/Colombo",
-            "windspeed_unit": "kmh",
-        }
+        q = f"{coords['lat']},{coords['lon']}"
+        today = datetime.now(ZoneInfo("Asia/Colombo")).date()
 
         try:
-            hourly = (await self._get_with_retry(params))["hourly"]
-        except RuntimeError:
+            payloads = await asyncio.gather(
+                self._get_with_retry("forecast.json", {"q": q, "days": 2, "aqi": "no", "alerts": "no"}),
+                *[
+                    self._get_with_retry("history.json", {"q": q, "dt": (today - timedelta(days=d)).isoformat()})
+                    for d in range(1, 8)
+                ],
+            )
+        except RuntimeError as e:
             # Upstream is down/rate-limited even after retries. A slightly
-            # stale window (same district, up to an hour old) beats a hard
-            # failure — the model's own accuracy degrades far more gently
-            # than "the user sees an error and can't get a forecast at all."
+            # stale window (same district, up to a cache-window old) beats a
+            # hard failure — the model's own accuracy degrades far more
+            # gently than "the user sees an error and can't get a forecast."
             if cached:
-                log.warning("Open-Meteo unavailable for %s; serving stale window from %s", district, cached[0])
-                return self._frame_from_hourly(cached[1])
+                log.warning("WeatherAPI unavailable for %s; serving stale window from %s", district, cached[0])
+                return self._context_from_frame(self._frame_from_hours(cached[1]))
             raise
 
-        self._window_cache[district] = (datetime.now(timezone.utc), hourly)
-        return self._frame_from_hourly(hourly)
+        hours: List[dict] = []
+        for payload in payloads:
+            for forecastday in payload["forecast"]["forecastday"]:
+                hours.extend(forecastday["hour"])
 
-    def _frame_from_hourly(self, hourly: dict) -> pd.DataFrame:
+        self._window_cache[district] = (datetime.now(timezone.utc), hours)
+        return self._context_from_frame(self._frame_from_hours(hours))
+
+    def get_future_forecast(self, district: str, horizon: int) -> Optional[pd.DataFrame]:
+        """WeatherAPI's own forecast for the next `horizon` hours — reuses the
+        window `fetch_context_window` already cached for this district (it's
+        always called first in the request flow), no extra API call. Returns
+        None if there's no cached window yet for this district."""
+        cached = self._window_cache.get(district)
+        if not cached:
+            return None
+        return self._future_from_frame(self._frame_from_hours(cached[1]), horizon)
+
+    def _frame_from_hours(self, hours: List[dict]) -> pd.DataFrame:
+        """Raw frame from WeatherAPI hour objects — deduped, sorted, feature
+        columns computed. Not yet trimmed to context or future; both
+        `_context_from_frame` and `_future_from_frame` slice this."""
         df = pd.DataFrame({
-            "datetime": pd.to_datetime(hourly["time"]),
-            "Temperature_C": hourly["temperature_2m"],
-            "Precipitation_mm": hourly["precipitation"],
-            "Humidity_%": hourly["relativehumidity_2m"],
-            "CloudCover_%": hourly["cloudcover"],
-            "WindSpeed_kmh": hourly["windspeed_10m"],
-            "WindGusts_kmh": hourly["windgusts_10m"],
-            "radiation": hourly["direct_radiation"],
+            "datetime": pd.to_datetime([h["time"] for h in hours]),
+            "Temperature_C": [h["temp_c"] for h in hours],
+            "Precipitation_mm": [h["precip_mm"] for h in hours],
+            "Humidity_%": [h["humidity"] for h in hours],
+            "CloudCover_%": [h["cloud"] for h in hours],
+            "WindSpeed_kmh": [h["wind_kph"] for h in hours],
+            "WindGusts_kmh": [h["gust_kph"] for h in hours],
+            "DaylightScore": [
+                (h["uv"] / self.MAX_UV_INDEX) if h.get("is_day") else 0.0 for h in hours
+            ],
         })
 
-        # Drop anything at or beyond the current hour: those are predictions.
-        # Open-Meteo rows are Colombo wall time, so compare in Colombo wall
-        # time explicitly — the server's own clock may be in any timezone.
-        now = pd.Timestamp.now(tz="Asia/Colombo").tz_localize(None)
-        df = df[df["datetime"] <= now].copy()
-        df = df.tail(settings.INPUT_WINDOW).reset_index(drop=True)
+        # The 9 upstream calls are independent requests, not one contiguous
+        # feed — de-dupe defensively before trusting the hour boundaries.
+        df = df.drop_duplicates(subset="datetime").sort_values("datetime").reset_index(drop=True)
+        df["DaylightScore"] = df["DaylightScore"].clip(0.0, 1.0)
+        df["Hour"] = df["datetime"].dt.hour
+        df["Month"] = df["datetime"].dt.month
+        return df
 
-        if len(df) < settings.INPUT_WINDOW:
+    def _context_from_frame(self, df: pd.DataFrame) -> pd.DataFrame:
+        """The model's 168h input: everything at or before the current hour.
+        Anything at/after "now" is a WeatherAPI forecast, not an observation —
+        feeding that to the model as if it already happened would quietly
+        corrupt the context."""
+        now = pd.Timestamp.now(tz="Asia/Colombo").tz_localize(None)
+        context = df[df["datetime"] <= now].tail(settings.INPUT_WINDOW).reset_index(drop=True)
+
+        if len(context) < settings.INPUT_WINDOW:
             raise RuntimeError(
-                f"Only {len(df)} hours of observations available; "
+                f"Only {len(context)} hours of observations available; "
                 f"{settings.INPUT_WINDOW} are required."
             )
 
         # Upstream gaps would become NaNs and poison the whole window.
-        df = df.ffill().bfill()
+        return context.ffill().bfill()
 
-        df["Hour"] = df["datetime"].dt.hour
-        df["Month"] = df["datetime"].dt.month
-        df["DaylightScore"] = (df["radiation"] / MAX_RADIATION_WM2).clip(0.0, 1.0)
-
-        return df
-
-    CURRENT_FIELDS = [
-        "temperature_2m",
-        "relative_humidity_2m",
-        "apparent_temperature",
-        "precipitation",
-        "weather_code",
-        "cloud_cover",
-        "pressure_msl",
-        "wind_speed_10m",
-        "wind_gusts_10m",
-        "wind_direction_10m",
-        "uv_index",
-        "is_day",
-    ]
+    def _future_from_frame(self, df: pd.DataFrame, horizon: int) -> pd.DataFrame:
+        """WeatherAPI's own forecast rows — strictly after "now", used as an
+        independent second opinion for rain (see ForecastService._rain_range)."""
+        now = pd.Timestamp.now(tz="Asia/Colombo").tz_localize(None)
+        return df[df["datetime"] > now].head(horizon).reset_index(drop=True)
 
     async def fetch_current(self, district: str) -> Dict[str, Any]:
         """A live snapshot for right now — no model involved, straight from
-        Open-Meteo's `current` block. Used by the district comparer's
+        WeatherAPI's `current` block. Used by the district comparer's
         "current conditions" mode, where the ask is what a traveler would see
         by checking a weather app at this exact moment."""
         if district not in DISTRICT_COORDS:
             raise ValueError(f"Unknown district: '{district}'")
 
         coords = DISTRICT_COORDS[district]
-        params = {
-            "latitude": coords["lat"],
-            "longitude": coords["lon"],
-            "current": ",".join(self.CURRENT_FIELDS),
-            "timezone": "Asia/Colombo",
-            "windspeed_unit": "kmh",
-        }
+        params = {"q": f"{coords['lat']},{coords['lon']}", "aqi": "no"}
 
-        data = await self._get_with_retry(params)
+        data = await self._get_with_retry("current.json", params)
         return data["current"]
 
 
@@ -292,7 +299,7 @@ class ObservationRepository:
         if district_id is None:
             return
 
-        # Open-Meteo timestamps arrive naive in Asia/Colombo; observed_at is
+        # WeatherAPI timestamps arrive naive in Asia/Colombo; observed_at is
         # timestamptz, so localise before insert or hours would shift by 5:30.
         observed = pd.DatetimeIndex(frame["datetime"]).tz_localize("Asia/Colombo")
 
@@ -351,7 +358,7 @@ class ForecastRepository:
             return None
 
     def get_stale(self, district: str) -> Optional[dict]:
-        """The most recent run regardless of age — a last resort when Open-Meteo
+        """The most recent run regardless of age — a last resort when WeatherAPI
         is unreachable even after retries. An hours-old forecast beats a hard
         error; the payload is marked `stale` so the UI can say so."""
         district_id = DistrictLookup.id_for(district)

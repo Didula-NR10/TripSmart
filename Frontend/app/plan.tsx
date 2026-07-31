@@ -18,7 +18,7 @@ const FOOTER: {
   caption: string;
 }[] = [
   { icon: 'rainy-outline', title: 'Smart routing', caption: 'Avoid heavy rain and delays' },
-  { icon: 'shield-checkmark-outline', title: 'Accurate data', caption: 'Powered by Open-Meteo' },
+  { icon: 'shield-checkmark-outline', title: 'Accurate data', caption: 'Powered by WeatherAPI' },
   { icon: 'calendar-outline', title: 'Plan weekly', caption: '7-day outlook with confidence' },
   { icon: 'compass-outline', title: 'Travel better', caption: 'Make smarter decisions' },
 ];

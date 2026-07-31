@@ -1,7 +1,7 @@
 """
 Trip Smart — API entrypoint.
 
-Layered: routers → services → repositories → (model | Open-Meteo | Supabase).
+Layered: routers → services → repositories → (model | WeatherAPI | Supabase).
 Each module (forecast, profile, almanac, suggestions, advisory) plugs in here
 and nowhere else.
 """

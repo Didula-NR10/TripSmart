@@ -139,7 +139,7 @@ export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
             Current conditions
           </Text>
           <Text style={[styles.modeCaption, mode === 'now' && styles.modeCaptionOn]}>
-            Live observations from Open-Meteo
+            Live observations from WeatherAPI
           </Text>
         </Pressable>
         <Pressable
@@ -164,7 +164,7 @@ export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
         <Ionicons name="information-circle-outline" size={14} color={Palette.textDim} />
         <Text style={styles.modeHint}>
           {mode === 'now'
-            ? 'Live observations from Open-Meteo — for deciding where to go right now.'
+            ? 'Live observations from WeatherAPI — for deciding where to go right now.'
             : 'GRU model run for each district: the last 7 days of weather feed the model, which predicts the next 24 hours.'}
         </Text>
       </View>
@@ -293,7 +293,7 @@ function NowComparison({
       <View style={styles.footnote}>
         <Ionicons name="time-outline" size={12} color={Palette.textDim} />
         <Text style={styles.footnoteText}>
-          Observed {a.observedAt.replace('T', ' ')} · live Open-Meteo data, no model involved.
+          Observed {a.observedAt.replace('T', ' ')} · live WeatherAPI data, no model involved.
         </Text>
       </View>
     </View>

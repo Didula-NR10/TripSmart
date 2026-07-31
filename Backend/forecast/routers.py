@@ -33,7 +33,7 @@ def list_districts():
 
 @router.get("/current/{district}", response_model=CurrentConditionsResponse)
 async def current_conditions(district: str):
-    """Live conditions right now — straight from Open-Meteo, no model.
+    """Live conditions right now — straight from WeatherAPI, no model.
 
     Everything the upstream `current` block offers: temperature, feels-like,
     humidity, rain, cloud cover, pressure, wind speed/gusts/direction, UV index,
