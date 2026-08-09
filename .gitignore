@@ -9,6 +9,7 @@ db.sqlite3
 
 # --- Node / Frontend Dependencies ---
 node_modules/
+node_modules_backup/
 .expo/
 dist/
 web-build/
