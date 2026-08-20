@@ -32,6 +32,7 @@ export default function TodayScreen() {
     prediction,
     profileKey,
     offline,
+    source,
     forecast24,
     forecast24Loading,
     runForecast24,
@@ -82,6 +83,7 @@ export default function TodayScreen() {
           district={district}
           now={now}
           offline={offline}
+          source={source}
           previewLabel={selectedHour !== null && selectedHour !== nowHour ? `Previewing ${fmtHour(selectedHour)}` : undefined}
           onPressDistrict={() => setPicking(true)}
           onPressNotifications={() => setInboxOpen(true)}

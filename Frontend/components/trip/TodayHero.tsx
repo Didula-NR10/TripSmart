@@ -6,17 +6,35 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { District } from '../../constants/districts';
 import { heroForDistrict } from '../../constants/district-hero';
 import { HourPrediction } from '../../lib/engine';
+import { ForecastSource } from '../../lib/store';
 import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
 
 type Props = {
   district: District;
   now: HourPrediction;
   offline: boolean;
+  source: ForecastSource;
   previewLabel?: string;
   onPressDistrict: () => void;
   onPressNotifications?: () => void;
   unreadNotifications?: number;
 };
+
+const SOURCE_META: Record<ForecastSource, { label: string; color: string }> = {
+  live: { label: 'LIVE', color: Palette.primary },
+  cache: { label: 'CACHED', color: Palette.warn },
+  synthetic: { label: 'DEMO DATA', color: Palette.danger },
+};
+
+function SourceBadge({ source }: { source: ForecastSource }) {
+  const meta = SOURCE_META[source];
+  return (
+    <View style={styles.sourceBadge}>
+      <View style={[styles.sourceDot, { backgroundColor: meta.color }]} />
+      <Text style={styles.sourceText}>{meta.label}</Text>
+    </View>
+  );
+}
 
 function Metric({ icon, value }: { icon: keyof typeof Ionicons.glyphMap; value: string }) {
   return (
@@ -31,6 +49,7 @@ export function TodayHero({
   district,
   now,
   offline,
+  source,
   previewLabel,
   onPressDistrict,
   onPressNotifications,
@@ -72,27 +91,31 @@ export function TodayHero({
             <Ionicons name="chevron-down" size={14} color={Palette.onDark} />
           </Pressable>
 
-          {offline ? (
-            <View style={styles.cached}>
-              <Ionicons name="cloud-offline-outline" size={12} color={Palette.onDark} />
-              <Text style={styles.cachedText}>CACHED</Text>
-            </View>
-          ) : (
-            <Pressable
-              style={styles.iconButton}
-              onPress={onPressNotifications}
-              accessibilityLabel="Notifications"
-            >
-              <Ionicons name="notifications-outline" size={17} color={Palette.onDark} />
-              {unreadNotifications > 0 ? (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>
-                    {unreadNotifications > 9 ? '9+' : unreadNotifications}
-                  </Text>
-                </View>
-              ) : null}
-            </Pressable>
-          )}
+          <View style={styles.rightRow}>
+            <SourceBadge source={source} />
+
+            {offline ? (
+              <View style={styles.cached}>
+                <Ionicons name="cloud-offline-outline" size={12} color={Palette.onDark} />
+                <Text style={styles.cachedText}>OFFLINE</Text>
+              </View>
+            ) : (
+              <Pressable
+                style={styles.iconButton}
+                onPress={onPressNotifications}
+                accessibilityLabel="Notifications"
+              >
+                <Ionicons name="notifications-outline" size={17} color={Palette.onDark} />
+                {unreadNotifications > 0 ? (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>
+                      {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                    </Text>
+                  </View>
+                ) : null}
+              </Pressable>
+            )}
+          </View>
         </View>
 
         <View style={styles.readout}>
@@ -141,6 +164,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  rightRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Space.sm,
+  },
+  sourceBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    paddingHorizontal: Space.md,
+    paddingVertical: 7,
+    borderRadius: Radius.pill,
+  },
+  sourceDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  sourceText: {
+    ...Type.caption,
+    fontSize: 10,
+    letterSpacing: 0.6,
+    fontWeight: '700',
+    color: Palette.onDark,
   },
   place: {
     flexDirection: 'row',
