@@ -66,3 +66,5 @@ uvicorn main:app --reload --port 8000
   (both together are ~1.2 MB, well under Git LFS territory).
 - `.env` is excluded from the image on purpose (`.dockerignore`) — real
   credentials only ever come from Space Secrets, never from a baked-in file.
+
+69030fe7c9af4639160e27570548c14754bb85ae

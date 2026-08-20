@@ -1,10 +1,9 @@
 /**
  * QuickActions — the 2x2 grid at the bottom of the Profile tab. Each tile
- * routes to the closest real screen the app already has; "Help center" has
- * no dedicated screen yet, so it surfaces a short in-app notice instead of a
- * dead tap.
+ * jumps to one of the app's four other real tabs (Profile itself is where
+ * this grid lives), so it's a shortcut grid rather than a dead-end menu.
  */
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Palette, Radius, Shadow, Space, Type } from '../../constants/trip-theme';
@@ -22,36 +21,32 @@ export function QuickActions() {
 
   const actions: Action[] = [
     {
-      key: 'offline',
-      icon: 'cloud-download-outline',
-      title: 'Offline maps',
-      detail: 'Download for offline access',
-      onPress: () => router.push('/trips'),
+      key: 'forecast',
+      icon: 'sunny-outline',
+      title: 'Weather Forecast',
+      detail: '24-hour outlook by district',
+      onPress: () => router.push('/'),
     },
     {
-      key: 'saved',
-      icon: 'heart-outline',
-      title: 'Saved places',
-      detail: 'Your favorite destinations',
-      onPress: () => router.push('/saved'),
+      key: 'guide',
+      icon: 'business-outline',
+      title: 'Local Guide',
+      detail: 'Laws, etiquette & safety tips',
+      onPress: () => router.push('/explore'),
     },
     {
-      key: 'contribute',
-      icon: 'cloud-upload-outline',
-      title: 'Contribute',
-      detail: 'Share reports and help others',
+      key: 'route',
+      icon: 'navigate-outline',
+      title: 'Route Intelligence',
+      detail: 'Compare destinations & smart routing',
+      onPress: () => router.push('/plan'),
+    },
+    {
+      key: 'reports',
+      icon: 'chatbubbles-outline',
+      title: 'Ground Reports',
+      detail: 'Real conditions from real travellers',
       onPress: () => router.push('/reports'),
-    },
-    {
-      key: 'help',
-      icon: 'help-circle-outline',
-      title: 'Help center',
-      detail: 'Get support and find answers',
-      onPress: () =>
-        Alert.alert(
-          'Help center',
-          'Support articles are coming soon. For now, post a ground report if something looks wrong.',
-        ),
     },
   ];
 

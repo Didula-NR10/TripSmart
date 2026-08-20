@@ -67,9 +67,10 @@ export function AuthPanel() {
     value: string,
     set: (v: string) => void,
     placeholder: string,
-    opts: { secure?: boolean; keyboard?: 'email-address' | 'number-pad' } = {},
+    opts: { secure?: boolean; keyboard?: 'email-address' | 'number-pad'; testID?: string } = {},
   ) => (
     <TextInput
+      testID={opts.testID}
       style={styles.input}
       value={value}
       onChangeText={set}
@@ -81,8 +82,13 @@ export function AuthPanel() {
     />
   );
 
-  const primary = (label: string, onPress: () => void) => (
-    <Pressable style={[styles.primary, busy && styles.primaryBusy]} onPress={onPress} disabled={busy}>
+  const primary = (label: string, onPress: () => void, testID?: string) => (
+    <Pressable
+      testID={testID}
+      style={[styles.primary, busy && styles.primaryBusy]}
+      onPress={onPress}
+      disabled={busy}
+    >
       {busy ? <ActivityIndicator size="small" color={Palette.onDark} /> : null}
       <Text style={styles.primaryText}>{label}</Text>
     </Pressable>
@@ -125,12 +131,15 @@ export function AuthPanel() {
 
       {mode === 'login' ? (
         <>
-          {field(identifier, setIdentifier, 'Username or email')}
-          {field(password, setPassword, 'Password', { secure: true })}
-          {primary('Log in', () =>
-            run(async () => {
-              await auth.login(identifier, password);
-            }),
+          {field(identifier, setIdentifier, 'Username or email', { testID: 'login-identifier' })}
+          {field(password, setPassword, 'Password', { secure: true, testID: 'login-password' })}
+          {primary(
+            'Log in',
+            () =>
+              run(async () => {
+                await auth.login(identifier, password);
+              }),
+            'login-submit',
           )}
           <Pressable onPress={() => switchMode('forgot')}>
             <Text style={styles.link}>Forgot password?</Text>
@@ -140,24 +149,31 @@ export function AuthPanel() {
 
       {mode === 'signup' ? (
         <>
-          {field(fullName, setFullName, 'Full name')}
-          {field(username, setUsername, 'Username (letters, numbers, _)')}
-          {field(email, setEmail, 'Email address', { keyboard: 'email-address' })}
-          <Pressable style={styles.select} onPress={() => setPickingCountry(true)}>
+          {field(fullName, setFullName, 'Full name', { testID: 'signup-fullname' })}
+          {field(username, setUsername, 'Username (letters, numbers, _)', { testID: 'signup-username' })}
+          {field(email, setEmail, 'Email address', { keyboard: 'email-address', testID: 'signup-email' })}
+          <Pressable
+            testID="signup-country"
+            style={styles.select}
+            onPress={() => setPickingCountry(true)}
+          >
             <Ionicons name="globe-outline" size={15} color={Palette.textMuted} />
             <Text style={[styles.selectText, !country && styles.selectPlaceholder]}>
               {country || 'Country'}
             </Text>
             <Ionicons name="chevron-down" size={15} color={Palette.textMuted} />
           </Pressable>
-          {field(password, setPassword, 'Password (min 8 characters)', { secure: true })}
-          {primary('Create account', () =>
-            run(async () => {
-              if (!country) throw new Error('Pick your country.');
-              const r = await auth.signup({ fullName, username, email, country, password });
-              setNotice(`${r.message}${showDevOtp(r.dev_otp)}`);
-              setMode('verify');
-            }),
+          {field(password, setPassword, 'Password (min 8 characters)', { secure: true, testID: 'signup-password' })}
+          {primary(
+            'Create account',
+            () =>
+              run(async () => {
+                if (!country) throw new Error('Pick your country.');
+                const r = await auth.signup({ fullName, username, email, country, password });
+                setNotice(`${r.message}${showDevOtp(r.dev_otp)}`);
+                setMode('verify');
+              }),
+            'signup-submit',
           )}
         </>
       ) : null}
@@ -167,12 +183,15 @@ export function AuthPanel() {
           <Text style={styles.hint}>
             Enter the 6-digit code emailed to {email || 'your address'}.
           </Text>
-          {email ? null : field(email, setEmail, 'Email address', { keyboard: 'email-address' })}
-          {field(otp, setOtp, '6-digit code', { keyboard: 'number-pad' })}
-          {primary('Verify & log in', () =>
-            run(async () => {
-              await auth.verifyEmail(email, otp.trim());
-            }),
+          {email ? null : field(email, setEmail, 'Email address', { keyboard: 'email-address', testID: 'verify-email' })}
+          {field(otp, setOtp, '6-digit code', { keyboard: 'number-pad', testID: 'verify-otp' })}
+          {primary(
+            'Verify & log in',
+            () =>
+              run(async () => {
+                await auth.verifyEmail(email, otp.trim());
+              }),
+            'verify-submit',
           )}
           <Pressable
             onPress={() =>
@@ -192,13 +211,16 @@ export function AuthPanel() {
           <Text style={styles.hint}>
             Enter your account email — a reset code will be sent there.
           </Text>
-          {field(email, setEmail, 'Email address', { keyboard: 'email-address' })}
-          {primary('Send reset code', () =>
-            run(async () => {
-              const r = await auth.forgotPassword(email);
-              setNotice(`${r.message}${showDevOtp(r.dev_otp)}`);
-              setMode('reset');
-            }),
+          {field(email, setEmail, 'Email address', { keyboard: 'email-address', testID: 'forgot-email' })}
+          {primary(
+            'Send reset code',
+            () =>
+              run(async () => {
+                const r = await auth.forgotPassword(email);
+                setNotice(`${r.message}${showDevOtp(r.dev_otp)}`);
+                setMode('reset');
+              }),
+            'forgot-submit',
           )}
           <Pressable onPress={() => switchMode('login')}>
             <Text style={styles.link}>Back to log in</Text>
@@ -211,15 +233,18 @@ export function AuthPanel() {
           <Text style={styles.hint}>
             Enter the code sent to {email || 'your email'} and choose a new password.
           </Text>
-          {field(otp, setOtp, '6-digit code', { keyboard: 'number-pad' })}
-          {field(newPassword, setNewPassword, 'New password (min 8 characters)', { secure: true })}
-          {primary('Change password', () =>
-            run(async () => {
-              const r = await auth.resetPassword(email, otp.trim(), newPassword);
-              setNotice(r.message);
-              setPassword('');
-              setMode('login');
-            }),
+          {field(otp, setOtp, '6-digit code', { keyboard: 'number-pad', testID: 'reset-otp' })}
+          {field(newPassword, setNewPassword, 'New password (min 8 characters)', { secure: true, testID: 'reset-password' })}
+          {primary(
+            'Change password',
+            () =>
+              run(async () => {
+                const r = await auth.resetPassword(email, otp.trim(), newPassword);
+                setNotice(r.message);
+                setPassword('');
+                setMode('login');
+              }),
+            'reset-submit',
           )}
           <Pressable
             onPress={() =>
