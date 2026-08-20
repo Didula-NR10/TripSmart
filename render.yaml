@@ -1,0 +1,13 @@
+# Render Blueprint. This only drives NEW services created via "New +" ->
+# "Blueprint" from this repo — it does not retroactively change settings on
+# an already-existing service (edit those directly in the dashboard).
+services:
+  - type: web
+    name: tripsmart-backend
+    runtime: python
+    rootDir: Backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12

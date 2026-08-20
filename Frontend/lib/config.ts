@@ -13,4 +13,4 @@
  * If your PC's LAN IP changes (new Wi-Fi network, router reassigns it via
  * DHCP), find the new one with `ipconfig` and update it here.
  */
-export const API_BASE_URL = 'https://didulanr-mandhodhini-backend.hf.space';
+export const API_BASE_URL = 'https://tripsmart-0o6d.onrender.com';
