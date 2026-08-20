@@ -107,6 +107,27 @@ type ApiResponse = {
   forecast: ApiHour[];
 };
 
+export type GeocodeResult = {
+  query: string;
+  formattedAddress: string;
+  lat: number;
+  lon: number;
+};
+
+/**
+ * Place name -> coordinates for the map picker's search box, proxied through
+ * the backend so the Google Maps key never reaches the client.
+ */
+export async function geocodePlace(query: string): Promise<GeocodeResult> {
+  const res = await fetch(`${API_BASE_URL}/api/v1/forecast/geocode?q=${encodeURIComponent(query)}`);
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.detail ?? `Backend returned ${res.status}`);
+  }
+  const data = await res.json();
+  return { query: data.query, formattedAddress: data.formatted_address, lat: data.lat, lon: data.lon };
+}
+
 const hourLabel = (clockHour: number) => {
   const suffix = clockHour >= 12 ? 'PM' : 'AM';
   const h = clockHour % 12 === 0 ? 12 : clockHour % 12;

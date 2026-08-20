@@ -1,16 +1,18 @@
 /**
  * DistrictMap.web.tsx — real map picker for the browser.
  *
- * react-native-maps has no web build, so the web version uses Leaflet with
- * free OpenStreetMap tiles instead (no API key needed). The contract is the
- * same as the native map: the user drops a pin (tap, drag, or search) and
- * `onPick(lat, lng)` hands the coordinates to the parent, which resolves the
- * district — the forecast then runs on that district's own coordinates
+ * Uses the Google Maps JavaScript API, loaded client-side with the key in
+ * app.config.js (expo-constants -> extra.googleMapsApiKey). The contract is
+ * the same as the native map: the user drops a pin (tap, drag, or search)
+ * and `onPick(lat, lng)` hands the coordinates to the parent, which resolves
+ * the district — the forecast then runs on that district's own coordinates
  * through the unchanged 7-days-back + GRU pipeline.
  */
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import Constants from 'expo-constants';
 import { District } from '../../constants/districts';
 import { Palette, Radius } from '../../constants/trip-theme';
+import { geocodePlace } from '../../lib/api';
 
 export type MapPin = { latitude: number; longitude: number } | null;
 
@@ -20,29 +22,28 @@ type Props = {
   onPick: (lat: number, lng: number) => void;
 };
 
-const LEAFLET_JS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-const LEAFLET_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+const GOOGLE_MAPS_API_KEY: string =
+  (Constants.expoConfig?.extra as any)?.googleMapsApiKey ?? '';
 
-let leafletLoader: Promise<any> | null = null;
+const SRI_LANKA_BOUNDS = { south: 5.7, west: 79.4, north: 10.05, east: 82.1 };
 
-function loadLeaflet(): Promise<any> {
+let googleLoader: Promise<any> | null = null;
+
+function loadGoogleMaps(): Promise<any> {
   const w = window as any;
-  if (w.L) return Promise.resolve(w.L);
-  if (!leafletLoader) {
-    leafletLoader = new Promise((resolve, reject) => {
-      const css = document.createElement('link');
-      css.rel = 'stylesheet';
-      css.href = LEAFLET_CSS;
-      document.head.appendChild(css);
-
+  if (w.google?.maps) return Promise.resolve(w.google);
+  if (!googleLoader) {
+    googleLoader = new Promise((resolve, reject) => {
+      const cbName = '__tripsmartGoogleMapsReady';
+      w[cbName] = () => resolve(w.google);
       const script = document.createElement('script');
-      script.src = LEAFLET_JS;
-      script.onload = () => resolve(w.L);
-      script.onerror = () => reject(new Error('Leaflet failed to load'));
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=${cbName}`;
+      script.async = true;
+      script.onerror = () => reject(new Error('Google Maps failed to load'));
       document.head.appendChild(script);
     });
   }
-  return leafletLoader;
+  return googleLoader;
 }
 
 export function DistrictMap({ selected, pin, onPick }: Props) {
@@ -51,7 +52,9 @@ export function DistrictMap({ selected, pin, onPick }: Props) {
   const markerRef = useRef<any>(null);
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(
+    GOOGLE_MAPS_API_KEY ? null : 'No Google Maps API key configured (app.config.js).',
+  );
 
   // The map handlers live as long as the map; keep the latest onPick in a ref.
   const onPickRef = useRef(onPick);
@@ -59,35 +62,39 @@ export function DistrictMap({ selected, pin, onPick }: Props) {
 
   // Build the map once.
   useEffect(() => {
+    if (!GOOGLE_MAPS_API_KEY) return;
     let disposed = false;
 
-    loadLeaflet()
-      .then((L) => {
+    loadGoogleMaps()
+      .then((google) => {
         if (disposed || !holder.current || mapRef.current) return;
 
-        // Hard-lock the view to Sri Lanka: users cannot pan away to another
-        // country, and minZoom stops zooming out to the world map.
-        const lanka = L.latLngBounds([5.7, 79.4], [10.05, 82.1]);
-        const map = L.map(holder.current, {
-          maxBounds: lanka,
-          maxBoundsViscosity: 1.0,
+        const map = new google.maps.Map(holder.current, {
+          center: { lat: selected.lat, lng: selected.lng },
+          zoom: 9,
           minZoom: 7,
+          restriction: {
+            latLngBounds: SRI_LANKA_BOUNDS,
+            strictBounds: false,
+          },
+          streetViewControl: false,
+          mapTypeControl: false,
+          fullscreenControl: false,
         });
-        map.fitBounds(lanka);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '© OpenStreetMap contributors',
-        }).addTo(map);
         (window as any).__lankaMap = map; // exposed for automated UI tests
 
-        const marker = L.marker([selected.lat, selected.lng], { draggable: true }).addTo(map);
-        marker.on('dragend', () => {
-          const p = marker.getLatLng();
-          onPickRef.current(p.lat, p.lng);
+        const marker = new google.maps.Marker({
+          position: { lat: selected.lat, lng: selected.lng },
+          map,
+          draggable: true,
         });
-        map.on('click', (e: any) => {
-          marker.setLatLng(e.latlng);
-          onPickRef.current(e.latlng.lat, e.latlng.lng);
+        marker.addListener('dragend', () => {
+          const p = marker.getPosition();
+          onPickRef.current(p.lat(), p.lng());
+        });
+        map.addListener('click', (e: any) => {
+          marker.setPosition(e.latLng);
+          onPickRef.current(e.latLng.lat(), e.latLng.lng());
         });
 
         mapRef.current = map;
@@ -97,7 +104,6 @@ export function DistrictMap({ selected, pin, onPick }: Props) {
 
     return () => {
       disposed = true;
-      mapRef.current?.remove();
       mapRef.current = null;
       markerRef.current = null;
     };
@@ -107,32 +113,29 @@ export function DistrictMap({ selected, pin, onPick }: Props) {
   // District chosen from the dropdown (pin cleared by the parent): recentre.
   useEffect(() => {
     if (pin || !mapRef.current) return;
-    mapRef.current.setView([selected.lat, selected.lng], 9);
-    markerRef.current?.setLatLng([selected.lat, selected.lng]);
+    mapRef.current.setCenter({ lat: selected.lat, lng: selected.lng });
+    mapRef.current.setZoom(9);
+    markerRef.current?.setPosition({ lat: selected.lat, lng: selected.lng });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected.key]);
 
-  // Free geocoding via OpenStreetMap's Nominatim, biased to Sri Lanka.
+  // Geocoding proxied through the backend (Google Geocoding API server-side),
+  // so the app never ships a client key with geocoding privileges.
   const search = async () => {
     const q = query.trim();
     if (!q || searching) return;
     setSearching(true);
     setNotice(null);
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=lk&q=${encodeURIComponent(q)}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        const lat = parseFloat(data[0].lat);
-        const lng = parseFloat(data[0].lon);
-        mapRef.current?.setView([lat, lng], 11);
-        markerRef.current?.setLatLng([lat, lng]);
-        onPick(lat, lng);
-      } else {
-        setNotice(`"${q}" not found in Sri Lanka — try a town or landmark name.`);
-      }
-    } catch {
-      setNotice('Search failed. Check your connection and try again.');
+      const { lat, lon } = await geocodePlace(q);
+      mapRef.current?.setCenter({ lat, lng: lon });
+      mapRef.current?.setZoom(11);
+      markerRef.current?.setPosition({ lat, lng: lon });
+      onPick(lat, lon);
+    } catch (err: any) {
+      setNotice(err?.message?.includes('not found')
+        ? `"${q}" not found in Sri Lanka — try a town or landmark name.`
+        : 'Search failed. Check your connection and try again.');
     } finally {
       setSearching(false);
     }

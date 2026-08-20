@@ -183,10 +183,15 @@ Schematic map (25 district dots positioned by lat/lng). Tap → `resolveDistrict
 `zonesNear` → geofence modal fires if the pin is inside a cultural or restricted zone.
 Below: community feed filtered to the selected district, and the cuisine card.
 
-**`MapCanvas.tsx` is a placeholder.** Google Maps needs native code and will not run in
-Expo Go. Replace it with `react-native-maps` once you build with `npx expo run:android`.
-The `onPick(lat, lng)` interface is already the one a real map gives you, so the swap is
-one component.
+The district picker itself now lives in `components/trip/DistrictMap.tsx` (native) and
+`DistrictMap.web.tsx` (browser), used from `app/index.tsx`. Both are real, working maps —
+the Google Maps JavaScript API, loaded inside a WebView on native and directly in the DOM
+on web, keyed from `app.config.js` (`extra.googleMapsApiKey`). Using the JS API in a
+WebView, rather than `react-native-maps`, is a deliberate choice: it still runs in Expo Go
+with no custom development build. The web version also does place-name search via the
+Google Maps Geocoding API. `onPick(lat, lng)` is the same contract either way. The key
+needs the Maps JavaScript API, Geocoding API, and billing enabled in Google Cloud Console,
+or the map will show a "for development purposes only" watermark or fail to load.
 
 ### `app/plan.tsx` — Plan
 
@@ -229,7 +234,7 @@ toggle and cache checkpoint (2). Next Poya date (12).
 
 1. **Bounding boxes are not polygons.** Border pins may resolve wrong. Fix on the backend.
 2. **`predict()` is synthetic.** It is shaped like a real forecast and is deterministic, but it is not the GRU. Replace it first.
-3. **The map is schematic.** Google Maps requires a development build.
+3. **The map needs a working, billing-enabled Google Maps API key** (Maps JavaScript API + Geocoding API) in `app.config.js`. Without one it shows a "for development purposes only" watermark or fails to load; the current key is a personal demo key and should be swapped for a properly restricted one before this ships anywhere real.
 4. **State is in memory.** Restart the app and reports and watches are gone. Wire AsyncStorage.
 5. **The historical series is generated, not loaded.** Import the xlsx into SQLite.
 6. **No moderation on community reports.** If this ships to real users, it needs some.

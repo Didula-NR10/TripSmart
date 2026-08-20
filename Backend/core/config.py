@@ -63,6 +63,12 @@ class Settings(BaseSettings):
     # district within seconds of each other) instead of re-hitting WeatherAPI.
     WEATHERAPI_WINDOW_CACHE_MINUTES: int = 15
 
+    # ---- Mapping (Google Maps Geocoding, used by the destination search box) ----
+    # The map itself (tile rendering) runs client-side in the app with its own
+    # key; this one is server-side only, so it can be IP-restricted in Google
+    # Cloud Console instead of being exposed to every client.
+    GOOGLE_MAPS_API_KEY: str = ""
+
     # A forecast run is reused for this long rather than re-running the model.
     # The upstream data is hourly, so anything finer buys nothing.
     FORECAST_CACHE_MINUTES: int = 60

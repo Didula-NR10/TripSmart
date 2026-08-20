@@ -9,6 +9,7 @@ from forecast.schemas import (
     CurrentConditionsResponse,
     DistrictInfo,
     ForecastResponse,
+    GeocodeResult,
     HealthResponse,
     PredictRequest,
     WeeklyOutlookResponse,
@@ -52,6 +53,17 @@ async def weekly_outlook(district: str):
     past week's same-hour pattern. Confidence is labeled and decays with distance.
     """
     return await service.weekly_outlook(district)
+
+
+@router.get("/geocode", response_model=GeocodeResult)
+async def geocode(q: str = Query(..., min_length=1, description="Place name, e.g. 'Ella'")):
+    """Place name -> coordinates for the map picker's search box.
+
+    Proxied server-side through Google's Geocoding API so the key stays out
+    of the client and can be IP-restricted instead of exposed to every app
+    install.
+    """
+    return await service.geocode(q)
 
 
 @router.get("/{district}", response_model=ForecastResponse)

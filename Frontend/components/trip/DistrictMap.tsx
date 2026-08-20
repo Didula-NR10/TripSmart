@@ -1,16 +1,18 @@
 /**
  * DistrictMap.tsx — real map picker for native (Android/iOS).
  *
- * Same engine as the web version (DistrictMap.web.tsx): Leaflet + free
- * OpenStreetMap tiles inside a WebView, so there is no Google Maps SDK, no
- * API key, and nothing to configure in app.config.js for it to work. The
- * contract is the same on both platforms: the user drops a pin (tap or
- * drag) and `onPick(lat, lng)` hands the coordinates to the parent, which
- * resolves the district.
+ * Same engine as the web version (DistrictMap.web.tsx): the Google Maps
+ * JavaScript API loaded inside a WebView, keyed from app.config.js
+ * (extra.googleMapsApiKey). This is deliberately the JS API in a WebView
+ * rather than react-native-maps, so nothing here needs a native dev build —
+ * it still runs in Expo Go. The contract is the same on both platforms: the
+ * user drops a pin (tap or drag) and `onPick(lat, lng)` hands the
+ * coordinates to the parent, which resolves the district.
  */
 import { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
+import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
 import { District } from '../../constants/districts';
 import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
@@ -23,35 +25,52 @@ type Props = {
   onPick: (lat: number, lng: number) => void;
 };
 
-// Self-contained Leaflet page: locked to Sri Lanka, same tile source and
-// bounds as the web picker. Pin taps/drags post {lat, lng} back to RN.
+const GOOGLE_MAPS_API_KEY: string =
+  (Constants.expoConfig?.extra as any)?.googleMapsApiKey ?? '';
+
+// Self-contained Google Maps page: locked to Sri Lanka, same key and bounds
+// as the web picker. Pin taps/drags post {lat, lng} back to RN.
 const MAP_HTML = `<!DOCTYPE html>
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     html, body, #map { height: 100%; margin: 0; padding: 0; background: ${Palette.primaryTint}; }
   </style>
 </head>
 <body>
   <div id="map"></div>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const lanka = L.latLngBounds([5.7, 79.4], [10.05, 82.1]);
-    const map = L.map('map', { maxBounds: lanka, maxBoundsViscosity: 1.0, minZoom: 7 });
-    map.fitBounds(lanka);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap contributors',
-    }).addTo(map);
+    const lanka = { south: 5.7, west: 79.4, north: 10.05, east: 82.1 };
+    let map, marker;
 
-    const marker = L.marker([__LAT__, __LNG__], { draggable: true }).addTo(map);
-    const post = (lat, lng) => window.ReactNativeWebView.postMessage(JSON.stringify({ lat, lng }));
-    marker.on('dragend', () => { const p = marker.getLatLng(); post(p.lat, p.lng); });
-    map.on('click', (e) => { marker.setLatLng(e.latlng); post(e.latlng.lat, e.latlng.lng); });
+    function post(lat, lng) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ lat, lng }));
+    }
 
-    map.setView([__LAT__, __LNG__], 9);
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: __LAT__, lng: __LNG__ },
+        zoom: 9,
+        minZoom: 7,
+        restriction: { latLngBounds: lanka, strictBounds: false },
+        disableDefaultUI: true,
+      });
+      marker = new google.maps.Marker({
+        position: { lat: __LAT__, lng: __LNG__ },
+        map,
+        draggable: true,
+      });
+      marker.addListener('dragend', () => {
+        const p = marker.getPosition();
+        post(p.lat(), p.lng());
+      });
+      map.addListener('click', (e) => {
+        marker.setPosition(e.latLng);
+        post(e.latLng.lat(), e.latLng.lng());
+      });
+    }
+    window.initMap = initMap;
 
     // Bridge for RN -> WebView recentring when the selected district changes.
     document.addEventListener('message', onRNMessage);
@@ -59,23 +78,24 @@ const MAP_HTML = `<!DOCTYPE html>
     function onRNMessage(e) {
       try {
         const msg = JSON.parse(e.data);
-        if (msg.type === 'recenter') {
-          map.setView([msg.lat, msg.lng], 9);
-          marker.setLatLng([msg.lat, msg.lng]);
+        if (msg.type === 'recenter' && map && marker) {
+          map.setCenter({ lat: msg.lat, lng: msg.lng });
+          map.setZoom(9);
+          marker.setPosition({ lat: msg.lat, lng: msg.lng });
         }
       } catch {}
     }
   </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=__API_KEY__&callback=initMap" async></script>
 </body>
 </html>`;
 
 export function DistrictMap({ selected, pin, onPick }: Props) {
   const webRef = useRef<WebView>(null);
 
-  const html = MAP_HTML.replaceAll('__LAT__', String(selected.lat)).replaceAll(
-    '__LNG__',
-    String(selected.lng),
-  );
+  const html = MAP_HTML.replaceAll('__LAT__', String(selected.lat))
+    .replaceAll('__LNG__', String(selected.lng))
+    .replaceAll('__API_KEY__', GOOGLE_MAPS_API_KEY);
 
   // District chosen from the search sheet (pin cleared by the parent): recentre on it.
   useEffect(() => {

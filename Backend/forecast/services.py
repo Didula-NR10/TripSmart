@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 from zoneinfo import ZoneInfo
 
+import httpx
 import numpy as np
 import pandas as pd
 from fastapi import HTTPException, status
@@ -47,6 +48,49 @@ class ForecastService:
             {"name": name, "lat": c["lat"], "lon": c["lon"]}
             for name, c in sorted(DISTRICT_COORDS.items())
         ]
+
+    # ---- geocoding (destination search on the map picker) ----
+
+    async def geocode(self, query: str) -> Dict[str, Any]:
+        """Place name -> coordinates, via Google's Geocoding API, biased to
+        Sri Lanka. Server-side so the key never reaches the client."""
+        if not settings.GOOGLE_MAPS_API_KEY:
+            raise HTTPException(
+                status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Geocoding is not configured (GOOGLE_MAPS_API_KEY is empty).",
+            )
+
+        params = {
+            "address": query,
+            "components": "country:LK",
+            "key": settings.GOOGLE_MAPS_API_KEY,
+        }
+        async with httpx.AsyncClient(timeout=10) as client:
+            response = await client.get(
+                "https://maps.googleapis.com/maps/api/geocode/json", params=params
+            )
+        data = response.json()
+
+        if data.get("status") != "OK" or not data.get("results"):
+            if data.get("status") == "REQUEST_DENIED":
+                log.warning("Google Geocoding REQUEST_DENIED: %s", data.get("error_message"))
+                raise HTTPException(
+                    status.HTTP_502_BAD_GATEWAY,
+                    detail=f"Geocoding provider rejected the request: {data.get('error_message', 'REQUEST_DENIED')}",
+                )
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND,
+                detail=f'"{query}" was not found in Sri Lanka.',
+            )
+
+        result = data["results"][0]
+        location = result["geometry"]["location"]
+        return {
+            "query": query,
+            "formatted_address": result.get("formatted_address", query),
+            "lat": location["lat"],
+            "lon": location["lng"],
+        }
 
     # ---- the pipeline ----
 
