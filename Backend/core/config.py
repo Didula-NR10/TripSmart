@@ -31,12 +31,18 @@ class Settings(BaseSettings):
     OTP_MAX_ATTEMPTS: int = 5        # wrong guesses before the code is void
     SESSION_DAYS: int = 30           # bearer-token lifetime
 
-    # ---- SMTP — used to email OTP codes (Gmail app password works) ----
+    # ---- Email (OTP codes) — sent over HTTPS via SendGrid, not raw SMTP ----
+    # Render's free tier blocks outbound traffic on the SMTP ports (25/465/587)
+    # as of September 2025, so aiosmtplib-over-SMTP silently fails there no
+    # matter how correct the Gmail app password is. SendGrid's Mail Send API
+    # is a plain HTTPS POST (port 443), which isn't blocked.
+    SENDGRID_API_KEY: str = ""
+    SMTP_FROM_EMAIL: str = ""        # must be a Single Sender verified in SendGrid
+    # ---- legacy SMTP fallback (kept only for local/paid-tier use) ----
     SMTP_HOST: str = "smtp.gmail.com"
     SMTP_PORT: int = 587             # 587 = STARTTLS, 465 = SSL
     SMTP_USER: str = ""              # the sending address, e.g. you@gmail.com
     SMTP_APP_PASSWORD: str = ""      # a Gmail App Password, NOT the account password
-    SMTP_FROM_EMAIL: str = ""        # optional display-from; defaults to SMTP_USER
 
     ALLOWED_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173"
 
