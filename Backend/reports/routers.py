@@ -7,8 +7,15 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from auth.deps import get_current_user
 from core.models import User
+from reports.push import send_district_push
 from reports.repositories import ReportRepository
-from reports.schemas import ReportCreate, ReportList, ReportOut
+from reports.schemas import (
+    ReportCreate,
+    ReportList,
+    ReportOut,
+    SubscribeRequest,
+    SubscribeResponse,
+)
 
 router = APIRouter(prefix="/api/v1/reports", tags=["Ground Reports"])
 repo = ReportRepository()
@@ -32,8 +39,11 @@ def list_reports(
 
 
 @router.post("", response_model=ReportOut, status_code=status.HTTP_201_CREATED)
-def create_report(payload: ReportCreate, user: User = Depends(get_current_user)):
-    """Publish a ground report — login required. Visible for 24 hours, then expires."""
+async def create_report(payload: ReportCreate, user: User = Depends(get_current_user)):
+    """Publish a ground report — login required. Visible for 24 hours, then
+    expires. Every other device currently subscribed to this district gets
+    an Expo push about it (the poster's own device is excluded via
+    exclude_token); a failed push send never blocks the response below."""
     try:
         created = repo.create(
             district=payload.district.strip(),
@@ -49,7 +59,40 @@ def create_report(payload: ReportCreate, user: User = Depends(get_current_user))
             status.HTTP_404_NOT_FOUND,
             detail=f"Unknown district '{payload.district}'.",
         )
+
+    district_id = created.pop("_district_id", None)
+    if district_id is not None:
+        tokens = repo.tokens_for_district(district_id, exclude_token=payload.exclude_token)
+        await send_district_push(
+            tokens,
+            title=f"New ground report in {created['district']}",
+            body=f"{created['title']} — {created['location']}",
+            data={
+                "districtKey": created["district"],
+                "reportId": created["id"],
+                "kind": "report",
+                "remote": True,
+            },
+        )
+
     return created
+
+
+@router.post("/subscribe", response_model=SubscribeResponse)
+def subscribe(payload: SubscribeRequest):
+    """Register (or move) this device's push token to one district, so it
+    gets alerted whenever someone else posts a ground report there. No login
+    needed — anyone with the app open in a district can opt into its alerts."""
+    try:
+        ok = repo.subscribe(payload.expo_token.strip(), payload.district.strip())
+    except RuntimeError as e:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
+    if not ok:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            detail=f"Unknown district '{payload.district}'.",
+        )
+    return {"message": f"Subscribed to ground-report alerts for {payload.district}."}
 
 
 @router.delete("/{report_id}", status_code=status.HTTP_204_NO_CONTENT)

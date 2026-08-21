@@ -261,3 +261,26 @@ class ForecastRun(Base):
     created_at = mapped_column(
         TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
     )
+
+
+class PushSubscription(Base):
+    """One device's current district, for district-scoped ground-report push
+    notifications. A device only ever cares about the district it's
+    currently showing (GPS-detected or manually picked), so re-subscribing
+    replaces the previous district rather than accumulating rows — the
+    token is the primary key."""
+
+    __tablename__ = "push_subscriptions"
+    __table_args__ = (
+        Index("push_subscriptions_district_idx", "district_id"),
+    )
+
+    expo_token: Mapped[str] = mapped_column(Text, primary_key=True)
+    district_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("districts.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    updated_at = mapped_column(
+        TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
+    )

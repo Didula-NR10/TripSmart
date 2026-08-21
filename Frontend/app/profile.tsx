@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthPanel } from '../components/trip/AuthPanel';
@@ -54,7 +54,16 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={[]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+      >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
         <PageHero
           icon="person"
           title="Profile"
@@ -131,6 +140,7 @@ export default function ProfileScreen() {
           </View>
         )}
       </ScrollView>
+      </KeyboardAvoidingView>
 
       <NotificationInbox visible={inboxOpen} onClose={() => setInboxOpen(false)} />
     </SafeAreaView>
@@ -139,6 +149,7 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Palette.canvas },
+  flex: { flex: 1 },
   content: { padding: Space.lg, paddingBottom: Space.section },
   section: { marginTop: Space.section },
   iconButton: {

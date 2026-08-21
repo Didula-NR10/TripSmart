@@ -416,6 +416,7 @@ export async function postGroundReport(report: {
   location: string;
   title: string;
   body: string;
+  excludeToken?: string;
 }): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/api/v1/reports`, {
     method: 'POST',
@@ -425,6 +426,7 @@ export async function postGroundReport(report: {
       location: report.location,
       title: report.title,
       body: report.body,
+      exclude_token: report.excludeToken ?? '',
     }),
   });
   if (res.status === 401) {
@@ -443,6 +445,22 @@ export async function deleteGroundReport(id: string): Promise<void> {
   });
   if (res.status === 401) throw new Error('LOGIN_REQUIRED');
   if (!res.ok && res.status !== 404) throw new Error(`Backend returned ${res.status}`);
+}
+
+/**
+ * Registers this device's push token for one district's ground-report
+ * alerts — every other device subscribed to the same district gets pushed
+ * when someone posts a new report there. No auth required.
+ */
+export async function subscribeDistrictPush(expoToken: string, districtKey: string): Promise<void> {
+  const res = await fetchWithTimeout(`${API_BASE_URL}/api/v1/reports/subscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ expo_token: expoToken, district: apiName(districtKey) }),
+  });
+  if (!res.ok) {
+    throw new Error(`Backend returned ${res.status}`);
+  }
 }
 
 // ── Travel notebook — private, login required ────────────────────────────────

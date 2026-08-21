@@ -11,6 +11,10 @@ class ReportCreate(BaseModel):
     location: str = Field(..., description="Where exactly, in the reporter's words")
     title: str = Field(..., description="The main point, one line")
     body: str = Field(default="", description="Detail: trail state, closures, queues")
+    exclude_token: str = Field(
+        default="",
+        description="The poster's own Expo push token, so they aren't pushed their own report",
+    )
 
     @field_validator("location", "title")
     @classmethod
@@ -40,3 +44,12 @@ class ReportOut(BaseModel):
 class ReportList(BaseModel):
     count: int
     reports: List[ReportOut]
+
+
+class SubscribeRequest(BaseModel):
+    expo_token: str = Field(..., description="Token from Notifications.getExpoPushTokenAsync()")
+    district: str = Field(..., description="District this device wants ground-report alerts for")
+
+
+class SubscribeResponse(BaseModel):
+    message: str

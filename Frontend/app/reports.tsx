@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Image,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -19,6 +20,7 @@ import { useAuth, useAuthGate } from '../lib/auth';
 import { districtByKey } from '../constants/districts';
 import { heroForDistrict, WIKIMEDIA_IMAGE_HEADERS } from '../constants/district-hero';
 import { GroundReport, deleteGroundReport, fetchGroundReports, postGroundReport } from '../lib/api';
+import { getCachedPushToken } from '../lib/notify';
 import { Palette, Radius, Space, Type } from '../constants/trip-theme';
 
 const ago = (at: number) => {
@@ -38,6 +40,7 @@ export default function ReportsScreen() {
 
   const [reports, setReports] = useState<GroundReport[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [failed, setFailed] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -78,16 +81,28 @@ export default function ReportsScreen() {
     return () => clearTimeout(t);
   }, [filterKey, search, load]);
 
+  // Pull-to-refresh: re-fetch without swapping the list for the full-screen spinner.
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await load(filterKey, search);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [load, filterKey, search]);
+
   const submit = async () => {
     if (!location.trim() || !title.trim()) return;
     if (!gate()) return; // token may have expired since the form opened
     setPosting(true);
     try {
+      const excludeToken = (await getCachedPushToken()) ?? undefined;
       await postGroundReport({
         districtKey: formDistrict,
         location: location.trim(),
         title: title.trim(),
         body: body.trim(),
+        excludeToken,
       });
       setLocation('');
       setTitle('');
@@ -124,6 +139,14 @@ export default function ReportsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[Palette.primary]}
+            tintColor={Palette.primary}
+          />
+        }
       >
         <PageHero
           icon="chatbubbles"
@@ -253,7 +276,7 @@ export default function ReportsScreen() {
         </View>
 
         {/* the feed */}
-        {loading ? (
+        {loading && reports.length === 0 ? (
           <View style={styles.loading}>
             <ActivityIndicator color={Palette.primary} />
           </View>

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState, ReactNode 
 import { ProfileKey } from '../constants/profiles';
 import { Prediction, predict } from './engine';
 import { Forecast24, cacheForecast, fetchForecastBundle, loadCachedForecast } from './api';
+import { subscribeDistrictAlerts } from './notify';
 
 export type ForecastSource = 'live' | 'cache' | 'synthetic';
 
@@ -88,6 +89,12 @@ export function TripProvider({ children }: { children: ReactNode }) {
       cancelled = true;
     };
   }, [districtKey, offline]);
+
+  // Ground-report push alerts follow whichever district is active — GPS fix
+  // or manual pick alike — independent of the forecast fetch above.
+  useEffect(() => {
+    subscribeDistrictAlerts(districtKey);
+  }, [districtKey]);
 
   // The explicit "Next 24 Hours Weather" button. refresh=true forces a fresh
   // model run anchored to the moment the user pressed — a cached run from up

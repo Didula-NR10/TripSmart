@@ -17,6 +17,7 @@ import {
 } from '@expo-google-fonts/playfair-display';
 import { TripProvider } from '../lib/store';
 import { AuthProvider } from '../lib/auth';
+import { initRemoteReportListener } from '../lib/notify';
 import { Palette, Radius, Type } from '../constants/trip-theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -48,6 +49,10 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  // District-scoped ground-report pushes from other users — registered once
+  // for the app's lifetime, independent of which tab/screen is active.
+  useEffect(() => initRemoteReportListener(), []);
 
   if (!loaded) {
     return null;
