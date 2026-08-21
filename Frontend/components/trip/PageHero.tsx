@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Image, ImageSourcePropType, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
 
 /**
@@ -30,8 +31,10 @@ export function PageHero({
   image: ImageSourcePropType;
   topRight?: ReactNode;
 }) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.wrap}>
+    <View style={[styles.wrap, { height: 232 + insets.top }]}>
       <Image source={image} style={StyleSheet.absoluteFill} resizeMode="cover" />
       <LinearGradient
         colors={[Palette.canvas, Palette.canvas, 'rgba(245, 248, 249, 0.55)', 'transparent']}
@@ -46,12 +49,14 @@ export function PageHero({
         style={StyleSheet.absoluteFill}
       />
 
-      {/* The hero box is already below the status bar (the screen's own
-          SafeAreaView handles that) — this only needs a small fixed offset,
-          not another safe-area inset on top of it. */}
-      {topRight ? <View style={styles.topRight}>{topRight}</View> : null}
+      {/* The photo now bleeds behind the status bar (the screen's own
+          SafeAreaView no longer reserves that space), so badge/title and
+          topRight need the inset pushed back in here instead. */}
+      {topRight ? (
+        <View style={[styles.topRight, { top: Space.sm + insets.top }]}>{topRight}</View>
+      ) : null}
 
-      <View style={styles.content}>
+      <View style={[styles.content, { paddingTop: 40 + insets.top }]}>
         <View style={styles.badge}>
           <Ionicons name={icon} size={22} color={Palette.onDark} />
         </View>

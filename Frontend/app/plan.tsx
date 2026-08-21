@@ -8,7 +8,7 @@ import { PageHero } from '../components/trip/PageHero';
 import { Banner, Card, SectionHeader } from '../components/trip/Ui';
 import { useTrip } from '../lib/store';
 import { districtByKey } from '../constants/districts';
-import { heroForDistrict } from '../constants/district-hero';
+import { heroForDistrict, WIKIMEDIA_IMAGE_HEADERS } from '../constants/district-hero';
 import { suggestAlternative } from '../lib/engine';
 import { Palette, Radius, Space, Type } from '../constants/trip-theme';
 
@@ -30,13 +30,13 @@ export default function PlanScreen() {
   const [showWeek, setShowWeek] = useState(false);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={[]}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <PageHero
           icon="navigate"
           title="Route Intelligence"
           subtitle="Compare destinations, avoid bad weather, and plan the smartest route."
-          image={{ uri: heroForDistrict('nuwaraeliya').url }}
+          image={{ uri: heroForDistrict('nuwaraeliya').url, headers: WIKIMEDIA_IMAGE_HEADERS }}
         />
 
         {alternative ? (

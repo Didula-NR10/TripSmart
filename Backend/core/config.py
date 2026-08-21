@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     OTP_TTL_MINUTES: int = 10        # emailed codes die after this
     OTP_MAX_ATTEMPTS: int = 5        # wrong guesses before the code is void
     SESSION_DAYS: int = 30           # bearer-token lifetime
+    LOGIN_MAX_ATTEMPTS: int = 5      # wrong passwords before an identifier is throttled
+    LOGIN_LOCKOUT_MINUTES: int = 15  # rolling window a throttled identifier must wait out
 
     # ---- Email (OTP codes) — sent over HTTPS via SendGrid, not raw SMTP ----
     # Render's free tier blocks outbound traffic on the SMTP ports (25/465/587)

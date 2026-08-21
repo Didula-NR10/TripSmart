@@ -12,6 +12,16 @@ export type DistrictHero = {
   landmark: string;
 };
 
+/**
+ * Wikimedia now rejects image requests from non-browser User-Agents (RN's
+ * OkHttp-based fetcher included) with a 403. Pass these on every <Image>
+ * source built from a wikimedia.org URL to make it look like a browser.
+ */
+export const WIKIMEDIA_IMAGE_HEADERS = {
+  'User-Agent':
+    'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+};
+
 export const districtHero: Record<string, DistrictHero> = {
   colombo: {
     url: 'https://upload.wikimedia.org/wikipedia/commons/6/62/Colombo_city_skyline_at_night.png',

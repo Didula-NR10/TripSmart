@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { District } from '../../constants/districts';
-import { heroForDistrict } from '../../constants/district-hero';
+import { heroForDistrict, WIKIMEDIA_IMAGE_HEADERS } from '../../constants/district-hero';
 import { HourPrediction } from '../../lib/engine';
 import { ForecastSource } from '../../lib/store';
 import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
@@ -73,7 +73,7 @@ export function TodayHero({
     <View style={styles.wrap}>
       <Animated.Image
         key={hero.url}
-        source={{ uri: hero.url }}
+        source={{ uri: hero.url, headers: WIKIMEDIA_IMAGE_HEADERS }}
         style={[StyleSheet.absoluteFill, { opacity: fade }]}
         resizeMode="cover"
       />

@@ -11,7 +11,7 @@ import { SpecialtyGuide } from '../components/trip/SpecialtyGuide';
 import { Banner, FilterRow, SectionHeader } from '../components/trip/Ui';
 import { useTrip } from '../lib/store';
 import { districtByKey } from '../constants/districts';
-import { heroForDistrict } from '../constants/district-hero';
+import { heroForDistrict, WIKIMEDIA_IMAGE_HEADERS } from '../constants/district-hero';
 import { Zone, zones } from '../constants/geofences';
 import { allLaws, lawsForDistrict } from '../constants/laws';
 import { allSpecialties, specialtiesForDistrict } from '../constants/specialties';
@@ -91,10 +91,13 @@ export default function ExploreScreen() {
     }
   };
 
-  const heroImage = { uri: heroForDistrict(isAll ? 'colombo' : filterKey).url };
+  const heroImage = {
+    uri: heroForDistrict(isAll ? 'colombo' : filterKey).url,
+    headers: WIKIMEDIA_IMAGE_HEADERS,
+  };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={[]}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <PageHero
           icon="business"

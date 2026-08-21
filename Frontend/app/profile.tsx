@@ -14,6 +14,7 @@ import { TravelNote } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { getNotificationHistory, subscribeNotificationHistory } from '../lib/notify';
 import { districts } from '../constants/districts';
+import { WIKIMEDIA_IMAGE_HEADERS } from '../constants/district-hero';
 import { Palette, Radius, Shadow, Space } from '../constants/trip-theme';
 
 const NOTEBOOK_PREVIEW_COUNT = 2;
@@ -52,7 +53,7 @@ export default function ProfileScreen() {
   }, [notes]);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={[]}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <PageHero
           icon="person"
@@ -62,7 +63,7 @@ export default function ProfileScreen() {
               ? 'Your account and your travel notebook.'
               : 'Log in or create an account to predict, compare districts and post ground reports.'
           }
-          image={{ uri: HERO_IMAGE }}
+          image={{ uri: HERO_IMAGE, headers: WIKIMEDIA_IMAGE_HEADERS }}
           topRight={
             <>
               <Pressable

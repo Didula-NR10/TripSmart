@@ -23,6 +23,33 @@ export const setAuthToken = (token: string | null) => {
 export const authHeaders = (): Record<string, string> =>
   authToken ? { Authorization: `Bearer ${authToken}` } : {};
 
+/**
+ * Wraps fetch with a timeout and one retry. Render's free tier can take
+ * 20-30s to wake from an idle spin-down, and a bare fetch has no bound at
+ * all — so a cold backend previously hung the forecast request indefinitely
+ * instead of letting the existing cache/demo-data fallback kick in.
+ */
+async function fetchWithTimeout(
+  input: string,
+  init: RequestInit = {},
+  timeoutMs = 12000,
+): Promise<Response> {
+  const attempt = async () => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(input, { ...init, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+  try {
+    return await attempt();
+  } catch {
+    return attempt(); // one retry — covers a cold instance that's mid-wake
+  }
+}
+
 /** Backend district keys have no spaces: 'Nuwara Eliya' → 'NuwaraEliya'. */
 const apiName = (districtKey: string) => {
   const d = districtByKey(districtKey);
@@ -144,7 +171,7 @@ export async function fetchForecastBundle(
   opts: { refresh?: boolean } = {},
 ): Promise<ForecastBundle> {
   const query = opts.refresh ? '?refresh=true' : '';
-  const res = await fetch(`${API_BASE_URL}/api/v1/forecast/${apiName(districtKey)}${query}`);
+  const res = await fetchWithTimeout(`${API_BASE_URL}/api/v1/forecast/${apiName(districtKey)}${query}`);
   if (!res.ok) {
     throw new Error(`Backend returned ${res.status}`);
   }

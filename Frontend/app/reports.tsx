@@ -17,7 +17,7 @@ import { FilterRow } from '../components/trip/Ui';
 import { useTrip } from '../lib/store';
 import { useAuth, useAuthGate } from '../lib/auth';
 import { districtByKey } from '../constants/districts';
-import { heroForDistrict } from '../constants/district-hero';
+import { heroForDistrict, WIKIMEDIA_IMAGE_HEADERS } from '../constants/district-hero';
 import { GroundReport, deleteGroundReport, fetchGroundReports, postGroundReport } from '../lib/api';
 import { Palette, Radius, Space, Type } from '../constants/trip-theme';
 
@@ -119,7 +119,7 @@ export default function ReportsScreen() {
   const filtering = filterKey !== null || search.trim() !== '';
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={[]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
@@ -129,7 +129,7 @@ export default function ReportsScreen() {
           icon="chatbubbles"
           title="Ground Reports"
           subtitle="Live conditions from travellers on the ground. Every report expires after 24 hours."
-          image={{ uri: heroForDistrict('badulla').url }}
+          image={{ uri: heroForDistrict('badulla').url, headers: WIKIMEDIA_IMAGE_HEADERS }}
         />
 
         {composing ? (

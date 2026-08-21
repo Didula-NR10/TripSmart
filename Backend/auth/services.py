@@ -4,6 +4,8 @@ auth.services — signup, email verification, login, password reset.
 All flows follow the same shape: validate → mutate inside one get_session()
 unit of work → answer. OTP codes live 10 minutes, allow 5 wrong attempts, and
 are deleted the moment they succeed. Passwords exist only as PBKDF2 hashes.
+Login itself is throttled per identifier (see auth.rate_limit) after 5 wrong
+passwords within a rolling 15-minute window, to close off brute-forcing.
 """
 from __future__ import annotations
 
@@ -17,6 +19,7 @@ from core.config import settings
 from core.database import db_available, get_session
 from core.models import AuthToken, EmailOtp, User
 from auth.emailer import send_otp
+from auth.rate_limit import clear as clear_login_failures, record_failure, seconds_until_unlocked
 from auth.security import hash_password, new_otp, new_session_token, verify_password
 
 log = logging.getLogger("trip_smart.auth.service")
@@ -178,11 +181,20 @@ class AuthService:
     def login(self, identifier: str, password: str) -> dict:
         _require_db()
         ident = identifier.strip().lower()
+
+        wait = seconds_until_unlocked(ident)
+        if wait:
+            raise HTTPException(
+                status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Too many failed login attempts. Try again in {wait} seconds.",
+            )
+
         with get_session() as session:
             user = session.query(User).filter(
                 (User.email == ident) | (User.username == ident)
             ).first()
             if user is None or not verify_password(password, user.password_hash):
+                record_failure(ident)
                 raise HTTPException(
                     status.HTTP_401_UNAUTHORIZED, detail="Wrong username/email or password.",
                 )
@@ -191,6 +203,7 @@ class AuthService:
                     status.HTTP_403_FORBIDDEN,
                     detail="Email not verified. Request a new code and verify first.",
                 )
+            clear_login_failures(ident)
             user.last_login_at = _now()
             token = _create_session(session, user)
             return {"token": token, "user": _user_out(user)}
