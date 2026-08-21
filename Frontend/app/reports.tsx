@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { DistrictMap, MapPin } from '../components/trip/DistrictMap';
 import { DistrictSheet } from '../components/trip/DistrictSheet';
 import { PageHero } from '../components/trip/PageHero';
 import { FilterRow } from '../components/trip/Ui';
@@ -19,8 +20,15 @@ import { useTrip } from '../lib/store';
 import { useAuth, useAuthGate } from '../lib/auth';
 import { districtByKey } from '../constants/districts';
 import { heroForDistrict, WIKIMEDIA_IMAGE_HEADERS } from '../constants/district-hero';
-import { GroundReport, deleteGroundReport, fetchGroundReports, postGroundReport } from '../lib/api';
+import {
+  GroundReport,
+  deleteGroundReport,
+  fetchGroundReports,
+  postGroundReport,
+  reverseGeocode,
+} from '../lib/api';
 import { getCachedPushToken } from '../lib/notify';
+import { resolveDistrict } from '../lib/engine';
 import { Palette, Radius, Space, Type } from '../constants/trip-theme';
 
 const ago = (at: number) => {
@@ -55,6 +63,13 @@ export default function ReportsScreen() {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [posting, setPosting] = useState(false);
+
+  // share-location-from-map: drop a pin, we reverse-geocode it to a real
+  // place name and prefill "Where exactly" with it (still editable after).
+  const [showMapPicker, setShowMapPicker] = useState(false);
+  const [reportPin, setReportPin] = useState<MapPin>(null);
+  const [resolvingLocation, setResolvingLocation] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   // which selector the district sheet is feeding
   const [sheetTarget, setSheetTarget] = useState<'filter' | 'form' | null>(null);
@@ -91,6 +106,26 @@ export default function ReportsScreen() {
     }
   }, [load, filterKey, search]);
 
+  // Dropping/dragging a pin re-resolves its district (a shared spot might not
+  // be in the district the form currently has selected) and looks up the
+  // nearest town/city/village to prefill "Where exactly" with.
+  const onMapPick = async (lat: number, lng: number) => {
+    setReportPin({ latitude: lat, longitude: lng });
+    setLocationError(null);
+    const found = resolveDistrict(lat, lng);
+    if (found) setFormDistrict(found.key);
+
+    setResolvingLocation(true);
+    try {
+      const result = await reverseGeocode(lat, lng);
+      setLocation(result.placeName);
+    } catch {
+      setLocationError('Could not look up a place name for this pin — type it in manually.');
+    } finally {
+      setResolvingLocation(false);
+    }
+  };
+
   const submit = async () => {
     if (!location.trim() || !title.trim()) return;
     if (!gate()) return; // token may have expired since the form opened
@@ -108,6 +143,9 @@ export default function ReportsScreen() {
       setTitle('');
       setBody('');
       setComposing(false);
+      setShowMapPicker(false);
+      setReportPin(null);
+      setLocationError(null);
       await load(filterKey, search);
     } catch {
       setFailed(true);
@@ -178,6 +216,35 @@ export default function ReportsScreen() {
               style={styles.input}
             />
 
+            <Pressable
+              style={styles.shareLocation}
+              onPress={() => setShowMapPicker((v) => !v)}
+            >
+              <Ionicons
+                name={showMapPicker ? 'chevron-up' : 'location'}
+                size={14}
+                color={Palette.primary}
+              />
+              <Text style={styles.shareLocationText}>
+                {showMapPicker ? 'Hide map' : 'Share location from map'}
+              </Text>
+              {resolvingLocation ? (
+                <ActivityIndicator size="small" color={Palette.primary} />
+              ) : null}
+            </Pressable>
+
+            {showMapPicker ? (
+              <View style={styles.mapPickerWrap}>
+                <DistrictMap
+                  selected={districtByKey(formDistrict)!}
+                  pin={reportPin}
+                  onPick={onMapPick}
+                />
+              </View>
+            ) : null}
+
+            {locationError ? <Text style={styles.locationError}>{locationError}</Text> : null}
+
             {/* 3 — the main point */}
             <TextInput
               value={title}
@@ -198,7 +265,15 @@ export default function ReportsScreen() {
             />
 
             <View style={styles.formActions}>
-              <Pressable onPress={() => setComposing(false)} style={styles.cancel}>
+              <Pressable
+                onPress={() => {
+                  setComposing(false);
+                  setShowMapPicker(false);
+                  setReportPin(null);
+                  setLocationError(null);
+                }}
+                style={styles.cancel}
+              >
                 <Text style={styles.cancelText}>Cancel</Text>
               </Pressable>
               <Pressable
@@ -449,6 +524,26 @@ const styles = StyleSheet.create({
     paddingVertical: Space.md,
     ...Type.body,
     color: Palette.text,
+  },
+  shareLocation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'flex-start',
+    paddingVertical: 4,
+  },
+  shareLocationText: {
+    ...Type.label,
+    fontSize: 12,
+    color: Palette.primary,
+  },
+  mapPickerWrap: {
+    marginTop: -Space.xs,
+  },
+  locationError: {
+    ...Type.caption,
+    fontSize: 11,
+    color: Palette.danger,
   },
   multiline: {
     height: 76,

@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     SESSION_DAYS: int = 30           # bearer-token lifetime
     LOGIN_MAX_ATTEMPTS: int = 5      # wrong passwords before an identifier is throttled
     LOGIN_LOCKOUT_MINUTES: int = 15  # rolling window a throttled identifier must wait out
+    # The WEB-application-type OAuth client ID (not the Android one) — this is
+    # the audience Google puts on ID tokens from the native Android sign-in
+    # flow, so it's what we verify tokens against, not the Android client ID.
+    GOOGLE_OAUTH_WEB_CLIENT_ID: str = ""
 
     # ---- Email (OTP codes) — sent over HTTPS via SendGrid, not raw SMTP ----
     # Render's free tier blocks outbound traffic on the SMTP ports (25/465/587)

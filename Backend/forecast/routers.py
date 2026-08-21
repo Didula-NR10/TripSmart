@@ -12,6 +12,7 @@ from forecast.schemas import (
     GeocodeResult,
     HealthResponse,
     PredictRequest,
+    ReverseGeocodeResult,
     WeeklyOutlookResponse,
 )
 from forecast.services import ForecastService
@@ -64,6 +65,20 @@ async def geocode(q: str = Query(..., min_length=1, description="Place name, e.g
     install.
     """
     return await service.geocode(q)
+
+
+@router.get("/reverse-geocode", response_model=ReverseGeocodeResult)
+async def reverse_geocode(
+    lat: float = Query(..., description="Latitude of the dropped pin"),
+    lon: float = Query(..., description="Longitude of the dropped pin"),
+):
+    """Coordinates -> nearest town/city/village name.
+
+    Backs the Ground Reports form's map picker: drop a pin, get back a real
+    place name to prefill the 'where exactly' field with, instead of raw
+    coordinates.
+    """
+    return await service.reverse_geocode(lat, lon)
 
 
 @router.get("/{district}", response_model=ForecastResponse)

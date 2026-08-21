@@ -15,6 +15,7 @@ from auth.schemas import (
     AvatarRequest,
     ChangePasswordConfirmRequest,
     ForgotPasswordRequest,
+    GoogleAuthRequest,
     LoginRequest,
     MessageResponse,
     ResendOtpRequest,
@@ -52,6 +53,14 @@ def verify_email(payload: VerifyEmailRequest):
 def login(payload: LoginRequest):
     """Log in with username or email + password."""
     return service.login(payload.identifier, payload.password)
+
+
+@router.post("/google", response_model=AuthResponse)
+async def login_with_google(payload: GoogleAuthRequest):
+    """Log in with a Google-verified identity (native Android Sign-In).
+    Creates an account on first sign-in — no OTP step, Google already
+    verified the email."""
+    return await service.login_with_google(payload.id_token)
 
 
 @router.post("/forgot-password", response_model=MessageResponse)

@@ -79,6 +79,8 @@ type AuthContextValue = {
   }) => Promise<MessageResult>;
   verifyEmail: (email: string, otp: string) => Promise<void>;
   login: (identifier: string, password: string) => Promise<void>;
+  /** Logs in (or silently creates an account for) a Google-verified identity. */
+  loginWithGoogle: (idToken: string) => Promise<void>;
   forgotPassword: (email: string) => Promise<MessageResult>;
   resetPassword: (email: string, otp: string, newPassword: string) => Promise<MessageResult>;
   resendOtp: (email: string, purpose: 'signup' | 'reset') => Promise<MessageResult>;
@@ -156,6 +158,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       login: async (identifier, password) => {
         await adopt(await call<AuthApiResult>('login', { identifier, password }));
+      },
+      loginWithGoogle: async (idToken) => {
+        await adopt(await call<AuthApiResult>('google', { id_token: idToken }));
       },
       forgotPassword: (email) => call<MessageResult>('forgot-password', { email }),
       resetPassword: (email, otp, newPassword) =>

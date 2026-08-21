@@ -19,6 +19,13 @@ class GeocodeResult(BaseModel):
     lon: float
 
 
+class ReverseGeocodeResult(BaseModel):
+    lat: float
+    lon: float
+    place_name: str          # nearest locality/sublocality/village — short name
+    formatted_address: str
+
+
 class HourlyForecast(BaseModel):
     forecast_hour: int = Field(..., description="Hours ahead of the forecast origin (1-24)")
     valid_time: str = Field(..., description="Local (Asia/Colombo) timestamp this hour refers to")

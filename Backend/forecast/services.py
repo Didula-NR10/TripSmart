@@ -92,6 +92,61 @@ class ForecastService:
             "lon": location["lng"],
         }
 
+    async def reverse_geocode(self, lat: float, lon: float) -> Dict[str, Any]:
+        """Coordinates -> the nearest town/city/village name, via Google's
+        Geocoding API in reverse mode. Backs the Ground Reports form's
+        'share location from map' flow: a dropped pin becomes a real place
+        name instead of raw coordinates in the report's location field."""
+        if not settings.GOOGLE_MAPS_API_KEY:
+            raise HTTPException(
+                status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Geocoding is not configured (GOOGLE_MAPS_API_KEY is empty).",
+            )
+
+        params = {
+            "latlng": f"{lat},{lon}",
+            "result_type": "locality|sublocality|neighborhood|administrative_area_level_3",
+            "key": settings.GOOGLE_MAPS_API_KEY,
+        }
+        async with httpx.AsyncClient(timeout=10) as client:
+            response = await client.get(
+                "https://maps.googleapis.com/maps/api/geocode/json", params=params
+            )
+        data = response.json()
+
+        if data.get("status") != "OK" or not data.get("results"):
+            if data.get("status") == "REQUEST_DENIED":
+                log.warning("Google Reverse Geocoding REQUEST_DENIED: %s", data.get("error_message"))
+                raise HTTPException(
+                    status.HTTP_502_BAD_GATEWAY,
+                    detail=f"Geocoding provider rejected the request: {data.get('error_message', 'REQUEST_DENIED')}",
+                )
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND,
+                detail="No nearby town, city or village found for this location.",
+            )
+
+        result = data["results"][0]
+        # Prefer the specific locality/sublocality/village component's short
+        # name over the full formatted address (which includes street +
+        # postal code clutter the report form doesn't want).
+        place_name = result.get("formatted_address", "")
+        for comp in result.get("address_components", []):
+            comp_types = comp.get("types", [])
+            if any(
+                t in comp_types
+                for t in ("locality", "sublocality", "neighborhood", "administrative_area_level_3")
+            ):
+                place_name = comp.get("long_name", place_name)
+                break
+
+        return {
+            "lat": lat,
+            "lon": lon,
+            "place_name": place_name,
+            "formatted_address": result.get("formatted_address", place_name),
+        }
+
     # ---- the pipeline ----
 
     def _run_model(self, frame: pd.DataFrame) -> np.ndarray:

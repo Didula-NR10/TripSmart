@@ -10,9 +10,11 @@ passwords within a rolling 15-minute window, to close off brute-forcing.
 from __future__ import annotations
 
 import logging
+import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
+import httpx
 from fastapi import HTTPException, status
 
 from core.config import settings
@@ -207,6 +209,86 @@ class AuthService:
             user.last_login_at = _now()
             token = _create_session(session, user)
             return {"token": token, "user": _user_out(user)}
+
+    # ---- Google sign-in ----
+
+    async def login_with_google(self, id_token: str) -> dict:
+        """Verifies the ID token from the native Android Google Sign-In flow,
+        then logs in the matching account or creates one — Google has
+        already verified the email, so there's no OTP step here.
+
+        Verification is a plain HTTPS call to Google's tokeninfo endpoint
+        (no extra dependency) rather than local JWT/JWKS verification —
+        consistent with this codebase's existing httpx-based external-call
+        style (WeatherAPI, Maps geocoding)."""
+        _require_db()
+        if not settings.GOOGLE_OAUTH_WEB_CLIENT_ID:
+            raise HTTPException(
+                status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Google sign-in is not configured (GOOGLE_OAUTH_WEB_CLIENT_ID is empty).",
+            )
+
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(
+                "https://oauth2.googleapis.com/tokeninfo", params={"id_token": id_token}
+            )
+        if resp.status_code != 200:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Invalid Google ID token.")
+        claims = resp.json()
+
+        if claims.get("aud") != settings.GOOGLE_OAUTH_WEB_CLIENT_ID:
+            log.warning("Google ID token audience mismatch: got %s", claims.get("aud"))
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Invalid Google ID token.")
+        if claims.get("email_verified") not in ("true", True):
+            raise HTTPException(
+                status.HTTP_401_UNAUTHORIZED, detail="Google account email is not verified.",
+            )
+
+        email = claims["email"].strip().lower()
+        google_sub = claims["sub"]
+        full_name = claims.get("name") or email.split("@")[0]
+
+        with get_session() as session:
+            user = (
+                session.query(User)
+                .filter((User.email == email) | (User.google_sub == google_sub))
+                .first()
+            )
+            if user is None:
+                username = self._unique_username(session, email.split("@")[0])
+                user = User(
+                    full_name=full_name,
+                    username=username,
+                    email=email,
+                    country="",
+                    # Unusable random hash — this account only ever logs in via
+                    # Google, but password_hash is NOT NULL in the schema.
+                    password_hash=hash_password(secrets.token_hex(32)),
+                    email_verified=True,
+                    google_sub=google_sub,
+                )
+                session.add(user)
+            else:
+                user.email_verified = True  # Google already verified it
+                if not user.google_sub:
+                    user.google_sub = google_sub
+                user.updated_at = _now()
+
+            user.last_login_at = _now()
+            session.flush()
+            token = _create_session(session, user)
+            session.refresh(user)
+            return {"token": token, "user": _user_out(user)}
+
+    @staticmethod
+    def _unique_username(session, base: str) -> str:
+        base = "".join(c for c in base.lower() if c.isalnum() or c == "_")[:16] or "traveller"
+        candidate = base
+        suffix = 0
+        while session.query(User).filter(User.username == candidate).first() is not None:
+            suffix += 1
+            candidate = f"{base}{suffix}"
+        return candidate
 
     # ---- password reset ----
 

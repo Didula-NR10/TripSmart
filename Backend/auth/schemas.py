@@ -58,6 +58,10 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class GoogleAuthRequest(BaseModel):
+    id_token: str = Field(..., description="ID token from the native Google Sign-In flow")
+
+
 class ForgotPasswordRequest(BaseModel):
     email: str
 

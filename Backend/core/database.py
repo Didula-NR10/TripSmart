@@ -85,6 +85,10 @@ def init_db() -> None:
             "ALTER TABLE public.users "
             "ADD COLUMN IF NOT EXISTS avatar_url TEXT NOT NULL DEFAULT ''"
         ))
+        conn.execute(text(
+            "ALTER TABLE public.users "
+            "ADD COLUMN IF NOT EXISTS google_sub TEXT NOT NULL DEFAULT ''"
+        ))
         # Journal feature: notes optionally live on one page of one book.
         conn.execute(text(
             "ALTER TABLE public.travel_notes "

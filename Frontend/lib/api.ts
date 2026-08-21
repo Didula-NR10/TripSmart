@@ -155,6 +155,35 @@ export async function geocodePlace(query: string): Promise<GeocodeResult> {
   return { query: data.query, formattedAddress: data.formatted_address, lat: data.lat, lon: data.lon };
 }
 
+export type ReverseGeocodeResult = {
+  lat: number;
+  lon: number;
+  placeName: string;
+  formattedAddress: string;
+};
+
+/**
+ * Coordinates -> nearest town/city/village name, for the Ground Reports
+ * form's "share location from map" flow — a dropped pin becomes a real
+ * place name instead of raw coordinates.
+ */
+export async function reverseGeocode(lat: number, lon: number): Promise<ReverseGeocodeResult> {
+  const res = await fetchWithTimeout(
+    `${API_BASE_URL}/api/v1/forecast/reverse-geocode?lat=${lat}&lon=${lon}`,
+  );
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.detail ?? `Backend returned ${res.status}`);
+  }
+  const data = await res.json();
+  return {
+    lat: data.lat,
+    lon: data.lon,
+    placeName: data.place_name,
+    formattedAddress: data.formatted_address,
+  };
+}
+
 const hourLabel = (clockHour: number) => {
   const suffix = clockHour >= 12 ? 'PM' : 'AM';
   const h = clockHour % 12 === 0 ? 12 : clockHour % 12;

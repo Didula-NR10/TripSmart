@@ -127,6 +127,9 @@ class User(Base):
     email_verified: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("false")
     )
+    # Set once an account has ever signed in with Google — its email is
+    # already Google-verified, and it never needs a usable local password.
+    google_sub: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
     created_at = mapped_column(
         TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
     )

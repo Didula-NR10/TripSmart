@@ -3,7 +3,7 @@
  * verify-OTP / forgot / reset forms. Once logged in, ProfileOverview takes
  * over (avatar, account facts, change password, sign out).
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -15,9 +15,19 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
+import {
+  GoogleSignin,
+  isErrorWithCode,
+  isSuccessResponse,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 import { countries } from '../../constants/countries';
 import { useAuth } from '../../lib/auth';
 import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
+
+const GOOGLE_WEB_CLIENT_ID: string =
+  (Constants.expoConfig?.extra as any)?.googleWebClientId ?? '';
 
 type Mode = 'login' | 'signup' | 'verify' | 'forgot' | 'reset';
 
@@ -25,8 +35,39 @@ export function AuthPanel() {
   const auth = useAuth();
   const [mode, setMode] = useState<Mode>('login');
   const [busy, setBusy] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!GOOGLE_WEB_CLIENT_ID) return;
+    GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
+  }, []);
+
+  const signInWithGoogle = async () => {
+    if (!GOOGLE_WEB_CLIENT_ID) {
+      setError('Google sign-in is not configured yet.');
+      return;
+    }
+    setGoogleBusy(true);
+    setError(null);
+    try {
+      await GoogleSignin.hasPlayServices();
+      const response = await GoogleSignin.signIn();
+      if (!isSuccessResponse(response)) return; // user cancelled — not an error
+      const idToken = response.data.idToken;
+      if (!idToken) throw new Error('Google did not return an ID token.');
+      await auth.loginWithGoogle(idToken);
+    } catch (e) {
+      if (isErrorWithCode(e) && e.code === statusCodes.SIGN_IN_CANCELLED) {
+        // silent — the user backed out of the Google sheet
+      } else {
+        setError(e instanceof Error ? e.message : 'Google sign-in failed.');
+      }
+    } finally {
+      setGoogleBusy(false);
+    }
+  };
 
   // form fields
   const [fullName, setFullName] = useState('');
@@ -115,6 +156,29 @@ export function AuthPanel() {
           <Text style={[styles.tabText, mode !== 'login' && styles.tabTextOn]}>Sign up</Text>
         </Pressable>
       </View>
+
+      {mode === 'login' || mode === 'signup' ? (
+        <>
+          <Pressable
+            testID="google-signin"
+            style={[styles.google, googleBusy && styles.primaryBusy]}
+            onPress={signInWithGoogle}
+            disabled={googleBusy || busy}
+          >
+            {googleBusy ? (
+              <ActivityIndicator size="small" color={Palette.text} />
+            ) : (
+              <Ionicons name="logo-google" size={16} color={Palette.text} />
+            )}
+            <Text style={styles.googleText}>Continue with Google</Text>
+          </Pressable>
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or</Text>
+            <View style={styles.dividerLine} />
+          </View>
+        </>
+      ) : null}
 
       {notice ? (
         <View style={styles.notice}>
@@ -374,6 +438,38 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   selectPlaceholder: {
+    color: Palette.textDim,
+  },
+  google: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Space.sm,
+    backgroundColor: Palette.surface,
+    borderWidth: 1,
+    borderColor: Palette.border,
+    borderRadius: Radius.md,
+    paddingVertical: Space.md,
+    marginBottom: Space.md,
+  },
+  googleText: {
+    ...Type.label,
+    color: Palette.text,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Space.sm,
+    marginBottom: Space.md,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Palette.border,
+  },
+  dividerText: {
+    ...Type.caption,
+    fontSize: 11,
     color: Palette.textDim,
   },
   primary: {
