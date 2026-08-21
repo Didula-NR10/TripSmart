@@ -31,6 +31,10 @@ import { getCachedPushToken } from '../lib/notify';
 import { resolveDistrict } from '../lib/engine';
 import { Palette, Radius, Space, Type } from '../constants/trip-theme';
 
+// Hidden for now (manual entry only) — flip back on once GPS location-share
+// is ready to test again. Handler/state below are left in place.
+const SHOW_LOCATION_SHARE = false;
+
 const ago = (at: number) => {
   const mins = Math.max(1, Math.round((Date.now() - at) / 60000));
   if (mins < 60) return `${mins}m ago`;
@@ -221,21 +225,25 @@ export default function ReportsScreen() {
               style={styles.input}
             />
 
-            <Pressable
-              style={styles.shareLocation}
-              onPress={shareCurrentLocation}
-              disabled={resolvingLocation}
-            >
-              {resolvingLocation ? (
-                <ActivityIndicator size="small" color={Palette.primary} />
-              ) : (
-                <Ionicons name="navigate" size={14} color={Palette.primary} />
-              )}
-              <Text style={styles.shareLocationText}>
-                {resolvingLocation ? 'Finding your location…' : 'Share current location'}
-              </Text>
-            </Pressable>
-            <Text style={styles.shareLocationHint}>or type it in above manually</Text>
+            {SHOW_LOCATION_SHARE ? (
+              <>
+                <Pressable
+                  style={styles.shareLocation}
+                  onPress={shareCurrentLocation}
+                  disabled={resolvingLocation}
+                >
+                  {resolvingLocation ? (
+                    <ActivityIndicator size="small" color={Palette.primary} />
+                  ) : (
+                    <Ionicons name="navigate" size={14} color={Palette.primary} />
+                  )}
+                  <Text style={styles.shareLocationText}>
+                    {resolvingLocation ? 'Finding your location…' : 'Share current location'}
+                  </Text>
+                </Pressable>
+                <Text style={styles.shareLocationHint}>or type it in above manually</Text>
+              </>
+            ) : null}
 
             {locationError ? <Text style={styles.locationError}>{locationError}</Text> : null}
 

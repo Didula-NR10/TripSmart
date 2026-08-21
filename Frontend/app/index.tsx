@@ -18,6 +18,9 @@ import { bestWindow, resolveDistrict, zonesNear } from '../lib/engine';
 import { profileByKey } from '../constants/profiles';
 import { Palette, Radius, Space, Type } from '../constants/trip-theme';
 
+// Hidden for now — flip back on if the hour-by-hour strip comes back.
+const SHOW_HOUR_STRIP = false;
+
 const fmtHour = (h: number) => {
   const suffix = h >= 12 ? 'PM' : 'AM';
   const hour = h % 12 === 0 ? 12 : h % 12;
@@ -91,19 +94,21 @@ export default function TodayScreen() {
         />
 
         {/* Hour-by-hour clock for the selected district, right under the hero. */}
-        <View style={styles.section}>
-          <SectionHeader
-            title={`Today by the clock · ${district.name}`}
-            action={selectedHour !== null ? 'Reset to now' : undefined}
-            onPress={() => setSelectedHour(null)}
-          />
-          <HourStrip
-            hours={prediction.hours}
-            window={window}
-            selectedHour={activeHour}
-            onSelectHour={setSelectedHour}
-          />
-        </View>
+        {SHOW_HOUR_STRIP ? (
+          <View style={styles.section}>
+            <SectionHeader
+              title={`Today by the clock · ${district.name}`}
+              action={selectedHour !== null ? 'Reset to now' : undefined}
+              onPress={() => setSelectedHour(null)}
+            />
+            <HourStrip
+              hours={prediction.hours}
+              window={window}
+              selectedHour={activeHour}
+              onSelectHour={setSelectedHour}
+            />
+          </View>
+        ) : null}
 
         <View style={styles.banners}>
           {offline ? (
