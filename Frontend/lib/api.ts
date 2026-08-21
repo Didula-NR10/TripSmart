@@ -32,7 +32,7 @@ export const authHeaders = (): Record<string, string> =>
 async function fetchWithTimeout(
   input: string,
   init: RequestInit = {},
-  timeoutMs = 12000,
+  timeoutMs = 20000,
 ): Promise<Response> {
   const attempt = async () => {
     const controller = new AbortController();
