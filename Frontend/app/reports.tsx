@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { DistrictMap, MapPin } from '../components/trip/DistrictMap';
+import * as Location from 'expo-location';
 import { DistrictSheet } from '../components/trip/DistrictSheet';
 import { PageHero } from '../components/trip/PageHero';
 import { FilterRow } from '../components/trip/Ui';
@@ -64,10 +64,9 @@ export default function ReportsScreen() {
   const [body, setBody] = useState('');
   const [posting, setPosting] = useState(false);
 
-  // share-location-from-map: drop a pin, we reverse-geocode it to a real
-  // place name and prefill "Where exactly" with it (still editable after).
-  const [showMapPicker, setShowMapPicker] = useState(false);
-  const [reportPin, setReportPin] = useState<MapPin>(null);
+  // Share current location: GPS fix -> nearest town/city/village, prefilling
+  // "Where exactly" (still editable after) — the alternative to typing it in
+  // manually, which the field already supports on its own.
   const [resolvingLocation, setResolvingLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
 
@@ -106,21 +105,29 @@ export default function ReportsScreen() {
     }
   }, [load, filterKey, search]);
 
-  // Dropping/dragging a pin re-resolves its district (a shared spot might not
-  // be in the district the form currently has selected) and looks up the
-  // nearest town/city/village to prefill "Where exactly" with.
-  const onMapPick = async (lat: number, lng: number) => {
-    setReportPin({ latitude: lat, longitude: lng });
+  // "Share current location": GPS fix on wherever the user is standing right
+  // now (no picking on a map) -> re-resolves the district it falls in and
+  // looks up the nearest town/city/village to prefill "Where exactly" with.
+  // Typing it in manually (the field itself) is the other option.
+  const shareCurrentLocation = async () => {
     setLocationError(null);
-    const found = resolveDistrict(lat, lng);
-    if (found) setFormDistrict(found.key);
-
     setResolvingLocation(true);
     try {
-      const result = await reverseGeocode(lat, lng);
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setLocationError('Location permission denied — enter it manually instead.');
+        return;
+      }
+      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const { latitude, longitude } = pos.coords;
+
+      const found = resolveDistrict(latitude, longitude);
+      if (found) setFormDistrict(found.key);
+
+      const result = await reverseGeocode(latitude, longitude);
       setLocation(result.placeName);
     } catch {
-      setLocationError('Could not look up a place name for this pin — type it in manually.');
+      setLocationError('Could not detect your location — enter it manually instead.');
     } finally {
       setResolvingLocation(false);
     }
@@ -143,8 +150,6 @@ export default function ReportsScreen() {
       setTitle('');
       setBody('');
       setComposing(false);
-      setShowMapPicker(false);
-      setReportPin(null);
       setLocationError(null);
       await load(filterKey, search);
     } catch {
@@ -218,30 +223,19 @@ export default function ReportsScreen() {
 
             <Pressable
               style={styles.shareLocation}
-              onPress={() => setShowMapPicker((v) => !v)}
+              onPress={shareCurrentLocation}
+              disabled={resolvingLocation}
             >
-              <Ionicons
-                name={showMapPicker ? 'chevron-up' : 'location'}
-                size={14}
-                color={Palette.primary}
-              />
-              <Text style={styles.shareLocationText}>
-                {showMapPicker ? 'Hide map' : 'Share location from map'}
-              </Text>
               {resolvingLocation ? (
                 <ActivityIndicator size="small" color={Palette.primary} />
-              ) : null}
+              ) : (
+                <Ionicons name="navigate" size={14} color={Palette.primary} />
+              )}
+              <Text style={styles.shareLocationText}>
+                {resolvingLocation ? 'Finding your location…' : 'Share current location'}
+              </Text>
             </Pressable>
-
-            {showMapPicker ? (
-              <View style={styles.mapPickerWrap}>
-                <DistrictMap
-                  selected={districtByKey(formDistrict)!}
-                  pin={reportPin}
-                  onPick={onMapPick}
-                />
-              </View>
-            ) : null}
+            <Text style={styles.shareLocationHint}>or type it in above manually</Text>
 
             {locationError ? <Text style={styles.locationError}>{locationError}</Text> : null}
 
@@ -268,8 +262,6 @@ export default function ReportsScreen() {
               <Pressable
                 onPress={() => {
                   setComposing(false);
-                  setShowMapPicker(false);
-                  setReportPin(null);
                   setLocationError(null);
                 }}
                 style={styles.cancel}
@@ -537,8 +529,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Palette.primary,
   },
-  mapPickerWrap: {
-    marginTop: -Space.xs,
+  shareLocationHint: {
+    ...Type.caption,
+    fontSize: 10,
+    color: Palette.textDim,
+    marginTop: -2,
   },
   locationError: {
     ...Type.caption,
