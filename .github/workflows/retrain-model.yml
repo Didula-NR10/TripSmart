@@ -1,0 +1,64 @@
+name: Retrain forecast model
+
+# "Collect -> retrain -> test -> deploy only if better", run monthly.
+# This job NEVER pushes to main directly: if training/pipeline.py decides
+# the candidate is better, it opens a pull request with the new model files
+# and the before/after metrics. Nothing reaches production (Render only
+# redeploys on a push to main) until a human reviews and merges that PR.
+on:
+  schedule:
+    - cron: "0 3 1 * *"  # 03:00 UTC on the 1st of each month
+  workflow_dispatch: {}   # manual "Run workflow" button, for the first test run
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run collect -> retrain -> test -> (maybe) promote
+        id: retrain
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python -m training.pipeline
+
+      - name: Upload retrain report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: retrain-report
+          path: |
+            Backend/training/output/retrain_report.json
+            Backend/training/output/retrain_report.md
+
+      - name: Open a PR with the promoted model
+        if: steps.retrain.outputs.promoted == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="retrain/$(date +%Y-%m-%d)"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add models/best_checkpoint.keras models/bias_correction.json
+          git commit -m "Promote retrained forecast model ($(date +%Y-%m-%d))"
+          git push -u origin "$BRANCH"
+          gh pr create \
+            --title "Promote retrained forecast model ($(date +%Y-%m-%d))" \
+            --body-file training/output/retrain_report.md \
+            --base main \
+            --head "$BRANCH"

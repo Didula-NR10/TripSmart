@@ -10,10 +10,15 @@ rather than failing loudly.
 """
 from __future__ import annotations
 
+import json
+import logging
+from pathlib import Path
 from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd
+
+log = logging.getLogger("trip_smart.forecast.utils")
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Districts — the upstream weather API works from lat/lon
@@ -133,7 +138,7 @@ RAIN_ZERO_FLOOR_MM = 0.3
 # 0.37 degC MAE beats corrected 0.40) fall back to zero deliberately, not
 # because they were skipped. Computed 2026-07-26. Regenerate both tables
 # together (rerun extra/backtest_all_districts.py) if the model is retrained.
-TEMP_BIAS_CORRECTION_C: Dict[str, List[float]] = {
+_DEFAULT_TEMP_BIAS_CORRECTION_C: Dict[str, List[float]] = {
     "Ampara": [-0.507, -0.280, -0.194, -0.307, -0.399, -0.169, -0.451, -0.213, -0.135, -0.266, -0.324, -0.039, -0.283, -0.040, 0.016, -0.143, -0.299, -0.078, -0.356, -0.107, -0.017, -0.146, -0.221, -0.007],
     "Anuradhapura": [-0.472, -0.477, -0.410, -0.364, -0.374, -0.105, -0.393, -0.357, -0.277, -0.239, -0.225, 0.068, -0.197, -0.181, -0.132, -0.133, -0.214, 0.008, -0.301, -0.275, -0.197, -0.161, -0.174, 0.055],
     "Badulla": [-1.061, -0.675, -0.545, -0.562, -0.557, -0.530, -1.067, -0.719, -0.614, -0.647, -0.645, -0.547, -1.069, -0.710, -0.646, -0.717, -0.762, -0.699, -1.227, -0.843, -0.726, -0.698, -0.640, -0.527],
@@ -154,7 +159,7 @@ TEMP_BIAS_CORRECTION_C: Dict[str, List[float]] = {
     "Trincomalee": [-0.222, -0.165, -0.309, -0.303, -0.301, 0.016, -0.178, -0.080, -0.181, -0.174, -0.165, 0.195, 0.002, 0.083, -0.065, -0.080, -0.118, 0.202, 0.009, 0.106, -0.003, 0.007, 0.008, 0.299],
     "Vavuniya": [-0.365, -0.486, -0.332, -0.309, -0.307, -0.068, -0.296, -0.374, -0.197, -0.187, -0.170, 0.103, -0.115, -0.207, -0.068, -0.083, -0.133, 0.067, -0.170, -0.249, -0.086, -0.061, -0.064, 0.132],
 }
-HUMIDITY_BIAS_CORRECTION_PCT: Dict[str, List[float]] = {
+_DEFAULT_HUMIDITY_BIAS_CORRECTION_PCT: Dict[str, List[float]] = {
     "Ampara": [-0.117, -0.651, -1.397, -0.789, -0.292, -1.616, -0.184, -0.937, -1.753, -1.147, -0.873, -2.402, -1.188, -2.063, -3.000, -2.364, -1.719, -2.976, -1.614, -2.444, -3.363, -2.606, -2.078, -3.033],
     "Anuradhapura": [-0.228, 0.201, 0.068, -0.129, -0.298, -1.350, -0.173, -0.096, -0.452, -0.718, -1.091, -2.310, -1.331, -1.336, -1.802, -2.074, -2.158, -3.103, -1.957, -1.945, -2.337, -2.476, -2.543, -3.227],
     "Badulla": [1.735, 1.062, -0.184, -0.563, -0.926, -0.339, 2.017, 1.222, -0.156, -0.680, -1.180, -0.932, 1.144, 0.152, -1.267, -1.670, -2.045, -1.726, 0.495, -0.445, -1.767, -2.229, -2.653, -2.173],
@@ -177,6 +182,30 @@ HUMIDITY_BIAS_CORRECTION_PCT: Dict[str, List[float]] = {
     "Trincomalee": [-1.533, -1.455, -0.646, -0.532, -0.589, -2.422, -1.931, -2.254, -1.745, -1.758, -1.918, -3.855, -3.383, -3.618, -3.075, -3.035, -3.042, -4.872, -4.323, -4.460, -3.863, -3.606, -3.538, -4.982],
     "Vavuniya": [-0.682, 0.192, -0.614, -0.713, -0.715, -1.905, -0.844, -0.329, -1.359, -1.525, -1.664, -3.004, -2.065, -1.565, -2.665, -2.826, -2.797, -3.898, -2.853, -2.310, -3.313, -3.368, -3.244, -4.026],
 }
+# Retraining (Backend/training/) regenerates these tables for whichever
+# checkpoint it produces and writes them here, alongside the model artifacts
+# — never hand-edited. If the file is absent (fresh clone, or retraining has
+# never run) the hardcoded tables above — the ones fit against the original
+# shipped checkpoint — are used unchanged, so behavior is identical to before
+# this loader existed.
+_BIAS_CORRECTION_JSON_PATH = Path(__file__).resolve().parent.parent / "models" / "bias_correction.json"
+
+
+def _load_bias_tables() -> tuple[Dict[str, List[float]], Dict[str, List[float]]]:
+    if _BIAS_CORRECTION_JSON_PATH.exists():
+        try:
+            data = json.loads(_BIAS_CORRECTION_JSON_PATH.read_text())
+            return data["temp_bias_correction_c"], data["humidity_bias_correction_pct"]
+        except Exception:
+            log.exception(
+                "Failed to load %s — falling back to the built-in bias tables.",
+                _BIAS_CORRECTION_JSON_PATH,
+            )
+    return _DEFAULT_TEMP_BIAS_CORRECTION_C, _DEFAULT_HUMIDITY_BIAS_CORRECTION_PCT
+
+
+TEMP_BIAS_CORRECTION_C, HUMIDITY_BIAS_CORRECTION_PCT = _load_bias_tables()
+
 _ZERO_24: List[float] = [0.0] * 24
 
 

@@ -31,3 +31,6 @@ web-build/
 Thumbs.db
 # --- Temporary / Miscellaneous ---
 dd.txt
+
+# --- Retraining pipeline output (regenerated every run, never committed by hand) ---
+Backend/training/output/
