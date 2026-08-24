@@ -57,8 +57,13 @@ def _render_markdown(report: dict) -> str:
         "| Metric | Current (deployed) | Candidate |",
         "|---|---|---|",
         f"| Temperature MAE (°C) | {cur['temp_mae']:.3f} | {c['temp_mae']:.3f} |",
+        f"| Temperature RMSE (°C) | {cur['temp_rmse']:.3f} | {c['temp_rmse']:.3f} |",
+        f"| Temperature R² | {cur['temp_r2']:.3f} | {c['temp_r2']:.3f} |",
         f"| Humidity MAE (%) | {cur['humidity_mae']:.3f} | {c['humidity_mae']:.3f} |",
+        f"| Humidity RMSE (%) | {cur['humidity_rmse']:.3f} | {c['humidity_rmse']:.3f} |",
+        f"| Humidity R² | {cur['humidity_r2']:.3f} | {c['humidity_r2']:.3f} |",
         f"| Rain MAE, floored (mm, informational — not gated) | {cur['rain_mae_floored']:.3f} | {c['rain_mae_floored']:.3f} |",
+        f"| Rain R², floored (informational — not gated) | {cur['rain_r2_floored']:.3f} | {c['rain_r2_floored']:.3f} |",
         "",
     ]
     if report.get("bias_table_report"):
@@ -87,17 +92,17 @@ def main() -> int:
     from training.dataset import build_windows, chronological_split, scale_features, scale_targets
     from training.evaluate import evaluate_model, is_better
     from training.finetune import fine_tune
-    from training.pull_data import fetch_all_districts
+    from training.data_source import fetch_all_districts
 
     tcfg.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now(timezone.utc).isoformat()
 
     report: dict = {"timestamp": timestamp, "promoted": False}
 
-    log.info("Step 1/6: pulling accumulated real observations from Supabase...")
+    log.info("Step 1/6: pulling real observations (see training.data_source for the source)...")
     district_frames = fetch_all_districts()
     if not district_frames:
-        report["reason"] = "weather_observations is empty — no data has accumulated yet."
+        report["reason"] = "No data available from the selected TRAINING_DATA_SOURCE."
         _finish(report, promoted=False)
         return 0
 

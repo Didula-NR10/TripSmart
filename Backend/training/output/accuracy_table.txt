@@ -1,0 +1,33 @@
+TripSmart Forecast Model — Deployed Model Accuracy
+Generated: 2026-08-23T07:38:48.935941+00:00
+Measured against 32,225 genuinely held-out real hourly windows 
+(25 districts, holdout period 2026-06-27 07:00:00 to 2026-08-19 23:00:00)
+============================================================
+Channel                 Metric          Value     
+------------------------------------------------------------
+Temperature             MAE (°C)        0.719     
+Temperature             RMSE (°C)       1.004     
+Temperature             R²              0.930     
+Humidity                MAE (%)         4.757     
+Humidity                RMSE (%)        6.458     
+Humidity                R²              0.799     
+Rain (raw)              MAE (mm)        0.170     
+Rain (zero-floored)     MAE (mm)        0.147     
+Rain (zero-floored)     RMSE (mm)       0.440     
+Rain (zero-floored)     R²              0.027     
+============================================================
+R² close to 1 = explains real variance well. R² close to 0 = no
+better than always predicting the average. This is expected to
+be strong for temperature/humidity and weak for rain — rain at
+hourly resolution is inherently close to unpredictable from
+historical weather alone (see project documentation).
+
+Rain hurdle-model experiment (IN PROGRESS, not yet production-ready):
+  Baseline (raw GRU) rain MAE:      0.141
+  Hurdle-model rain MAE:            0.302
+  Rain-occurrence precision/recall: 0.189 / 0.625
+  Class-weighting fixed recall (was 0.007 pre-fix) but precision/overall
+  MAE haven't beaten baseline yet — this points at the frozen encoder's
+  summary vector lacking rain-specific signal, not at more weight-tuning.
+  Next lever: extended features (pressure, dew point, wind direction,
+  rain lags) on a fresh, non-frozen model.

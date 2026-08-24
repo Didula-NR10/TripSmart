@@ -1,0 +1,23 @@
+{
+  "n_holdout_windows": 7475,
+  "occurrence_pos_weight_used": 3.72,
+  "occurrence_threshold_used": 0.32,
+  "baseline_raw_gru_rain_mae": 0.158,
+  "baseline_floored_gru_rain_mae": 0.141,
+  "baseline_floored_gru_rain_r2": -0.015,
+  "hurdle_combined_rain_mae": 0.302,
+  "hurdle_combined_rain_rmse": 0.517,
+  "hurdle_combined_rain_r2": -1.044,
+  "beats_raw_gru": false,
+  "beats_floored_gru": false,
+  "occurrence_classification": {
+    "precision": 0.189,
+    "recall": 0.625,
+    "f1": 0.29,
+    "true_positives": 12186,
+    "false_positives": 52329,
+    "false_negatives": 7324
+  },
+  "amount_mae_on_hours_it_actually_rained": 0.443,
+  "note": "Compared against the GRU's own raw rain regression (fair, offline-computable baseline). NOT compared against the live production analog+WeatherAPI blend \u2014 see this file's module docstring for why that comparison needs forecast-snapshot data this pipeline doesn't have yet."
+}

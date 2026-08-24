@@ -1,0 +1,210 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1787461471.041455   15036 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1787461496.539298   15036 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-08-23 10:35:27,785 INFO trip_smart.training.train_rain_hurdle: Pulling real observations (see training.data_source for the source)...
+2026-08-23 10:35:27,789 INFO trip_smart.training.data_source: Data source: Open-Meteo historical archive (40 days lookback).
+2026-08-23 10:35:28,944 INFO trip_smart.training.pull_archive_data: Colombo: 984 hours (2026-07-11 to 2026-08-20) [1/25]
+2026-08-23 10:35:30,597 INFO trip_smart.training.pull_archive_data: Gampaha: 984 hours (2026-07-11 to 2026-08-20) [2/25]
+2026-08-23 10:35:32,000 INFO trip_smart.training.pull_archive_data: Kalutara: 984 hours (2026-07-11 to 2026-08-20) [3/25]
+2026-08-23 10:35:33,439 INFO trip_smart.training.pull_archive_data: Kandy: 984 hours (2026-07-11 to 2026-08-20) [4/25]
+2026-08-23 10:35:34,821 INFO trip_smart.training.pull_archive_data: Matale: 984 hours (2026-07-11 to 2026-08-20) [5/25]
+2026-08-23 10:35:36,125 INFO trip_smart.training.pull_archive_data: NuwaraEliya: 984 hours (2026-07-11 to 2026-08-20) [6/25]
+2026-08-23 10:35:37,764 INFO trip_smart.training.pull_archive_data: Galle: 984 hours (2026-07-11 to 2026-08-20) [7/25]
+2026-08-23 10:35:39,072 INFO trip_smart.training.pull_archive_data: Matara: 984 hours (2026-07-11 to 2026-08-20) [8/25]
+2026-08-23 10:35:40,669 INFO trip_smart.training.pull_archive_data: Hambantota: 984 hours (2026-07-11 to 2026-08-20) [9/25]
+2026-08-23 10:35:42,108 INFO trip_smart.training.pull_archive_data: Jaffna: 984 hours (2026-07-11 to 2026-08-20) [10/25]
+2026-08-23 10:35:43,480 INFO trip_smart.training.pull_archive_data: Kilinochchi: 984 hours (2026-07-11 to 2026-08-20) [11/25]
+2026-08-23 10:35:45,195 INFO trip_smart.training.pull_archive_data: Mannar: 984 hours (2026-07-11 to 2026-08-20) [12/25]
+2026-08-23 10:35:46,495 INFO trip_smart.training.pull_archive_data: Vavuniya: 984 hours (2026-07-11 to 2026-08-20) [13/25]
+2026-08-23 10:35:48,144 INFO trip_smart.training.pull_archive_data: Mullaitivu: 984 hours (2026-07-11 to 2026-08-20) [14/25]
+2026-08-23 10:35:49,561 INFO trip_smart.training.pull_archive_data: Batticaloa: 984 hours (2026-07-11 to 2026-08-20) [15/25]
+2026-08-23 10:35:50,897 INFO trip_smart.training.pull_archive_data: Ampara: 984 hours (2026-07-11 to 2026-08-20) [16/25]
+2026-08-23 10:35:52,678 INFO trip_smart.training.pull_archive_data: Trincomalee: 984 hours (2026-07-11 to 2026-08-20) [17/25]
+2026-08-23 10:35:54,013 INFO trip_smart.training.pull_archive_data: Kurunegala: 984 hours (2026-07-11 to 2026-08-20) [18/25]
+2026-08-23 10:35:55,555 INFO trip_smart.training.pull_archive_data: Puttalam: 984 hours (2026-07-11 to 2026-08-20) [19/25]
+2026-08-23 10:35:56,996 INFO trip_smart.training.pull_archive_data: Anuradhapura: 984 hours (2026-07-11 to 2026-08-20) [20/25]
+2026-08-23 10:35:58,258 INFO trip_smart.training.pull_archive_data: Polonnaruwa: 984 hours (2026-07-11 to 2026-08-20) [21/25]
+2026-08-23 10:35:59,893 INFO trip_smart.training.pull_archive_data: Badulla: 984 hours (2026-07-11 to 2026-08-20) [22/25]
+2026-08-23 10:36:01,293 INFO trip_smart.training.pull_archive_data: Monaragala: 984 hours (2026-07-11 to 2026-08-20) [23/25]
+2026-08-23 10:36:02,798 INFO trip_smart.training.pull_archive_data: Ratnapura: 984 hours (2026-07-11 to 2026-08-20) [24/25]
+2026-08-23 10:36:04,226 INFO trip_smart.training.pull_archive_data: Kegalle: 984 hours (2026-07-11 to 2026-08-20) [25/25]
+2026-08-23 10:36:04,749 INFO trip_smart.training.dataset: Colombo: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:04,864 INFO trip_smart.training.dataset: Gampaha: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:04,968 INFO trip_smart.training.dataset: Kalutara: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:05,067 INFO trip_smart.training.dataset: Kandy: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:05,167 INFO trip_smart.training.dataset: Matale: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:05,293 INFO trip_smart.training.dataset: NuwaraEliya: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:05,396 INFO trip_smart.training.dataset: Galle: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:05,502 INFO trip_smart.training.dataset: Matara: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:05,601 INFO trip_smart.training.dataset: Hambantota: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:05,706 INFO trip_smart.training.dataset: Jaffna: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:05,809 INFO trip_smart.training.dataset: Kilinochchi: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:05,923 INFO trip_smart.training.dataset: Mannar: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:06,036 INFO trip_smart.training.dataset: Vavuniya: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:06,147 INFO trip_smart.training.dataset: Mullaitivu: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:06,262 INFO trip_smart.training.dataset: Batticaloa: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:06,366 INFO trip_smart.training.dataset: Ampara: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:06,474 INFO trip_smart.training.dataset: Trincomalee: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:06,584 INFO trip_smart.training.dataset: Kurunegala: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:06,695 INFO trip_smart.training.dataset: Puttalam: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:06,794 INFO trip_smart.training.dataset: Anuradhapura: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:06,936 INFO trip_smart.training.dataset: Polonnaruwa: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:07,040 INFO trip_smart.training.dataset: Badulla: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:07,167 INFO trip_smart.training.dataset: Monaragala: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:07,273 INFO trip_smart.training.dataset: Ratnapura: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:07,378 INFO trip_smart.training.dataset: Kegalle: 984/984 hours usable -> 793 windows.
+2026-08-23 10:36:07,977 INFO trip_smart.training.dataset: train: 13877 windows (2026-07-17 23:00:00 to 2026-08-10 02:00:00)
+2026-08-23 10:36:07,977 INFO trip_smart.training.dataset: val: 2973 windows (2026-08-10 02:00:00 to 2026-08-15 00:00:00)
+2026-08-23 10:36:07,977 INFO trip_smart.training.dataset: holdout: 2975 windows (2026-08-15 01:00:00 to 2026-08-19 23:00:00)
+I0000 00:00:1787461568.161153   15036 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX AVX2 AVX_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2026-08-23 10:36:08,697 WARNING tensorflow: TensorFlow GPU support is not available on native Windows for TensorFlow >= 2.11. Even if CUDA/cuDNN are installed, GPU will not be used. Please use WSL2 or the TensorFlow-DirectML plugin.
+C:\Users\lenov\AppData\Local\Programs\Python\Python313\Lib\site-packages\sklearn\base.py:525: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.8.0 when using version 1.9.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+2026-08-23 10:36:10,966 INFO trip_smart.training.train_rain_hurdle: Building hurdle heads on top of the frozen, already-deployed encoder...
+2026-08-23 10:36:10,967 INFO trip_smart.training.rain_hurdle: Encoder frozen (8 layers) — only the two new rain heads will train.
+Epoch 1/60
+434/434 - 65s - 149ms/step - loss: 1.7340 - rain_amount_loss: 1.0657 - rain_occurrence_accuracy: 0.0251 - rain_occurrence_loss: 0.6687 - val_loss: 1.2952 - val_rain_amount_loss: 0.6475 - val_rain_occurrence_accuracy: 0.0303 - val_rain_occurrence_loss: 0.6478 - learning_rate: 1.0000e-04
+Epoch 2/60
+434/434 - 47s - 109ms/step - loss: 1.6308 - rain_amount_loss: 1.0094 - rain_occurrence_accuracy: 0.0307 - rain_occurrence_loss: 0.6208 - val_loss: 1.1853 - val_rain_amount_loss: 0.5763 - val_rain_occurrence_accuracy: 0.0343 - val_rain_occurrence_loss: 0.6091 - learning_rate: 1.0000e-04
+Epoch 3/60
+434/434 - 65s - 151ms/step - loss: 1.5328 - rain_amount_loss: 0.9507 - rain_occurrence_accuracy: 0.0382 - rain_occurrence_loss: 0.5818 - val_loss: 1.0881 - val_rain_amount_loss: 0.5118 - val_rain_occurrence_accuracy: 0.0454 - val_rain_occurrence_loss: 0.5764 - learning_rate: 1.0000e-04
+Epoch 4/60
+434/434 - 70s - 160ms/step - loss: 1.4505 - rain_amount_loss: 0.9013 - rain_occurrence_accuracy: 0.0369 - rain_occurrence_loss: 0.5491 - val_loss: 1.0119 - val_rain_amount_loss: 0.4635 - val_rain_occurrence_accuracy: 0.0555 - val_rain_occurrence_loss: 0.5485 - learning_rate: 1.0000e-04
+Epoch 5/60
+434/434 - 55s - 127ms/step - loss: 1.3838 - rain_amount_loss: 0.8622 - rain_occurrence_accuracy: 0.0456 - rain_occurrence_loss: 0.5216 - val_loss: 0.9514 - val_rain_amount_loss: 0.4269 - val_rain_occurrence_accuracy: 0.0626 - val_rain_occurrence_loss: 0.5246 - learning_rate: 1.0000e-04
+Epoch 6/60
+434/434 - 98s - 225ms/step - loss: 1.3260 - rain_amount_loss: 0.8272 - rain_occurrence_accuracy: 0.0522 - rain_occurrence_loss: 0.4983 - val_loss: 0.9029 - val_rain_amount_loss: 0.3992 - val_rain_occurrence_accuracy: 0.0737 - val_rain_occurrence_loss: 0.5039 - learning_rate: 1.0000e-04
+Epoch 7/60
+434/434 - 102s - 236ms/step - loss: 1.2799 - rain_amount_loss: 0.8012 - rain_occurrence_accuracy: 0.0576 - rain_occurrence_loss: 0.4792 - val_loss: 0.8637 - val_rain_amount_loss: 0.3780 - val_rain_occurrence_accuracy: 0.0827 - val_rain_occurrence_loss: 0.4858 - learning_rate: 1.0000e-04
+Epoch 8/60
+434/434 - 73s - 168ms/step - loss: 1.2410 - rain_amount_loss: 0.7786 - rain_occurrence_accuracy: 0.0603 - rain_occurrence_loss: 0.4624 - val_loss: 0.8299 - val_rain_amount_loss: 0.3602 - val_rain_occurrence_accuracy: 0.0938 - val_rain_occurrence_loss: 0.4698 - learning_rate: 1.0000e-04
+Epoch 9/60
+434/434 - 73s - 167ms/step - loss: 1.2046 - rain_amount_loss: 0.7569 - rain_occurrence_accuracy: 0.0629 - rain_occurrence_loss: 0.4478 - val_loss: 0.8000 - val_rain_amount_loss: 0.3446 - val_rain_occurrence_accuracy: 0.0996 - val_rain_occurrence_loss: 0.4555 - learning_rate: 1.0000e-04
+Epoch 10/60
+434/434 - 82s - 188ms/step - loss: 1.1748 - rain_amount_loss: 0.7387 - rain_occurrence_accuracy: 0.0690 - rain_occurrence_loss: 0.4356 - val_loss: 0.7764 - val_rain_amount_loss: 0.3338 - val_rain_occurrence_accuracy: 0.1080 - val_rain_occurrence_loss: 0.4426 - learning_rate: 1.0000e-04
+Epoch 11/60
+434/434 - 43s - 100ms/step - loss: 1.1475 - rain_amount_loss: 0.7229 - rain_occurrence_accuracy: 0.0732 - rain_occurrence_loss: 0.4247 - val_loss: 0.7569 - val_rain_amount_loss: 0.3260 - val_rain_occurrence_accuracy: 0.1147 - val_rain_occurrence_loss: 0.4310 - learning_rate: 1.0000e-04
+Epoch 12/60
+434/434 - 33s - 77ms/step - loss: 1.1265 - rain_amount_loss: 0.7110 - rain_occurrence_accuracy: 0.0703 - rain_occurrence_loss: 0.4153 - val_loss: 0.7404 - val_rain_amount_loss: 0.3202 - val_rain_occurrence_accuracy: 0.1214 - val_rain_occurrence_loss: 0.4203 - learning_rate: 1.0000e-04
+Epoch 13/60
+434/434 - 66s - 152ms/step - loss: 1.1065 - rain_amount_loss: 0.6994 - rain_occurrence_accuracy: 0.0757 - rain_occurrence_loss: 0.4072 - val_loss: 0.7262 - val_rain_amount_loss: 0.3158 - val_rain_occurrence_accuracy: 0.1224 - val_rain_occurrence_loss: 0.4105 - learning_rate: 1.0000e-04
+Epoch 14/60
+434/434 - 90s - 207ms/step - loss: 1.0876 - rain_amount_loss: 0.6889 - rain_occurrence_accuracy: 0.0747 - rain_occurrence_loss: 0.3988 - val_loss: 0.7138 - val_rain_amount_loss: 0.3124 - val_rain_occurrence_accuracy: 0.1241 - val_rain_occurrence_loss: 0.4015 - learning_rate: 1.0000e-04
+Epoch 15/60
+434/434 - 73s - 169ms/step - loss: 1.0741 - rain_amount_loss: 0.6812 - rain_occurrence_accuracy: 0.0783 - rain_occurrence_loss: 0.3926 - val_loss: 0.7029 - val_rain_amount_loss: 0.3099 - val_rain_occurrence_accuracy: 0.1224 - val_rain_occurrence_loss: 0.3931 - learning_rate: 1.0000e-04
+Epoch 16/60
+434/434 - 73s - 168ms/step - loss: 1.0594 - rain_amount_loss: 0.6733 - rain_occurrence_accuracy: 0.0767 - rain_occurrence_loss: 0.3859 - val_loss: 0.6931 - val_rain_amount_loss: 0.3078 - val_rain_occurrence_accuracy: 0.1248 - val_rain_occurrence_loss: 0.3853 - learning_rate: 1.0000e-04
+Epoch 17/60
+434/434 - 81s - 186ms/step - loss: 1.0474 - rain_amount_loss: 0.6664 - rain_occurrence_accuracy: 0.0761 - rain_occurrence_loss: 0.3806 - val_loss: 0.6842 - val_rain_amount_loss: 0.3062 - val_rain_occurrence_accuracy: 0.1255 - val_rain_occurrence_loss: 0.3781 - learning_rate: 1.0000e-04
+Epoch 18/60
+434/434 - 80s - 184ms/step - loss: 1.0354 - rain_amount_loss: 0.6601 - rain_occurrence_accuracy: 0.0780 - rain_occurrence_loss: 0.3756 - val_loss: 0.6763 - val_rain_amount_loss: 0.3050 - val_rain_occurrence_accuracy: 0.1251 - val_rain_occurrence_loss: 0.3713 - learning_rate: 1.0000e-04
+Epoch 19/60
+434/434 - 46s - 105ms/step - loss: 1.0269 - rain_amount_loss: 0.6554 - rain_occurrence_accuracy: 0.0776 - rain_occurrence_loss: 0.3710 - val_loss: 0.6691 - val_rain_amount_loss: 0.3041 - val_rain_occurrence_accuracy: 0.1258 - val_rain_occurrence_loss: 0.3651 - learning_rate: 1.0000e-04
+Epoch 20/60
+434/434 - 39s - 89ms/step - loss: 1.0169 - rain_amount_loss: 0.6502 - rain_occurrence_accuracy: 0.0768 - rain_occurrence_loss: 0.3668 - val_loss: 0.6624 - val_rain_amount_loss: 0.3033 - val_rain_occurrence_accuracy: 0.1275 - val_rain_occurrence_loss: 0.3592 - learning_rate: 1.0000e-04
+Epoch 21/60
+434/434 - 60s - 139ms/step - loss: 1.0065 - rain_amount_loss: 0.6436 - rain_occurrence_accuracy: 0.0776 - rain_occurrence_loss: 0.3628 - val_loss: 0.6565 - val_rain_amount_loss: 0.3028 - val_rain_occurrence_accuracy: 0.1268 - val_rain_occurrence_loss: 0.3538 - learning_rate: 1.0000e-04
+Epoch 22/60
+434/434 - 97s - 224ms/step - loss: 1.0003 - rain_amount_loss: 0.6405 - rain_occurrence_accuracy: 0.0785 - rain_occurrence_loss: 0.3596 - val_loss: 0.6511 - val_rain_amount_loss: 0.3023 - val_rain_occurrence_accuracy: 0.1265 - val_rain_occurrence_loss: 0.3488 - learning_rate: 1.0000e-04
+Epoch 23/60
+434/434 - 69s - 160ms/step - loss: 0.9912 - rain_amount_loss: 0.6346 - rain_occurrence_accuracy: 0.0760 - rain_occurrence_loss: 0.3566 - val_loss: 0.6461 - val_rain_amount_loss: 0.3021 - val_rain_occurrence_accuracy: 0.1268 - val_rain_occurrence_loss: 0.3441 - learning_rate: 1.0000e-04
+Epoch 24/60
+434/434 - 83s - 192ms/step - loss: 0.9862 - rain_amount_loss: 0.6327 - rain_occurrence_accuracy: 0.0790 - rain_occurrence_loss: 0.3536 - val_loss: 0.6416 - val_rain_amount_loss: 0.3018 - val_rain_occurrence_accuracy: 0.1261 - val_rain_occurrence_loss: 0.3398 - learning_rate: 1.0000e-04
+Epoch 25/60
+434/434 - 82s - 190ms/step - loss: 0.9807 - rain_amount_loss: 0.6299 - rain_occurrence_accuracy: 0.0808 - rain_occurrence_loss: 0.3510 - val_loss: 0.6374 - val_rain_amount_loss: 0.3016 - val_rain_occurrence_accuracy: 0.1258 - val_rain_occurrence_loss: 0.3358 - learning_rate: 1.0000e-04
+Epoch 26/60
+434/434 - 83s - 192ms/step - loss: 0.9751 - rain_amount_loss: 0.6258 - rain_occurrence_accuracy: 0.0809 - rain_occurrence_loss: 0.3490 - val_loss: 0.6337 - val_rain_amount_loss: 0.3016 - val_rain_occurrence_accuracy: 0.1265 - val_rain_occurrence_loss: 0.3321 - learning_rate: 1.0000e-04
+Epoch 27/60
+434/434 - 81s - 186ms/step - loss: 0.9705 - rain_amount_loss: 0.6233 - rain_occurrence_accuracy: 0.0770 - rain_occurrence_loss: 0.3473 - val_loss: 0.6303 - val_rain_amount_loss: 0.3015 - val_rain_occurrence_accuracy: 0.1251 - val_rain_occurrence_loss: 0.3288 - learning_rate: 1.0000e-04
+Epoch 28/60
+434/434 - 70s - 162ms/step - loss: 0.9668 - rain_amount_loss: 0.6240 - rain_occurrence_accuracy: 0.0783 - rain_occurrence_loss: 0.3452 - val_loss: 0.6272 - val_rain_amount_loss: 0.3015 - val_rain_occurrence_accuracy: 0.1255 - val_rain_occurrence_loss: 0.3257 - learning_rate: 1.0000e-04
+Epoch 29/60
+434/434 - 84s - 192ms/step - loss: 0.9615 - rain_amount_loss: 0.6177 - rain_occurrence_accuracy: 0.0775 - rain_occurrence_loss: 0.3435 - val_loss: 0.6243 - val_rain_amount_loss: 0.3015 - val_rain_occurrence_accuracy: 0.1224 - val_rain_occurrence_loss: 0.3228 - learning_rate: 1.0000e-04
+Epoch 30/60
+434/434 - 81s - 187ms/step - loss: 0.9579 - rain_amount_loss: 0.6160 - rain_occurrence_accuracy: 0.0811 - rain_occurrence_loss: 0.3417 - val_loss: 0.6219 - val_rain_amount_loss: 0.3017 - val_rain_occurrence_accuracy: 0.1228 - val_rain_occurrence_loss: 0.3202 - learning_rate: 1.0000e-04
+Epoch 31/60
+434/434 - 82s - 189ms/step - loss: 0.9552 - rain_amount_loss: 0.6147 - rain_occurrence_accuracy: 0.0795 - rain_occurrence_loss: 0.3405 - val_loss: 0.6196 - val_rain_amount_loss: 0.3019 - val_rain_occurrence_accuracy: 0.1224 - val_rain_occurrence_loss: 0.3178 - learning_rate: 1.0000e-04
+Epoch 32/60
+434/434 - 83s - 192ms/step - loss: 0.9512 - rain_amount_loss: 0.6125 - rain_occurrence_accuracy: 0.0794 - rain_occurrence_loss: 0.3395 - val_loss: 0.6176 - val_rain_amount_loss: 0.3020 - val_rain_occurrence_accuracy: 0.1238 - val_rain_occurrence_loss: 0.3156 - learning_rate: 1.0000e-04
+Epoch 33/60
+434/434 - 81s - 187ms/step - loss: 0.9499 - rain_amount_loss: 0.6118 - rain_occurrence_accuracy: 0.0807 - rain_occurrence_loss: 0.3388 - val_loss: 0.6157 - val_rain_amount_loss: 0.3021 - val_rain_occurrence_accuracy: 0.1231 - val_rain_occurrence_loss: 0.3136 - learning_rate: 1.0000e-04
+Epoch 34/60
+434/434 - 81s - 187ms/step - loss: 0.9473 - rain_amount_loss: 0.6092 - rain_occurrence_accuracy: 0.0781 - rain_occurrence_loss: 0.3378 - val_loss: 0.6141 - val_rain_amount_loss: 0.3024 - val_rain_occurrence_accuracy: 0.1224 - val_rain_occurrence_loss: 0.3117 - learning_rate: 1.0000e-04
+Epoch 35/60
+434/434 - 83s - 192ms/step - loss: 0.9441 - rain_amount_loss: 0.6070 - rain_occurrence_accuracy: 0.0804 - rain_occurrence_loss: 0.3369 - val_loss: 0.6125 - val_rain_amount_loss: 0.3025 - val_rain_occurrence_accuracy: 0.1218 - val_rain_occurrence_loss: 0.3101 - learning_rate: 1.0000e-04
+Epoch 36/60
+434/434 - 81s - 186ms/step - loss: 0.9409 - rain_amount_loss: 0.6047 - rain_occurrence_accuracy: 0.0787 - rain_occurrence_loss: 0.3359 - val_loss: 0.6112 - val_rain_amount_loss: 0.3027 - val_rain_occurrence_accuracy: 0.1211 - val_rain_occurrence_loss: 0.3085 - learning_rate: 1.0000e-04
+Epoch 37/60
+434/434 - 72s - 166ms/step - loss: 0.9393 - rain_amount_loss: 0.6045 - rain_occurrence_accuracy: 0.0795 - rain_occurrence_loss: 0.3353 - val_loss: 0.6101 - val_rain_amount_loss: 0.3030 - val_rain_occurrence_accuracy: 0.1181 - val_rain_occurrence_loss: 0.3071 - learning_rate: 1.0000e-04
+Epoch 38/60
+434/434 - 72s - 165ms/step - loss: 0.9393 - rain_amount_loss: 0.6043 - rain_occurrence_accuracy: 0.0833 - rain_occurrence_loss: 0.3346 - val_loss: 0.6089 - val_rain_amount_loss: 0.3031 - val_rain_occurrence_accuracy: 0.1184 - val_rain_occurrence_loss: 0.3058 - learning_rate: 1.0000e-04
+Epoch 39/60
+434/434 - 82s - 188ms/step - loss: 0.9363 - rain_amount_loss: 0.6023 - rain_occurrence_accuracy: 0.0821 - rain_occurrence_loss: 0.3335 - val_loss: 0.6080 - val_rain_amount_loss: 0.3034 - val_rain_occurrence_accuracy: 0.1181 - val_rain_occurrence_loss: 0.3046 - learning_rate: 1.0000e-04
+Epoch 40/60
+434/434 - 75s - 174ms/step - loss: 0.9346 - rain_amount_loss: 0.6013 - rain_occurrence_accuracy: 0.0825 - rain_occurrence_loss: 0.3331 - val_loss: 0.6070 - val_rain_amount_loss: 0.3036 - val_rain_occurrence_accuracy: 0.1187 - val_rain_occurrence_loss: 0.3035 - learning_rate: 1.0000e-04
+Epoch 41/60
+434/434 - 59s - 135ms/step - loss: 0.9337 - rain_amount_loss: 0.6010 - rain_occurrence_accuracy: 0.0839 - rain_occurrence_loss: 0.3328 - val_loss: 0.6063 - val_rain_amount_loss: 0.3038 - val_rain_occurrence_accuracy: 0.1191 - val_rain_occurrence_loss: 0.3025 - learning_rate: 1.0000e-04
+Epoch 42/60
+434/434 - 62s - 143ms/step - loss: 0.9329 - rain_amount_loss: 0.5998 - rain_occurrence_accuracy: 0.0840 - rain_occurrence_loss: 0.3326 - val_loss: 0.6057 - val_rain_amount_loss: 0.3041 - val_rain_occurrence_accuracy: 0.1174 - val_rain_occurrence_loss: 0.3015 - learning_rate: 1.0000e-04
+Epoch 43/60
+434/434 - 73s - 168ms/step - loss: 0.9296 - rain_amount_loss: 0.5973 - rain_occurrence_accuracy: 0.0824 - rain_occurrence_loss: 0.3321 - val_loss: 0.6050 - val_rain_amount_loss: 0.3043 - val_rain_occurrence_accuracy: 0.1157 - val_rain_occurrence_loss: 0.3007 - learning_rate: 1.0000e-04
+Epoch 44/60
+434/434 - 82s - 188ms/step - loss: 0.9294 - rain_amount_loss: 0.5993 - rain_occurrence_accuracy: 0.0845 - rain_occurrence_loss: 0.3320 - val_loss: 0.6044 - val_rain_amount_loss: 0.3045 - val_rain_occurrence_accuracy: 0.1147 - val_rain_occurrence_loss: 0.2999 - learning_rate: 1.0000e-04
+Epoch 45/60
+434/434 - 69s - 159ms/step - loss: 0.9292 - rain_amount_loss: 0.5975 - rain_occurrence_accuracy: 0.0832 - rain_occurrence_loss: 0.3318 - val_loss: 0.6039 - val_rain_amount_loss: 0.3048 - val_rain_occurrence_accuracy: 0.1140 - val_rain_occurrence_loss: 0.2991 - learning_rate: 1.0000e-04
+Epoch 46/60
+434/434 - 49s - 113ms/step - loss: 0.9276 - rain_amount_loss: 0.5966 - rain_occurrence_accuracy: 0.0829 - rain_occurrence_loss: 0.3313 - val_loss: 0.6034 - val_rain_amount_loss: 0.3050 - val_rain_occurrence_accuracy: 0.1130 - val_rain_occurrence_loss: 0.2985 - learning_rate: 1.0000e-04
+Epoch 47/60
+434/434 - 36s - 82ms/step - loss: 0.9283 - rain_amount_loss: 0.5968 - rain_occurrence_accuracy: 0.0829 - rain_occurrence_loss: 0.3312 - val_loss: 0.6029 - val_rain_amount_loss: 0.3052 - val_rain_occurrence_accuracy: 0.1123 - val_rain_occurrence_loss: 0.2978 - learning_rate: 1.0000e-04
+Epoch 48/60
+434/434 - 44s - 101ms/step - loss: 0.9256 - rain_amount_loss: 0.5944 - rain_occurrence_accuracy: 0.0858 - rain_occurrence_loss: 0.3308 - val_loss: 0.6026 - val_rain_amount_loss: 0.3054 - val_rain_occurrence_accuracy: 0.1134 - val_rain_occurrence_loss: 0.2972 - learning_rate: 1.0000e-04
+Epoch 49/60
+434/434 - 38s - 88ms/step - loss: 0.9246 - rain_amount_loss: 0.5941 - rain_occurrence_accuracy: 0.0845 - rain_occurrence_loss: 0.3302 - val_loss: 0.6022 - val_rain_amount_loss: 0.3056 - val_rain_occurrence_accuracy: 0.1134 - val_rain_occurrence_loss: 0.2967 - learning_rate: 1.0000e-04
+Epoch 50/60
+434/434 - 41s - 96ms/step - loss: 0.9256 - rain_amount_loss: 0.5950 - rain_occurrence_accuracy: 0.0847 - rain_occurrence_loss: 0.3304 - val_loss: 0.6018 - val_rain_amount_loss: 0.3057 - val_rain_occurrence_accuracy: 0.1130 - val_rain_occurrence_loss: 0.2962 - learning_rate: 1.0000e-04
+Epoch 51/60
+434/434 - 37s - 86ms/step - loss: 0.9242 - rain_amount_loss: 0.5940 - rain_occurrence_accuracy: 0.0837 - rain_occurrence_loss: 0.3301 - val_loss: 0.6016 - val_rain_amount_loss: 0.3059 - val_rain_occurrence_accuracy: 0.1113 - val_rain_occurrence_loss: 0.2957 - learning_rate: 1.0000e-04
+Epoch 52/60
+434/434 - 38s - 88ms/step - loss: 0.9217 - rain_amount_loss: 0.5915 - rain_occurrence_accuracy: 0.0877 - rain_occurrence_loss: 0.3298 - val_loss: 0.6012 - val_rain_amount_loss: 0.3061 - val_rain_occurrence_accuracy: 0.1117 - val_rain_occurrence_loss: 0.2952 - learning_rate: 1.0000e-04
+Epoch 53/60
+434/434 - 33s - 75ms/step - loss: 0.9223 - rain_amount_loss: 0.5928 - rain_occurrence_accuracy: 0.0889 - rain_occurrence_loss: 0.3291 - val_loss: 0.6010 - val_rain_amount_loss: 0.3062 - val_rain_occurrence_accuracy: 0.1107 - val_rain_occurrence_loss: 0.2948 - learning_rate: 1.0000e-04
+Epoch 54/60
+434/434 - 35s - 80ms/step - loss: 0.9214 - rain_amount_loss: 0.5922 - rain_occurrence_accuracy: 0.0840 - rain_occurrence_loss: 0.3293 - val_loss: 0.6008 - val_rain_amount_loss: 0.3065 - val_rain_occurrence_accuracy: 0.1100 - val_rain_occurrence_loss: 0.2944 - learning_rate: 1.0000e-04
+Epoch 55/60
+434/434 - 37s - 85ms/step - loss: 0.9210 - rain_amount_loss: 0.5910 - rain_occurrence_accuracy: 0.0855 - rain_occurrence_loss: 0.3297 - val_loss: 0.6005 - val_rain_amount_loss: 0.3066 - val_rain_occurrence_accuracy: 0.1097 - val_rain_occurrence_loss: 0.2940 - learning_rate: 1.0000e-04
+Epoch 56/60
+434/434 - 54s - 124ms/step - loss: 0.9208 - rain_amount_loss: 0.5912 - rain_occurrence_accuracy: 0.0839 - rain_occurrence_loss: 0.3296 - val_loss: 0.6003 - val_rain_amount_loss: 0.3067 - val_rain_occurrence_accuracy: 0.1093 - val_rain_occurrence_loss: 0.2936 - learning_rate: 1.0000e-04
+Epoch 57/60
+434/434 - 67s - 153ms/step - loss: 0.9224 - rain_amount_loss: 0.5929 - rain_occurrence_accuracy: 0.0865 - rain_occurrence_loss: 0.3293 - val_loss: 0.6002 - val_rain_amount_loss: 0.3069 - val_rain_occurrence_accuracy: 0.1086 - val_rain_occurrence_loss: 0.2933 - learning_rate: 1.0000e-04
+Epoch 58/60
+434/434 - 35s - 80ms/step - loss: 0.9200 - rain_amount_loss: 0.5917 - rain_occurrence_accuracy: 0.0840 - rain_occurrence_loss: 0.3288 - val_loss: 0.5999 - val_rain_amount_loss: 0.3069 - val_rain_occurrence_accuracy: 0.1083 - val_rain_occurrence_loss: 0.2930 - learning_rate: 1.0000e-04
+Epoch 59/60
+434/434 - 31s - 71ms/step - loss: 0.9190 - rain_amount_loss: 0.5901 - rain_occurrence_accuracy: 0.0846 - rain_occurrence_loss: 0.3289 - val_loss: 0.5996 - val_rain_amount_loss: 0.3070 - val_rain_occurrence_accuracy: 0.1080 - val_rain_occurrence_loss: 0.2927 - learning_rate: 1.0000e-04
+Epoch 60/60
+434/434 - 33s - 77ms/step - loss: 0.9192 - rain_amount_loss: 0.5906 - rain_occurrence_accuracy: 0.0859 - rain_occurrence_loss: 0.3283 - val_loss: 0.5995 - val_rain_amount_loss: 0.3071 - val_rain_occurrence_accuracy: 0.1086 - val_rain_occurrence_loss: 0.2924 - learning_rate: 1.0000e-04
+2026-08-23 11:41:00,286 INFO trip_smart.training.train_rain_hurdle: Evaluating on the held-out slice, against the raw GRU rain channel baseline...
+2026-08-23 11:41:10,794 INFO trip_smart.training.train_rain_hurdle: Report: {
+  "n_holdout_windows": 2975,
+  "baseline_raw_gru_rain_mae": 0.134,
+  "baseline_floored_gru_rain_mae": 0.119,
+  "baseline_floored_gru_rain_r2": -0.154,
+  "hurdle_combined_rain_mae": 0.104,
+  "hurdle_combined_rain_rmse": 0.266,
+  "hurdle_combined_rain_r2": -0.177,
+  "beats_raw_gru": true,
+  "beats_floored_gru": true,
+  "occurrence_classification": {
+    "precision": 0.595,
+    "recall": 0.007,
+    "f1": 0.013,
+    "true_positives": 44,
+    "false_positives": 30,
+    "false_negatives": 6408
+  },
+  "amount_mae_on_hours_it_actually_rained": 0.401,
+  "note": "Compared against the GRU's own raw rain regression (fair, offline-computable baseline). NOT compared against the live production analog+WeatherAPI blend \u2014 see this file's module docstring for why that comparison needs forecast-snapshot data this pipeline doesn't have yet."
+}
+2026-08-23 11:41:10,925 INFO trip_smart.training.train_rain_hurdle: Candidate hurdle model saved to E:\New folder\TripSmart\Backend\training\output\rain_hurdle_candidate.keras (NOT deployed — review the report first).

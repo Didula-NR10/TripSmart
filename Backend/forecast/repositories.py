@@ -82,6 +82,77 @@ class ModelRepository:
         return os.path.exists(settings.MODEL_PATH) and os.path.exists(settings.SCALER_PATH)
 
 
+class Rain24hRepository:
+    """Holds the 24h-total rain hurdle model, its scaler, and its residual
+    calibration (for range predictions). Same lazy-load discipline as
+    ModelRepository: nothing loads until the first request needs it.
+
+    compile=False on load: the model was saved with a custom weighted-BCE
+    loss function that isn't registered for Keras deserialization, and
+    compiling isn't needed for inference-only use anyway."""
+
+    _model = None
+    _scaler = None
+    _calibration = None
+
+    @classmethod
+    def get_model(cls):
+        if cls._model is None:
+            import tensorflow as tf
+
+            log.info("Loading 24h rain model from %s ...", settings.RAIN24H_MODEL_PATH)
+            cls._model = tf.keras.models.load_model(settings.RAIN24H_MODEL_PATH, compile=False)
+
+            import numpy as np
+
+            from forecast.rain24h import INPUT_WINDOW, N_FEATURES
+
+            dummy = np.zeros((1, INPUT_WINDOW, N_FEATURES), dtype=np.float32)
+            cls._model.predict(dummy, verbose=0)
+            log.info("24h rain model ready. Input shape: %s", cls._model.input_shape)
+        return cls._model
+
+    @classmethod
+    def get_scaler(cls):
+        if cls._scaler is None:
+            import joblib
+
+            from forecast.rain24h import N_FEATURES
+
+            log.info("Loading 24h rain scaler from %s ...", settings.RAIN24H_SCALER_PATH)
+            scaler = joblib.load(settings.RAIN24H_SCALER_PATH)
+            if scaler.n_features_in_ != N_FEATURES:
+                raise ValueError(
+                    f"24h rain scaler was fitted on {scaler.n_features_in_} features, "
+                    f"but rain24h.FEATURE_COLS defines {N_FEATURES}. Artifacts and code "
+                    "are out of sync — refusing to serve wrong numbers."
+                )
+            cls._scaler = scaler
+        return cls._scaler
+
+    @classmethod
+    def get_calibration(cls) -> dict:
+        """Residual quantiles (predicted - actual, mm) from a real held-out
+        validation run — used to turn one point prediction into an honest
+        range instead of a falsely precise single number."""
+        if cls._calibration is None:
+            import json
+
+            with open(settings.RAIN24H_CALIBRATION_PATH) as fh:
+                cls._calibration = json.load(fh)
+        return cls._calibration
+
+    @classmethod
+    def is_ready(cls) -> bool:
+        import os
+
+        return (
+            os.path.exists(settings.RAIN24H_MODEL_PATH)
+            and os.path.exists(settings.RAIN24H_SCALER_PATH)
+            and os.path.exists(settings.RAIN24H_CALIBRATION_PATH)
+        )
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # 2. Upstream observations — WeatherAPI.com
 # ──────────────────────────────────────────────────────────────────────────────

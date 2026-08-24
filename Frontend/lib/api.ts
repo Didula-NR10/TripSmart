@@ -70,6 +70,8 @@ export type Hour24 = {
   advisoryReason: string;
 };
 
+export type DayType = 'RAINY' | 'SUNNY' | 'OVERCAST' | 'HOT_HUMID_STORM_RISK' | 'MILD';
+
 export type Summary24 = {
   tempMin: number;
   tempMax: number;
@@ -84,6 +86,20 @@ export type Summary24 = {
   wetHours: number;
   advisoryLevel: AdvisoryLevel;
   verdict: string;
+  // 24h-total rain model outlook — a real trained aggregate prediction
+  // (not the hourly analog above), turned into an honest range via real
+  // held-out residual quantiles. Optional: absent if the model artifacts
+  // aren't deployed or the prediction failed server-side (an enrichment,
+  // never a hard requirement — see Backend/forecast/services.py
+  // _predict_24h_outlook).
+  rain24hProbability?: number;
+  rain24hTotal?: number;
+  rain24hTotalLow?: number;
+  rain24hTotalHigh?: number;
+  // Day type from temp/humidity 24h TREND + rain range, not rain amount
+  // alone — see Backend/forecast/rain24h.py classify_day_type.
+  dayType?: DayType;
+  dayTypeReason?: string;
 };
 
 export type Forecast24 = {
@@ -130,6 +146,12 @@ type ApiResponse = {
     wet_hours: number;
     advisory_level: AdvisoryLevel;
     verdict: string;
+    rain_24h_probability?: number;
+    rain_24h_total_mm?: number;
+    rain_24h_total_mm_low?: number;
+    rain_24h_total_mm_high?: number;
+    day_type?: DayType;
+    day_type_reason?: string;
   };
   forecast: ApiHour[];
 };
@@ -252,6 +274,12 @@ export async function fetchForecastBundle(
         wetHours: data.summary.wet_hours,
         advisoryLevel: data.summary.advisory_level,
         verdict: data.summary.verdict,
+        rain24hProbability: data.summary.rain_24h_probability,
+        rain24hTotal: data.summary.rain_24h_total_mm,
+        rain24hTotalLow: data.summary.rain_24h_total_mm_low,
+        rain24hTotalHigh: data.summary.rain_24h_total_mm_high,
+        dayType: data.summary.day_type,
+        dayTypeReason: data.summary.day_type_reason,
       },
     },
   };

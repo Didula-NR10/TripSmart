@@ -1,0 +1,77 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1787467275.072378    2180 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1787467283.965014    2180 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-08-23 12:11:32,036 INFO trip_smart.training.train_rain_hurdle: Pulling real observations (see training.data_source for the source)...
+2026-08-23 12:11:32,040 INFO trip_smart.training.data_source: Data source: Open-Meteo historical archive (180 days lookback).
+2026-08-23 12:11:34,333 INFO trip_smart.training.pull_archive_data: Colombo: 4344 hours (2026-02-21 to 2026-08-20) [1/25]
+2026-08-23 12:11:35,912 INFO trip_smart.training.pull_archive_data: Gampaha: 4344 hours (2026-02-21 to 2026-08-20) [2/25]
+2026-08-23 12:11:37,849 INFO trip_smart.training.pull_archive_data: Kalutara: 4344 hours (2026-02-21 to 2026-08-20) [3/25]
+2026-08-23 12:11:40,281 INFO trip_smart.training.pull_archive_data: Kandy: 4344 hours (2026-02-21 to 2026-08-20) [4/25]
+2026-08-23 12:11:42,359 INFO trip_smart.training.pull_archive_data: Matale: 4344 hours (2026-02-21 to 2026-08-20) [5/25]
+2026-08-23 12:11:45,028 INFO trip_smart.training.pull_archive_data: NuwaraEliya: 4344 hours (2026-02-21 to 2026-08-20) [6/25]
+2026-08-23 12:11:47,005 INFO trip_smart.training.pull_archive_data: Galle: 4344 hours (2026-02-21 to 2026-08-20) [7/25]
+2026-08-23 12:11:48,612 INFO trip_smart.training.pull_archive_data: Matara: 4344 hours (2026-02-21 to 2026-08-20) [8/25]
+2026-08-23 12:11:50,413 INFO trip_smart.training.pull_archive_data: Hambantota: 4344 hours (2026-02-21 to 2026-08-20) [9/25]
+2026-08-23 12:11:52,465 INFO trip_smart.training.pull_archive_data: Jaffna: 4344 hours (2026-02-21 to 2026-08-20) [10/25]
+2026-08-23 12:11:54,243 INFO trip_smart.training.pull_archive_data: Kilinochchi: 4344 hours (2026-02-21 to 2026-08-20) [11/25]
+2026-08-23 12:11:55,868 INFO trip_smart.training.pull_archive_data: Mannar: 4344 hours (2026-02-21 to 2026-08-20) [12/25]
+2026-08-23 12:11:58,233 INFO trip_smart.training.pull_archive_data: Vavuniya: 4344 hours (2026-02-21 to 2026-08-20) [13/25]
+2026-08-23 12:12:00,117 INFO trip_smart.training.pull_archive_data: Mullaitivu: 4344 hours (2026-02-21 to 2026-08-20) [14/25]
+2026-08-23 12:12:02,835 INFO trip_smart.training.pull_archive_data: Batticaloa: 4344 hours (2026-02-21 to 2026-08-20) [15/25]
+2026-08-23 12:12:04,885 INFO trip_smart.training.pull_archive_data: Ampara: 4344 hours (2026-02-21 to 2026-08-20) [16/25]
+2026-08-23 12:12:06,537 INFO trip_smart.training.pull_archive_data: Trincomalee: 4344 hours (2026-02-21 to 2026-08-20) [17/25]
+2026-08-23 12:12:08,672 INFO trip_smart.training.pull_archive_data: Kurunegala: 4344 hours (2026-02-21 to 2026-08-20) [18/25]
+2026-08-23 12:12:10,417 INFO trip_smart.training.pull_archive_data: Puttalam: 4344 hours (2026-02-21 to 2026-08-20) [19/25]
+2026-08-23 12:12:12,332 INFO trip_smart.training.pull_archive_data: Anuradhapura: 4344 hours (2026-02-21 to 2026-08-20) [20/25]
+2026-08-23 12:12:14,600 INFO trip_smart.training.pull_archive_data: Polonnaruwa: 4344 hours (2026-02-21 to 2026-08-20) [21/25]
+2026-08-23 12:12:16,725 INFO trip_smart.training.pull_archive_data: Badulla: 4344 hours (2026-02-21 to 2026-08-20) [22/25]
+2026-08-23 12:12:18,378 INFO trip_smart.training.pull_archive_data: Monaragala: 4344 hours (2026-02-21 to 2026-08-20) [23/25]
+2026-08-23 12:12:20,499 INFO trip_smart.training.pull_archive_data: Ratnapura: 4344 hours (2026-02-21 to 2026-08-20) [24/25]
+2026-08-23 12:12:22,805 INFO trip_smart.training.pull_archive_data: Kegalle: 4344 hours (2026-02-21 to 2026-08-20) [25/25]
+2026-08-23 12:12:23,562 INFO trip_smart.training.dataset: Colombo: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:24,044 INFO trip_smart.training.dataset: Gampaha: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:24,486 INFO trip_smart.training.dataset: Kalutara: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:25,000 INFO trip_smart.training.dataset: Kandy: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:25,506 INFO trip_smart.training.dataset: Matale: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:26,002 INFO trip_smart.training.dataset: NuwaraEliya: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:26,493 INFO trip_smart.training.dataset: Galle: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:26,966 INFO trip_smart.training.dataset: Matara: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:27,445 INFO trip_smart.training.dataset: Hambantota: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:27,737 INFO trip_smart.training.dataset: Jaffna: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:28,227 INFO trip_smart.training.dataset: Kilinochchi: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:28,683 INFO trip_smart.training.dataset: Mannar: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:29,165 INFO trip_smart.training.dataset: Vavuniya: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:29,648 INFO trip_smart.training.dataset: Mullaitivu: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:30,127 INFO trip_smart.training.dataset: Batticaloa: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:30,625 INFO trip_smart.training.dataset: Ampara: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:31,113 INFO trip_smart.training.dataset: Trincomalee: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:31,603 INFO trip_smart.training.dataset: Kurunegala: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:32,086 INFO trip_smart.training.dataset: Puttalam: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:32,582 INFO trip_smart.training.dataset: Anuradhapura: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:33,048 INFO trip_smart.training.dataset: Polonnaruwa: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:33,529 INFO trip_smart.training.dataset: Badulla: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:34,012 INFO trip_smart.training.dataset: Monaragala: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:34,314 INFO trip_smart.training.dataset: Ratnapura: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:34,825 INFO trip_smart.training.dataset: Kegalle: 4344/4344 hours usable -> 4153 windows.
+2026-08-23 12:12:39,643 INFO trip_smart.training.dataset: train: 72677 windows (2026-02-27 23:00:00 to 2026-06-29 02:00:00)
+2026-08-23 12:12:39,655 INFO trip_smart.training.dataset: val: 15573 windows (2026-06-29 02:00:00 to 2026-07-25 00:00:00)
+2026-08-23 12:12:39,657 INFO trip_smart.training.dataset: holdout: 15575 windows (2026-07-25 01:00:00 to 2026-08-19 23:00:00)
+I0000 00:00:1787467359.885228    2180 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX AVX2 AVX_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2026-08-23 12:12:40,736 WARNING tensorflow: TensorFlow GPU support is not available on native Windows for TensorFlow >= 2.11. Even if CUDA/cuDNN are installed, GPU will not be used. Please use WSL2 or the TensorFlow-DirectML plugin.
+C:\Users\lenov\AppData\Local\Programs\Python\Python313\Lib\site-packages\sklearn\base.py:525: InconsistentVersionWarning: Trying to unpickle estimator MinMaxScaler from version 1.8.0 when using version 1.9.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+2026-08-23 12:12:48,503 INFO trip_smart.training.train_rain_hurdle: Rain-hour class weight: 8.0 (i.e. missing a real rain hour costs 8.0x as much as wrongly calling a dry one) — computed from 1744248 train windows, 194043 of which had real rain.
+2026-08-23 12:12:48,505 INFO trip_smart.training.train_rain_hurdle: Building hurdle heads on top of the frozen, already-deployed encoder...
+2026-08-23 12:12:48,506 INFO trip_smart.training.rain_hurdle: Encoder frozen (8 layers) — only the two new rain heads will train.
+Epoch 1/60
+2272/2272 - 383s - 168ms/step - loss: 3.3838 - rain_amount_loss: 2.2001 - rain_occurrence_loss: 1.1831 - val_loss: 0.9822 - val_rain_amount_loss: 0.1282 - val_rain_occurrence_loss: 0.8540 - learning_rate: 1.0000e-04
+Epoch 2/60
+2272/2272 - 338s - 149ms/step - loss: 2.7812 - rain_amount_loss: 1.7163 - rain_occurrence_loss: 1.0641 - val_loss: 0.9517 - val_rain_amount_loss: 0.1603 - val_rain_occurrence_loss: 0.7914 - learning_rate: 1.0000e-04
+Epoch 3/60
+2272/2272 - 357s - 157ms/step - loss: 2.6734 - rain_amount_loss: 1.6793 - rain_occurrence_loss: 0.9986 - val_loss: 0.9227 - val_rain_amount_loss: 0.1596 - val_rain_occurrence_loss: 0.7631 - learning_rate: 1.0000e-04
+Epoch 4/60
+2272/2272 - 234s - 103ms/step - loss: 2.6358 - rain_amount_loss: 1.6633 - rain_occurrence_loss: 0.9717 - val_loss: 0.9072 - val_rain_amount_loss: 0.1528 - val_rain_occurrence_loss: 0.7544 - learning_rate: 1.0000e-04
+Epoch 5/60

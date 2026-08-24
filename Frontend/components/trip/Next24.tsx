@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AdvisoryLevel, Forecast24, Hour24 } from '../../lib/api';
+import { AdvisoryLevel, DayType, Forecast24, Hour24 } from '../../lib/api';
 import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
 
 const skin = (level: AdvisoryLevel) =>
@@ -9,6 +9,27 @@ const skin = (level: AdvisoryLevel) =>
     CAUTION: { bg: Palette.warnSoft, fg: '#7A5A12', rule: Palette.warn, icon: 'alert-circle' as const },
     AVOID: { bg: Palette.dangerSoft, fg: '#7E2A20', rule: Palette.danger, icon: 'umbrella' as const },
   })[level];
+
+// Day type: from temp/humidity 24h TREND + rain range, not rain amount
+// alone — see Backend/forecast/rain24h.py classify_day_type. Distinct
+// palette from the advisory skin above since this describes the day's
+// character, not a safety call.
+const DAY_TYPE_LABEL: Record<DayType, string> = {
+  RAINY: 'Rainy day',
+  SUNNY: 'Sunny & clear',
+  OVERCAST: 'Overcast',
+  HOT_HUMID_STORM_RISK: 'Hot & humid — storm risk',
+  MILD: 'Mild',
+};
+
+const dayTypeSkin = (type: DayType) =>
+  ({
+    RAINY: { bg: '#E3EDFB', fg: '#1E4C8C', rule: '#3D6FC9', icon: 'rainy' as const },
+    SUNNY: { bg: Palette.primaryTint, fg: Palette.primaryDeep, rule: Palette.primary, icon: 'sunny' as const },
+    OVERCAST: { bg: Palette.neutralChip, fg: '#4B5A63', rule: '#8A98A2', icon: 'cloud' as const },
+    HOT_HUMID_STORM_RISK: { bg: Palette.warnSoft, fg: '#7A5A12', rule: Palette.warn, icon: 'thunderstorm' as const },
+    MILD: { bg: Palette.neutralChip, fg: Palette.textMuted, rule: Palette.textDim, icon: 'partly-sunny' as const },
+  })[type];
 
 function HourBox({ h }: { h: Hour24 }) {
   const s = skin(h.advisoryLevel);
@@ -61,6 +82,9 @@ export function Next24Summary({ forecast }: { forecast: Forecast24 }) {
   const s = forecast.summary;
   const verdictSkin = skin(s.advisoryLevel);
   const ranAt = new Date(forecast.origin);
+  const dSkin = s.dayType ? dayTypeSkin(s.dayType) : null;
+  const hasOutlook =
+    s.rain24hTotal !== undefined && s.rain24hTotalLow !== undefined && s.rain24hTotalHigh !== undefined;
 
   return (
     <View style={styles.card}>
@@ -73,6 +97,18 @@ export function Next24Summary({ forecast }: { forecast: Forecast24 }) {
         <Text style={[styles.verdictText, { color: verdictSkin.fg }]}>{s.verdict}</Text>
       </View>
 
+      {dSkin && s.dayType ? (
+        <View style={[styles.dayType, { backgroundColor: dSkin.bg }]}>
+          <Ionicons name={dSkin.icon} size={15} color={dSkin.rule} />
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.dayTypeLabel, { color: dSkin.fg }]}>{DAY_TYPE_LABEL[s.dayType]}</Text>
+            {s.dayTypeReason ? (
+              <Text style={[styles.dayTypeReason, { color: dSkin.fg }]}>{s.dayTypeReason}</Text>
+            ) : null}
+          </View>
+        </View>
+      ) : null}
+
       <View style={styles.stats}>
         <Stat label="Temperature" value={`${s.tempMin.toFixed(1)}–${s.tempMax.toFixed(1)}°`} />
         <Stat label="Average" value={`${s.tempAvg.toFixed(1)}°`} />
@@ -83,6 +119,19 @@ export function Next24Summary({ forecast }: { forecast: Forecast24 }) {
         <Stat label="Wet hours" value={`${s.wetHours} / 24`} />
         <Stat label="Advisory" value={s.advisoryLevel} />
       </View>
+
+      {hasOutlook ? (
+        <View style={styles.stats}>
+          <Stat
+            label="24h total rain"
+            value={`${s.rain24hTotalLow!.toFixed(1)}–${s.rain24hTotalHigh!.toFixed(1)} mm`}
+          />
+          <Stat
+            label="Chance of rain"
+            value={s.rain24hProbability !== undefined ? `${Math.round(s.rain24hProbability * 100)}%` : '—'}
+          />
+        </View>
+      ) : null}
 
       <View style={styles.originRow}>
         <Ionicons name="hardware-chip-outline" size={12} color={Palette.textDim} />
@@ -150,6 +199,25 @@ const styles = StyleSheet.create({
   verdictText: {
     ...Type.label,
     flex: 1,
+  },
+  dayType: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Space.sm,
+    borderRadius: Radius.md,
+    paddingHorizontal: Space.md,
+    paddingVertical: Space.sm,
+    marginTop: Space.sm,
+  },
+  dayTypeLabel: {
+    ...Type.label,
+    fontSize: 13,
+  },
+  dayTypeReason: {
+    ...Type.caption,
+    fontSize: 10,
+    marginTop: 1,
+    opacity: 0.85,
   },
   stats: {
     flexDirection: 'row',

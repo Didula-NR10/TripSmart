@@ -60,6 +60,16 @@ class Settings(BaseSettings):
     INPUT_WINDOW: int = 168
     TARGET_HORIZON: int = 24
 
+    # ---- 24-hour rain total model (separate from the hourly GRU above) ----
+    # Predicts ONE number: total rain over the next 24h, plus an occurrence
+    # probability. 28-feature hurdle model — see Backend/forecast/rain24h.py
+    # for why the 28-feature version is deployed over the marginally-better
+    # 35-feature one (the extra 5 features need a live data field,
+    # soil moisture, that WeatherAPI can't provide).
+    RAIN24H_MODEL_PATH: str = str(BASE_DIR / "models" / "rain24h_model.keras")
+    RAIN24H_SCALER_PATH: str = str(BASE_DIR / "models" / "rain24h_scaler.pkl")
+    RAIN24H_CALIBRATION_PATH: str = str(BASE_DIR / "models" / "rain24h_calibration.json")
+
     # ---- Upstream weather source (WeatherAPI.com — needs a free API key) ----
     # Open-Meteo's free tier is keyless and shared across every caller on a
     # host's egress IP, which is exactly what made it 429 under Hugging Face

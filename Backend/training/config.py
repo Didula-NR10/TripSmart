@@ -57,6 +57,11 @@ PROMOTION_MARGIN = float(os.environ.get("RETRAIN_PROMOTION_MARGIN", "0.005"))  #
 BIAS_FIT_FRACTION = float(os.environ.get("RETRAIN_BIAS_FIT_FRACTION", "0.70"))
 MIN_ORIGINS_FOR_BIAS_FIT = 20  # below this, leave that district uncorrected (zero list)
 
+# Moderates the rain-occurrence class weight (see rain_hurdle.occurrence_pos_weight).
+# 1.0 = full inverse-frequency ratio; empirically too aggressive in a live run
+# (recall 0.7% -> 64% but precision collapsed 59% -> 19%, net MAE/R2 worse).
+RAIN_POS_WEIGHT_DAMPING = float(os.environ.get("RAIN_POS_WEIGHT_DAMPING", "0.35"))
+
 RAIN_ZERO_FLOOR_MM = 0.3  # must match Backend/forecast/utils.py exactly
 
 REPORT_JSON_PATH = OUTPUT_DIR / "retrain_report.json"

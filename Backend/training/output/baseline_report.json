@@ -1,0 +1,21 @@
+{
+  "n_districts": 25,
+  "n_windows_total": 214825,
+  "n_train": 150377,
+  "n_val": 32223,
+  "n_holdout": 32225,
+  "holdout_period": "2026-06-27 07:00:00 to 2026-08-19 23:00:00",
+  "metrics": {
+    "n_holdout": 32225,
+    "temp_mae": 0.719241738319397,
+    "temp_rmse": 1.0041948556900024,
+    "temp_r2": 0.9300203919410706,
+    "humidity_mae": 4.757401466369629,
+    "humidity_rmse": 6.457876682281494,
+    "humidity_r2": 0.7991628646850586,
+    "rain_mae_raw": 0.16953670978546143,
+    "rain_mae_floored": 0.1466113030910492,
+    "rain_rmse_floored": 0.44031020998954773,
+    "rain_r2_floored": 0.026852548122406006
+  }
+}

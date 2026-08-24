@@ -46,6 +46,23 @@ def mae(pred: np.ndarray, actual: np.ndarray) -> float:
     return float(np.mean(np.abs(pred - actual)))
 
 
+def rmse(pred: np.ndarray, actual: np.ndarray) -> float:
+    return float(np.sqrt(np.mean((pred - actual) ** 2)))
+
+
+def r2(pred: np.ndarray, actual: np.ndarray) -> float:
+    """Coefficient of determination — the standard "how much of the real
+    variance does this explain" number an evaluator will expect alongside
+    MAE/RMSE. 1.0 is a perfect fit; 0.0 is "no better than always predicting
+    the mean"; it can go negative (worse than the mean) on a hard holdout set.
+    Computed by hand (not sklearn.metrics.r2_score) so this file only needs
+    numpy, matching the rest of this pure-computation module."""
+    actual_flat, pred_flat = actual.ravel(), pred.ravel()
+    ss_res = np.sum((actual_flat - pred_flat) ** 2)
+    ss_tot = np.sum((actual_flat - np.mean(actual_flat)) ** 2)
+    return float(1 - ss_res / ss_tot) if ss_tot > 0 else 0.0
+
+
 def evaluate_model(model, scaler, X_holdout: np.ndarray, y_holdout: np.ndarray) -> dict:
     """y_holdout must be RAW (unscaled) real-unit targets — dataset.py's
     chronological_split output, before scale_targets() is applied."""
@@ -59,9 +76,15 @@ def evaluate_model(model, scaler, X_holdout: np.ndarray, y_holdout: np.ndarray) 
     return {
         "n_holdout": int(len(X_holdout)),
         "temp_mae": mae(temp_pred, temp_actual),
+        "temp_rmse": rmse(temp_pred, temp_actual),
+        "temp_r2": r2(temp_pred, temp_actual),
         "humidity_mae": mae(hum_pred, hum_actual),
+        "humidity_rmse": rmse(hum_pred, hum_actual),
+        "humidity_r2": r2(hum_pred, hum_actual),
         "rain_mae_raw": mae(rain_pred, rain_actual),
         "rain_mae_floored": mae(rain_floored, rain_actual),
+        "rain_rmse_floored": rmse(rain_floored, rain_actual),
+        "rain_r2_floored": r2(rain_floored, rain_actual),
     }
 
 

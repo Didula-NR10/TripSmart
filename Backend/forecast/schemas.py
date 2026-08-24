@@ -57,6 +57,26 @@ class DailySummary(BaseModel):
     advisory_level: str
     verdict: str
 
+    # ---- 24h-total rain model outlook (optional: an enrichment, absent if
+    # the model artifacts aren't deployed or the prediction failed) ----
+    rain_24h_probability: Optional[float] = Field(
+        default=None, description="Model's probability that measurable rain falls somewhere in the next 24h"
+    )
+    rain_24h_total_mm: Optional[float] = Field(
+        default=None, description="Point estimate of TOTAL rain over the next 24h (not a per-hour peak)"
+    )
+    rain_24h_total_mm_low: Optional[float] = Field(
+        default=None, description="Low end of the 24h total's real 80% prediction interval"
+    )
+    rain_24h_total_mm_high: Optional[float] = Field(
+        default=None, description="High end of the 24h total's real 80% prediction interval"
+    )
+    day_type: Optional[str] = Field(
+        default=None,
+        description="RAINY | SUNNY | OVERCAST | HOT_HUMID_STORM_RISK | MILD — from temp/humidity 24h trend + rain range, not rain amount alone",
+    )
+    day_type_reason: Optional[str] = None
+
 
 class ForecastResponse(BaseModel):
     district: str
