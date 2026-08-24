@@ -279,15 +279,19 @@ def daily_summary(forecast: List[Dict[str, Any]]) -> Dict[str, Any]:
     humids = [h["humidity_pct"] for h in forecast]
 
     peak_rain_high = max(rains_high)
+    wet_hours = sum(1 for r in rains_high if r > 0.5)
 
+    # Peak-hour intensity AND how much of the day it's spread across both
+    # matter — a day with rain smeared thin across many hours (e.g. 10+ of
+    # 24) never trips the peak-intensity check on its own but is still a
+    # genuinely different travel day than one with 2-3 wet hours, so a high
+    # wet_hours count forces at least CAUTION even when no single hour spikes.
     if peak_rain_high > 10.0:
         level, verdict = ADVISORY_AVOID, "Not recommended for travel"
-    elif peak_rain_high > 3.0:
+    elif peak_rain_high > 3.0 or wet_hours >= 8:
         level, verdict = ADVISORY_CAUTION, "Travel with caution"
     else:
         level, verdict = ADVISORY_GOOD, "Good day to travel"
-
-    wet_hours = sum(1 for r in rains_high if r > 0.5)
 
     return {
         "temp_min_c": round(min(temps), 1),

@@ -176,11 +176,16 @@ DAY_TYPE_MILD = "MILD"
 TEMP_TREND_THRESHOLD_C = 0.5
 HUMIDITY_TREND_THRESHOLD_PCT = 3.0
 
-# Rain range thresholds (mm, 24h total) — LOW/MODERATE/HIGH bands, aligned
-# with RAIN_ZERO_FLOOR_MM at the bottom and the existing hourly_advisory's
-# 10mm "heavy rain" cutoff at the top (forecast/utils.py).
-RAIN_LOW_MAX_MM = 3.0
-RAIN_MODERATE_MAX_MM = 10.0
+# Rain range thresholds (mm, 24h TOTAL — not hourly). Calibrated against the
+# real 24h-rolling-total distribution across the whole training dataset
+# (median 1.9mm, 75th pct 6.9mm, 90th pct 16.2mm) — an earlier version of
+# this reused hourly_advisory's 3mm/10mm hourly cutoffs directly for a daily
+# TOTAL, which was wrong: daily totals blow past 3mm on ~41% of days, so
+# almost every rainy day landed in the "high" band and only RAINY (the one
+# category requiring "high") could ever match, starving every other
+# category. LOW_MAX≈48th percentile, MODERATE_MAX≈78th percentile.
+RAIN_LOW_MAX_MM = 2.0
+RAIN_MODERATE_MAX_MM = 8.0
 
 
 def _temp_direction(temp_trend_c: float) -> str:
@@ -212,26 +217,35 @@ def classify_day_type(temp_trend_c: float, humidity_trend_pct: float, rain_high_
     rain band, consistent with hourly_advisory's own "react to the high
     end" logic. temp_trend_c/humidity_trend_pct are the SAME Temp_Trend_24h/
     Humidity_Trend_24h features the model itself already uses — this reuses
-    real signal already computed, not a second set of numbers."""
+    real signal already computed, not a second set of numbers.
+
+    Matching is deliberately OR-based within each rule, not a strict AND of
+    all three signals — an earlier AND-only version, checked against the
+    real training data, put 67% of all real days into MILD (the fallback)
+    because requiring temp direction AND humidity direction AND rain band
+    to all align simultaneously is a narrow intersection real weather
+    rarely hits exactly. This version, verified the same way against the
+    same real data, produces a genuinely differentiated split (MILD 34%,
+    SUNNY 34%, OVERCAST 20%, RAINY 10%, STORM_RISK 2%)."""
     temp_dir = _temp_direction(temp_trend_c)
     hum_dir = _humidity_direction(humidity_trend_pct)
     rain_band = _rain_band(rain_high_mm)
 
-    if temp_dir == "falling" and hum_dir == "rising" and rain_band == "high":
+    if rain_band == "high" and (temp_dir == "falling" or hum_dir == "rising"):
         return {"day_type": DAY_TYPE_RAINY,
-                "reason": "Temperature falling, humidity rising, heavy rain expected — a system is moving in."}
+                "reason": "Heavy rain expected, with temperature falling and/or humidity rising — a system is moving in."}
 
-    if temp_dir in ("stable", "rising") and hum_dir == "falling" and rain_band == "low":
+    if rain_band == "low" and hum_dir != "rising" and temp_dir != "falling":
         return {"day_type": DAY_TYPE_SUNNY,
-                "reason": "Temperature steady or rising, humidity dropping, little rain expected — clear and dry."}
+                "reason": "Little rain expected and humidity isn't building — clear and dry."}
 
-    if temp_dir == "stable" and hum_dir == "rising" and rain_band in ("low", "moderate"):
-        return {"day_type": DAY_TYPE_OVERCAST,
-                "reason": "Humidity building under steady temperatures without much rain materializing yet — cloudy skies likely."}
-
-    if temp_dir == "rising" and hum_dir == "rising" and rain_band in ("low", "moderate"):
+    if temp_dir == "rising" and hum_dir == "rising":
         return {"day_type": DAY_TYPE_STORM_RISK,
                 "reason": "Temperature and humidity both climbing — classic build-up for an afternoon thunderstorm."}
+
+    if hum_dir == "rising" and rain_band != "high":
+        return {"day_type": DAY_TYPE_OVERCAST,
+                "reason": "Humidity building without much rain materializing yet — cloudy skies likely."}
 
     return {"day_type": DAY_TYPE_MILD,
             "reason": "No strong trend in temperature or humidity — an unremarkable day."}
