@@ -1,0 +1,238 @@
+@startuml TripSmart_Database_ERD
+'==============================================================================
+' TripSmart — Database Entity-Relationship Diagram
+'
+' Transcribed directly from Backend/core/models.py (the single source of
+' truth — SQLAlchemy creates these exact tables in Supabase Postgres on
+' startup via core.database.init_db; nothing is hand-written in the SQL
+' editor). Every column name, type, precision, nullability, default,
+' unique constraint, index, and foreign-key action below matches that file
+' field-for-field, not an approximation.
+'
+' Notation (crow's foot, PlantUML entity syntax):
+'   * field        = NOT NULL
+'   field          = NULLable
+'   <<PK>>         = primary key
+'   <<FK>>         = foreign key
+'   <<unique>>     = UNIQUE constraint
+'   ||--o{         = one (mandatory) to many (optional)
+'   |o--o{         = zero-or-one to many (optional FK, nullable)
+'==============================================================================
+
+hide circle
+skinparam linetype ortho
+skinparam roundcorner 6
+skinparam shadowing false
+skinparam class {
+  BackgroundColor White
+  BorderColor #0F5B5E
+  ArrowColor #0F5B5E
+  FontColor #22222
+  FontName Calibri
+  AttributeFontSize 12
+  FontSize 13
+}
+skinparam note {
+  BackgroundColor #EAF4F4
+  BorderColor #0F5B5E
+  FontSize 10
+}
+
+' ── districts ────────────────────────────────────────────────────────────
+entity "districts" as districts {
+  * id : UUID <<PK>>
+  --
+  * name : TEXT <<unique>>
+  * lat : NUMERIC(8,5)
+  * lon : NUMERIC(8,5)
+  * created_at : TIMESTAMPTZ
+}
+note bottom of districts
+  Default: id = gen_random_uuid()
+  Default: created_at = timezone('utc', now())
+  The 25 administrative districts the
+  model was trained on. Seeded on
+  startup from forecast.utils.DISTRICT_COORDS.
+end note
+
+' ── weather_observations ────────────────────────────────────────────────
+entity "weather_observations" as weather_observations {
+  * id : UUID <<PK>>
+  --
+  * district_id : UUID <<FK>>
+  * observed_at : TIMESTAMPTZ
+  * temperature_c : NUMERIC(5,2)
+  * precipitation_mm : NUMERIC(6,3)
+  * humidity_pct : NUMERIC(4,1)
+  * cloud_cover_pct : NUMERIC(4,1)
+  * wind_speed_kmh : NUMERIC(5,2)
+  * wind_gusts_kmh : NUMERIC(5,2)
+  * daylight_score : NUMERIC(5,4)
+  * created_at : TIMESTAMPTZ
+}
+note bottom of weather_observations
+  UNIQUE (district_id, observed_at)  -- "uq_district_hour"
+  FK district_id -> districts.id  ON DELETE CASCADE
+  One hour of recorded weather per district;
+  every forecast run tops this up (idempotent
+  upsert, ON CONFLICT DO NOTHING on the unique pair).
+end note
+
+' ── ground_reports ──────────────────────────────────────────────────────
+entity "ground_reports" as ground_reports {
+  * id : UUID <<PK>>
+  --
+  * district_id : UUID <<FK>>
+  * location : TEXT
+  * title : TEXT
+  body : TEXT
+  author : TEXT
+  * created_at : TIMESTAMPTZ
+}
+note bottom of ground_reports
+  Default: body = '' , author = ''
+  FK district_id -> districts.id  ON DELETE CASCADE
+  INDEX (district_id, created_at) -- "ground_reports_district_created_idx"
+  INDEX (created_at)              -- "ground_reports_created_idx"
+  Ephemeral: rows older than 24h are purged by the app.
+end note
+
+' ── users ────────────────────────────────────────────────────────────────
+entity "users" as users {
+  * id : UUID <<PK>>
+  --
+  * full_name : TEXT
+  * username : TEXT <<unique>>
+  * email : TEXT <<unique>>
+  * country : TEXT
+  * password_hash : TEXT
+  avatar_url : TEXT
+  * email_verified : BOOLEAN
+  google_sub : TEXT
+  * created_at : TIMESTAMPTZ
+  * updated_at : TIMESTAMPTZ
+  last_login_at : TIMESTAMPTZ
+}
+note bottom of users
+  Default: avatar_url = '' , google_sub = ''
+  Default: email_verified = false
+  username/email stored lowercase by convention.
+  password_hash = PBKDF2-HMAC-SHA256, 260,000 iterations.
+end note
+
+' ── email_otps ───────────────────────────────────────────────────────────
+entity "email_otps" as email_otps {
+  * id : UUID <<PK>>
+  --
+  * email : TEXT
+  * code : TEXT
+  * purpose : TEXT
+  * attempts : INTEGER
+  * expires_at : TIMESTAMPTZ
+  * created_at : TIMESTAMPTZ
+}
+note bottom of email_otps
+  Default: attempts = 0
+  purpose in {'signup', 'reset', 'change'}
+  INDEX (email, purpose) -- "email_otps_email_purpose_idx"
+  No FK to users -- an OTP can exist before the
+  account row does (signup flow). Row deleted on
+  successful verification or expiry.
+end note
+
+' ── auth_tokens ──────────────────────────────────────────────────────────
+entity "auth_tokens" as auth_tokens {
+  * token : TEXT <<PK>>
+  --
+  * user_id : UUID <<FK>>
+  * created_at : TIMESTAMPTZ
+  * expires_at : TIMESTAMPTZ
+}
+note bottom of auth_tokens
+  FK user_id -> users.id  ON DELETE CASCADE
+  INDEX (user_id) -- "auth_tokens_user_idx"
+  Opaque bearer session token; the token itself
+  IS the primary key. Deleting the row = logout.
+end note
+
+' ── travel_journals ──────────────────────────────────────────────────────
+entity "travel_journals" as travel_journals {
+  * id : UUID <<PK>>
+  --
+  * user_id : UUID <<FK>>
+  * title : TEXT
+  * created_at : TIMESTAMPTZ
+}
+note bottom of travel_journals
+  FK user_id -> users.id  ON DELETE CASCADE
+  INDEX (user_id, created_at) -- "travel_journals_user_created_idx"
+  A "book" of up to 10 pages (app-enforced,
+  see notes.journal_router.MAX_PAGES_PER_BOOK).
+end note
+
+' ── travel_notes ─────────────────────────────────────────────────────────
+entity "travel_notes" as travel_notes {
+  * id : UUID <<PK>>
+  --
+  * user_id : UUID <<FK>>
+  * place : TEXT
+  * body : TEXT
+  photo_url : TEXT
+  journal_id : UUID <<FK>>
+  page_number : INTEGER
+  * created_at : TIMESTAMPTZ
+}
+note bottom of travel_notes
+  Default: photo_url = ''
+  FK user_id -> users.id  ON DELETE CASCADE
+  FK journal_id -> travel_journals.id  ON DELETE CASCADE  (NULLABLE)
+  INDEX (user_id, created_at)      -- "travel_notes_user_created_idx"
+  INDEX (journal_id, page_number)  -- "travel_notes_journal_page_idx"
+  journal_id + page_number NULL for notes written
+  before the journal feature existed.
+end note
+
+' ── forecast_runs ────────────────────────────────────────────────────────
+entity "forecast_runs" as forecast_runs {
+  * id : UUID <<PK>>
+  --
+  * district_id : UUID <<FK>>
+  * forecast_origin : TIMESTAMPTZ
+  * payload : JSONB
+  * created_at : TIMESTAMPTZ
+}
+note bottom of forecast_runs
+  FK district_id -> districts.id  ON DELETE CASCADE
+  INDEX (district_id, forecast_origin) -- "forecast_runs_district_origin_idx"
+  payload = the full serialized ForecastResponse JSON.
+  A cache hit here skips re-running the GRU entirely.
+end note
+
+' ── push_subscriptions ───────────────────────────────────────────────────
+entity "push_subscriptions" as push_subscriptions {
+  * expo_token : TEXT <<PK>>
+  --
+  * district_id : UUID <<FK>>
+  * updated_at : TIMESTAMPTZ
+}
+note bottom of push_subscriptions
+  FK district_id -> districts.id  ON DELETE CASCADE
+  INDEX (district_id) -- "push_subscriptions_district_idx"
+  One row per device; re-subscribing to a new
+  district REPLACES the row (token is the PK),
+  it does not accumulate history.
+end note
+
+' ── Relationships ───────────────────────────────────────────────────────
+districts       ||--o{ weather_observations : "district_id"
+districts       ||--o{ ground_reports       : "district_id"
+districts       ||--o{ forecast_runs        : "district_id"
+districts       ||--o{ push_subscriptions   : "district_id"
+
+users           ||--o{ auth_tokens          : "user_id"
+users           ||--o{ travel_journals      : "user_id"
+users           ||--o{ travel_notes         : "user_id"
+
+travel_journals |o--o{ travel_notes         : "journal_id (nullable)"
+
+@enduml

@@ -361,7 +361,7 @@ class AuthService:
                 raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Account not found.")
             row.password_hash = hash_password(new_password)
             row.updated_at = _now()
-            # Keep the session that made this request; revoke every other one.
+
             session.query(AuthToken).filter(
                 AuthToken.user_id == row.id, AuthToken.token != current_token
             ).delete()

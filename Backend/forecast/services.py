@@ -214,14 +214,6 @@ class ForecastService:
         return round(min(analog_rain, wx_rain), 3), round(max(analog_rain, wx_rain), 3)
 
     def _analog_weights_by_hour(self, analog_by_hour: Dict[int, float]) -> Dict[int, float]:
-        """Normalizes the analog's per-hour averages into shares that sum to
-        1 — "what fraction of a typical day's rain falls at this clock
-        hour". Used to split the 24h model's (better-validated) TOTAL across
-        the 24 individual hours, instead of trusting the analog's own
-        absolute magnitude the way _rain_range did. Falls back to a uniform
-        24-way split if the past week had no rain at all to shape from
-        (guards the division and avoids an all-zero disaggregation when the
-        model itself predicts real rain is coming)."""
         total = sum(max(0.0, v) for v in analog_by_hour.values())
         if total <= 0:
             return {h: 1.0 / 24 for h in range(24)}
@@ -244,31 +236,10 @@ class ForecastService:
         cached: bool = False,
         outlook: Optional[dict] = None,
     ) -> dict:
-        """Predictions → the shape the UI consumes, advisories included.
-
-        The model's output hour i is the (i+1)-th hour AFTER the last observation
-        it saw. Valid times are therefore anchored to that last observation in
-        Asia/Colombo wall time — anchoring to UTC `now` would shift every label
-        by 5½ hours, which is exactly the kind of bug users notice at 9 PM.
-
-        HYBRID: when `outlook` (the 24h-total model's prediction) is
-        available, each hour's rain range is the outlook's daily [low, high]
-        disaggregated by the analog's hourly SHAPE — not the analog's own
-        absolute magnitude blended with WeatherAPI's forecast the way
-        _rain_range does. This makes the hourly view and the daily total
-        agree by construction (the 24 hourly ranges always sum, in shape, to
-        the one number with real measured skill), at the cost of dropping
-        WeatherAPI's own per-hour forecast as a cross-check signal for THIS
-        hourly breakdown specifically. Falls back to the pre-existing
-        analog+WeatherAPI blend when outlook is unavailable (model not
-        deployed, or the prediction failed) — never a hard dependency.
-        """
         forecast: List[Dict[str, Any]] = []
         weights = self._analog_weights_by_hour(analog_by_hour) if outlook else None
 
         for i in range(settings.TARGET_HORIZON):
-            # real[i][1] (the GRU's own rain channel) is deliberately unused —
-            # see _rain_range's docstring above.
             temp, _, humidity = clamp_physical(
                 real[i][0], real[i][1], real[i][2], hour_index=i, district=district
             )
@@ -280,8 +251,6 @@ class ForecastService:
                 )
             else:
                 rain_low, rain_high = self._rain_range(analog_by_hour, future_lookup, valid)
-            # The advisory reacts to the high end — "could reach up to X mm"
-            # should drive caution, not an average that might mask real risk.
             advisory = hourly_advisory(temp, rain_high, humidity)
 
             forecast.append({
@@ -307,15 +276,7 @@ class ForecastService:
             result["summary"].update(outlook)
         return result
 
-    # ---- 24h-total rain + day-type (the hybrid: a real trained aggregate
-    # prediction, disaggregated to a range via real held-out residual
-    # quantiles, combined with the temp/humidity trend rule) ----
-
     def _predict_24h_outlook(self, frame: pd.DataFrame, district: str) -> Optional[dict]:
-        """frame: the same 168h context window already fetched for the
-        hourly forecast. Returns None (never raises) if the 24h model isn't
-        available — this is an enrichment, not a hard dependency of the
-        core forecast."""
         if not Rain24hRepository.is_ready():
             return None
         try:
@@ -339,8 +300,6 @@ class ForecastService:
             quantiles = calibration["residual_quantiles_mm"]
 
             combined = max(0.0, amt_pred) if occ_prob >= threshold else 0.0
-            # 80% interval from real validation residuals (predicted - actual),
-            # not a flat +/-MAE band -- see Rain24hRepository.get_calibration.
             low = max(0.0, combined - quantiles["90"])
             high = max(low, combined + abs(quantiles["10"]))
 
@@ -357,8 +316,6 @@ class ForecastService:
                 "day_type_reason": day_type["reason"],
             }
         except Exception as e:
-            # Same discipline as the rest of this service: an enrichment
-            # failing must never take down the core forecast.
             log.warning("24h outlook failed for %s: %s", district, e)
             return None
 

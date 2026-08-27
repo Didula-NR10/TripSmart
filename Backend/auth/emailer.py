@@ -98,7 +98,7 @@ async def _send_via_sendgrid(to_email: str, subject: str, body: str) -> bool:
             to_email, response.status_code, response.text[:500],
         )
         return False
-    except Exception as e:  # noqa: BLE001 — a delivery failure must not 500 the API
+    except Exception as e: 
         log.error("SendGrid request failed for %s: %s", to_email, e)
         return False
 

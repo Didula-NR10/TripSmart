@@ -1,0 +1,223 @@
+@startuml TripSmart_ER_Diagram_Chen
+'==============================================================================
+' TripSmart — Database ER Diagram (classic Chen notation), ONE diagram,
+' whole system. Rectangle = entity, ellipse = attribute, plain line =
+' connection, cardinality (1 / N / 0..N) labeled on each relationship line.
+' Every entity/attribute transcribed directly from Backend/core/models.py
+' (same source of truth as database_erd.puml, the UML-class-style version
+' kept alongside this one) -- PK attributes are bold + underlined.
+'
+' Two independent clusters (no FK between them): Districts-owned tables on
+' the left, User-owned tables + EmailOtp on the right. Each cluster is
+' forced into its own vertical staircase (hidden layout edges) so 10
+' entities and ~70 attributes stay readable in one image instead of
+' collapsing into one unreadable wide row or tall column.
+'==============================================================================
+
+skinparam backgroundColor White
+skinparam shadowing false
+skinparam nodesep 40
+skinparam ranksep 60
+
+skinparam rectangle<<entity>> {
+  BackgroundColor #6699EE
+  BorderColor #4472C4
+  FontColor White
+  FontStyle Bold
+  FontSize 14
+}
+skinparam usecase {
+  BackgroundColor #A9E4A2
+  BorderColor #6FAE68
+  FontSize 12
+}
+
+' ══════════════════════ CLUSTER 1: Districts ═══════════════════════════
+
+rectangle "Districts" as districts <<entity>>
+usecase "<b><u>id</u></b>" as d_id
+usecase "name" as d_name
+usecase "lat" as d_lat
+usecase "lon" as d_lon
+usecase "created_at" as d_created
+districts -- d_id
+districts -- d_name
+districts -- d_lat
+districts -- d_lon
+districts -- d_created
+
+rectangle "WeatherObservation" as weather <<entity>>
+usecase "<b><u>id</u></b>" as w_id
+usecase "district_id (FK)" as w_district
+usecase "observed_at" as w_observed
+usecase "temperature_c" as w_temp
+usecase "precipitation_mm" as w_precip
+usecase "humidity_pct" as w_hum
+usecase "cloud_cover_pct" as w_cloud
+usecase "wind_speed_kmh" as w_wind
+usecase "wind_gusts_kmh" as w_gusts
+usecase "daylight_score" as w_daylight
+usecase "created_at" as w_created
+weather -- w_id
+weather -- w_district
+weather -- w_observed
+weather -- w_temp
+weather -- w_precip
+weather -- w_hum
+weather -- w_cloud
+weather -- w_wind
+weather -- w_gusts
+weather -- w_daylight
+weather -- w_created
+
+rectangle "GroundReport" as ground <<entity>>
+usecase "<b><u>id</u></b>" as g_id
+usecase "district_id (FK)" as g_district
+usecase "location" as g_location
+usecase "title" as g_title
+usecase "body" as g_body
+usecase "author" as g_author
+usecase "created_at" as g_created
+ground -- g_id
+ground -- g_district
+ground -- g_location
+ground -- g_title
+ground -- g_body
+ground -- g_author
+ground -- g_created
+
+rectangle "ForecastRun" as runs <<entity>>
+usecase "<b><u>id</u></b>" as r_id
+usecase "district_id (FK)" as r_district
+usecase "forecast_origin" as r_origin
+usecase "payload" as r_payload
+usecase "created_at" as r_created
+runs -- r_id
+runs -- r_district
+runs -- r_origin
+runs -- r_payload
+runs -- r_created
+
+rectangle "PushSubscription" as pushsub <<entity>>
+usecase "<b><u>expo_token</u></b>" as p_token
+usecase "district_id (FK)" as p_district
+usecase "updated_at" as p_updated
+pushsub -- p_token
+pushsub -- p_district
+pushsub -- p_updated
+
+districts "1" -- "N" weather  : has
+districts "1" -- "N" ground   : has
+districts "1" -- "N" runs     : has
+districts "1" -- "N" pushsub  : has
+
+' Layout-only hidden edges: stack the 4 owned entities in a staircase
+' instead of spreading side by side. The real relationships are above.
+weather -[hidden]d- ground
+ground -[hidden]d- runs
+runs -[hidden]d- pushsub
+
+' ══════════════════════ CLUSTER 2: User ════════════════════════════════
+
+rectangle "User" as users <<entity>>
+usecase "<b><u>id</u></b>" as u_id
+usecase "full_name" as u_name
+usecase "username" as u_username
+usecase "email" as u_email
+usecase "country" as u_country
+usecase "password_hash" as u_pwhash
+usecase "avatar_url" as u_avatar
+usecase "email_verified" as u_verified
+usecase "google_sub" as u_google
+usecase "created_at" as u_created
+usecase "updated_at" as u_updated
+usecase "last_login_at" as u_lastlogin
+users -- u_id
+users -- u_name
+users -- u_username
+users -- u_email
+users -- u_country
+users -- u_pwhash
+users -- u_avatar
+users -- u_verified
+users -- u_google
+users -- u_created
+users -- u_updated
+users -- u_lastlogin
+
+rectangle "AuthToken" as tokens <<entity>>
+usecase "<b><u>token</u></b>" as t_token
+usecase "user_id (FK)" as t_user
+usecase "created_at" as t_created
+usecase "expires_at" as t_expires
+tokens -- t_token
+tokens -- t_user
+tokens -- t_created
+tokens -- t_expires
+
+rectangle "TravelJournal" as journals <<entity>>
+usecase "<b><u>id</u></b>" as j_id
+usecase "user_id (FK)" as j_user
+usecase "title" as j_title
+usecase "created_at" as j_created
+journals -- j_id
+journals -- j_user
+journals -- j_title
+journals -- j_created
+
+rectangle "TravelNote" as notes <<entity>>
+usecase "<b><u>id</u></b>" as n_id
+usecase "user_id (FK)" as n_user
+usecase "place" as n_place
+usecase "body" as n_body
+usecase "photo_url" as n_photo
+usecase "journal_id (FK)" as n_journal
+usecase "page_number" as n_page
+usecase "created_at" as n_created
+notes -- n_id
+notes -- n_user
+notes -- n_place
+notes -- n_body
+notes -- n_photo
+notes -- n_journal
+notes -- n_page
+notes -- n_created
+
+rectangle "EmailOtp" as otps <<entity>>
+usecase "<b><u>id</u></b>" as o_id
+usecase "email" as o_email
+usecase "code" as o_code
+usecase "purpose" as o_purpose
+usecase "attempts" as o_attempts
+usecase "expires_at" as o_expires
+usecase "created_at" as o_created
+otps -- o_id
+otps -- o_email
+otps -- o_code
+otps -- o_purpose
+otps -- o_attempts
+otps -- o_expires
+otps -- o_created
+
+users "1" -- "N" tokens   : owns
+users "1" -- "N" journals : owns
+users "1" -- "N" notes    : owns
+journals "1" -- "0..N" notes : contains
+
+note bottom of otps
+  No FK to users -- an OTP can exist
+  before the account row does (signup flow).
+end note
+
+' Layout-only hidden edges: same staircase technique as cluster 1.
+tokens -[hidden]d- journals
+journals -[hidden]d- notes
+notes -[hidden]d- otps
+
+' Pins cluster 2 to start below cluster 1 (both are hub entities). Side by
+' side was tried first but the combined width blew past PlantUML's 4096px
+' render cap and silently CUT OFF the right half of the image -- stacking
+' vertically keeps each cluster at its own already-verified-readable width.
+districts -[hidden]d- users
+
+@enduml
