@@ -38,8 +38,39 @@ const MAX_SCHEDULED_FACTS = 16;  // 8 hours of facts; iOS caps pending notificat
 let configured = false;
 let lastNotifiedDistrict: string | null = null;
 
+// ── user-controlled on/off switch (Settings screen) ─────────────────────────
+// Off by default = still ON: this key only exists once the user has actually
+// touched the toggle, so a fresh install keeps notifications working exactly
+// as before this setting existed.
+const NOTIFICATIONS_PREF_KEY = 'settings:notifications_enabled';
+
+export async function getNotificationsEnabled(): Promise<boolean> {
+  try {
+    const raw = await AsyncStorage.getItem(NOTIFICATIONS_PREF_KEY);
+    return raw === null ? true : raw === '1';
+  } catch {
+    return true;
+  }
+}
+
+export async function setNotificationsEnabled(enabled: boolean): Promise<void> {
+  try {
+    await AsyncStorage.setItem(NOTIFICATIONS_PREF_KEY, enabled ? '1' : '0');
+  } catch {
+    // Best-effort — worst case the toggle doesn't stick across a restart.
+  }
+  if (!enabled) {
+    try {
+      await Notifications.cancelAllScheduledNotificationsAsync();
+    } catch {
+      // Nothing pending, or no OS support (web) — either way, nothing to do.
+    }
+  }
+}
+
 async function ensureSetup(): Promise<boolean> {
   if (Platform.OS === 'web') return false;
+  if (!(await getNotificationsEnabled())) return false;
   try {
     if (!configured) {
       Notifications.setNotificationHandler({

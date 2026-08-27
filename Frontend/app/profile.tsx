@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { AuthPanel } from '../components/trip/AuthPanel';
 import { NotificationInbox } from '../components/trip/NotificationInbox';
 import { PageHero } from '../components/trip/PageHero';
@@ -77,7 +78,7 @@ export default function ProfileScreen() {
             <>
               <Pressable
                 style={styles.iconButton}
-                onPress={() => Alert.alert('Settings', 'Account and app settings are coming soon.')}
+                onPress={() => router.push('/settings')}
                 accessibilityLabel="Settings"
                 hitSlop={6}
               >

@@ -369,6 +369,38 @@ class AuthService:
 
     # ---- profile ----
 
+    def update_username(self, user: User, new_username: str) -> dict:
+        """Rename the logged-in user's account. Rejects a username already
+        taken by someone else; a no-op rename (same username) is allowed."""
+        _require_db()
+        with get_session() as session:
+            clash = session.query(User).filter(
+                User.username == new_username, User.id != user.id,
+            ).first()
+            if clash:
+                raise HTTPException(
+                    status.HTTP_409_CONFLICT, detail="This username is already taken.",
+                )
+            row = session.query(User).filter(User.id == user.id).first()
+            if row is None:
+                raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Account not found.")
+            row.username = new_username
+            row.updated_at = _now()
+            return _user_out(row)
+
+    def delete_account(self, user: User) -> dict:
+        """Permanently deletes the account. auth_tokens, travel_journals and
+        travel_notes all cascade via ON DELETE CASCADE (core/models.py) — the
+        session that made this request is deleted along with everything else,
+        so the bearer token used here is invalid the instant this returns.
+        Ground reports are left untouched by design: GroundReport.author is a
+        plain text column, not a foreign key, so past reports keep showing
+        the (now-deleted) username rather than silently vanishing."""
+        _require_db()
+        with get_session() as session:
+            session.query(User).filter(User.id == user.id).delete()
+        return {"message": "Account deleted.", "dev_otp": None}
+
     def set_avatar(self, user: User, avatar_url: str) -> dict:
         """Store the Cloudinary URL the client uploaded the picture to."""
         _require_db()

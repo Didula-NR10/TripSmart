@@ -40,6 +40,11 @@ export function ProfileOverview({ travelPoints }: { travelPoints: number }) {
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [signingOut, setSigningOut] = useState(false);
 
+  const [renaming, setRenaming] = useState(false);
+  const [newUsername, setNewUsername] = useState('');
+  const [renameBusy, setRenameBusy] = useState(false);
+  const [renameError, setRenameError] = useState<string | null>(null);
+
   const [changingPw, setChangingPw] = useState(false);
   const [pwSent, setPwSent] = useState(false);
   const [pwOtp, setPwOtp] = useState('');
@@ -78,6 +83,30 @@ export function ProfileOverview({ travelPoints }: { travelPoints: number }) {
       setAvatarError(e instanceof Error ? e.message : 'Upload failed.');
     } finally {
       setAvatarBusy(false);
+    }
+  };
+
+  const openRename = () => {
+    setNewUsername(u.username);
+    setRenameError(null);
+    setRenaming(true);
+  };
+
+  const confirmRename = async () => {
+    const trimmed = newUsername.trim().toLowerCase();
+    if (trimmed === u.username) {
+      setRenaming(false);
+      return;
+    }
+    setRenameBusy(true);
+    setRenameError(null);
+    try {
+      await auth.updateUsername(trimmed);
+      setRenaming(false);
+    } catch (e) {
+      setRenameError(e instanceof Error ? e.message : 'Could not change the username.');
+    } finally {
+      setRenameBusy(false);
     }
   };
 
@@ -149,7 +178,12 @@ export function ProfileOverview({ travelPoints }: { travelPoints: number }) {
           </Pressable>
           <View style={styles.nameBlock}>
             <Text style={styles.name}>{u.full_name}</Text>
-            <Text style={styles.username}>@{u.username}</Text>
+            <View style={styles.usernameRow}>
+              <Text style={styles.username}>@{u.username}</Text>
+              <Pressable onPress={openRename} hitSlop={8} accessibilityLabel="Change username">
+                <Ionicons name="create-outline" size={13} color={Palette.textMuted} />
+              </Pressable>
+            </View>
           </View>
         </View>
 
@@ -205,6 +239,55 @@ export function ProfileOverview({ travelPoints }: { travelPoints: number }) {
           <Text style={styles.signOutText}>Sign out</Text>
         </Pressable>
       </View>
+
+      {/* ── change username sheet ───────────────────────────────────────── */}
+      <Modal
+        visible={renaming}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setRenaming(false)}
+      >
+        <View style={styles.sheetScrim}>
+          <View style={styles.sheet}>
+            <View style={styles.sheetHead}>
+              <Text style={styles.sheetTitle}>Change username</Text>
+              <Pressable onPress={() => setRenaming(false)} hitSlop={10}>
+                <Ionicons name="close" size={20} color={Palette.textMuted} />
+              </Pressable>
+            </View>
+
+            <Text style={styles.hint}>
+              3-20 characters: letters, numbers, and underscore. Other travellers see this on
+              your ground reports.
+            </Text>
+
+            {renameError ? (
+              <View style={styles.errorBox}>
+                <Ionicons name="alert-circle-outline" size={14} color={Palette.danger} />
+                <Text style={styles.errorText}>{renameError}</Text>
+              </View>
+            ) : null}
+
+            <TextInput
+              style={styles.input}
+              value={newUsername}
+              onChangeText={setNewUsername}
+              placeholder="username"
+              placeholderTextColor={Palette.textDim}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <Pressable
+              style={[styles.primary, renameBusy && styles.primaryBusy]}
+              onPress={confirmRename}
+              disabled={renameBusy || newUsername.trim().length < 3}
+            >
+              {renameBusy ? <ActivityIndicator size="small" color={Palette.onDark} /> : null}
+              <Text style={styles.primaryText}>Save username</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
 
       {/* ── change password sheet ───────────────────────────────────────── */}
       <Modal
@@ -345,11 +428,16 @@ const styles = StyleSheet.create({
     fontSize: 19,
     color: Palette.text,
   },
+  usernameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginTop: 2,
+  },
   username: {
     ...Type.label,
     fontSize: 13,
     color: Palette.primary,
-    marginTop: 2,
   },
   pointsChip: {
     flexDirection: 'row',

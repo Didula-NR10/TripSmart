@@ -44,7 +44,7 @@ async function call<T>(
   path: string,
   body?: object,
   token?: string | null,
-  method?: 'GET' | 'POST',
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE',
 ): Promise<T> {
   const res = await fetch(`${API_BASE_URL}/api/v1/auth/${path}`, {
     method: method ?? (body ? 'POST' : 'GET'),
@@ -86,6 +86,10 @@ type AuthContextValue = {
   resendOtp: (email: string, purpose: 'signup' | 'reset') => Promise<MessageResult>;
   /** Persist a freshly uploaded Cloudinary URL as the profile picture. */
   setAvatar: (avatarUrl: string) => Promise<void>;
+  /** Renames the logged-in user's account. Throws if the name is taken. */
+  updateUsername: (username: string) => Promise<void>;
+  /** Permanently deletes the account. Logs the device out locally on success. */
+  deleteAccount: () => Promise<void>;
   /** Emails a confirmation code to the logged-in user's own address. */
   changePasswordRequest: () => Promise<MessageResult>;
   /** Confirms the code and sets the new password; current session stays logged in. */
@@ -179,6 +183,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         call<MessageResult>(
           'change-password/confirm', { otp, new_password: newPassword }, token,
         ),
+      updateUsername: async (username) => {
+        const fresh = await call<AuthUser>('username', { username }, token, 'PATCH');
+        setUser(fresh);
+        if (token) {
+          await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ token, user: fresh }));
+        }
+      },
+      deleteAccount: async () => {
+        await call<MessageResult>('account', undefined, token, 'DELETE');
+        // The account (and its auth_tokens row) is already gone server-side —
+        // no /logout call needed, just clear the now-invalid local session.
+        setUser(null);
+        setToken(null);
+        setAuthToken(null);
+        await AsyncStorage.removeItem(SESSION_KEY);
+      },
       logout: async () => {
         if (token) {
           call('logout', {}, token).catch(() => {});

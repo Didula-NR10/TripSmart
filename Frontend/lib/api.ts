@@ -728,3 +728,14 @@ export async function loadCachedForecast(districtKey: string): Promise<CachedRun
     return null;
   }
 }
+
+/** Wipes every cached forecast (all districts) — the Settings screen's
+ * "Clear cached data" action. Next forecast view falls back to the local
+ * synthetic baseline until a fresh live fetch succeeds, same as first launch. */
+export async function clearAllCachedForecasts(): Promise<void> {
+  const keys = await AsyncStorage.getAllKeys();
+  const forecastKeys = keys.filter((k) => k.startsWith('forecast:'));
+  if (forecastKeys.length) {
+    await AsyncStorage.multiRemove(forecastKeys);
+  }
+}

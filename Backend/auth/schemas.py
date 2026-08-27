@@ -104,6 +104,18 @@ class UserOut(BaseModel):
     last_login_at: Optional[str] = None
 
 
+class UpdateUsernameRequest(BaseModel):
+    username: str
+
+    @field_validator("username")
+    @classmethod
+    def _username(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not _USERNAME_RE.match(v):
+            raise ValueError("Username must be 3-20 characters: letters, numbers, underscore.")
+        return v
+
+
 class AvatarRequest(BaseModel):
     avatar_url: str = Field(..., max_length=500, description="Cloudinary secure_url, or '' to remove")
 

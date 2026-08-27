@@ -21,6 +21,7 @@ from auth.schemas import (
     ResendOtpRequest,
     ResetPasswordRequest,
     SignupRequest,
+    UpdateUsernameRequest,
     UserOut,
     VerifyEmailRequest,
 )
@@ -92,6 +93,19 @@ def set_avatar(payload: AvatarRequest, user: User = Depends(get_current_user)):
     """Save the profile picture's Cloudinary URL (the client uploads the image
     to Cloudinary directly; this endpoint only records where it landed)."""
     return service.set_avatar(user, payload.avatar_url)
+
+
+@router.patch("/username", response_model=UserOut)
+def update_username(payload: UpdateUsernameRequest, user: User = Depends(get_current_user)):
+    """Rename the logged-in user's account."""
+    return service.update_username(user, payload.username)
+
+
+@router.delete("/account", response_model=MessageResponse)
+def delete_account(user: User = Depends(get_current_user)):
+    """Permanently delete the logged-in user's account and everything tied to
+    it (sessions, journals, notes) — irreversible."""
+    return service.delete_account(user)
 
 
 @router.post("/change-password/request", response_model=MessageResponse)
