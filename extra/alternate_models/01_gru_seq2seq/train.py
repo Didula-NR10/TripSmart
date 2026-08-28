@@ -1,29 +1,3 @@
-"""
-01_gru_seq2seq/train.py
-──────────────────────────
-Trains the encoder-decoder GRU (see model.py) on your weather xlsx, then
-evaluates it on a held-out, chronologically-later test set and reports R²
-/ MAE / RMSE overall, per-target, and per-lead-hour.
-
-Usage:
-    python train.py --data path/to/your_data.xlsx
-    python train.py                                   # uses the synthetic smoke-test sample
-
-Runtime: on Colab's free T4 GPU, expect a few minutes for a dataset of a
-few years across ~25 districts. On a CPU-only machine (this model has ~250K
-params, similar order of magnitude to production) expect it to be
-noticeably slower but still finish — this is the smallest of the three deep
-models here.
-
-Outputs (in ./artifacts/):
-    model.keras            - the trained model
-    scaler.pkl              - the fitted MinMaxScaler (needed at inference)
-    feature_cols.json       - the exact feature order the model expects
-    metrics.json            - full R²/MAE/RMSE report
-    training_curve.png      - loss vs epoch
-    per_hour_metrics.png    - MAE by lead hour (1..24)
-    sample_predictions.png  - a few example predicted-vs-actual windows
-"""
 from __future__ import annotations
 
 import argparse
@@ -49,7 +23,6 @@ from model import build_model
 ARTIFACTS_DIR = THIS_DIR / "artifacts"
 MODEL_NAME = "01_gru_seq2seq"
 
-
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Train the GRU seq2seq forecaster")
     p.add_argument("--data", type=str, default=str(config.DATA_DIR / "synthetic_sample.xlsx"),
@@ -59,7 +32,6 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--patience", type=int, default=10)
     return p.parse_args()
-
 
 def main() -> None:
     args = parse_args()
@@ -136,7 +108,6 @@ def main() -> None:
         json.dump(feature_cols, f, indent=2)
 
     print(f"\nAll artifacts saved to {ARTIFACTS_DIR}")
-
 
 if __name__ == "__main__":
     main()

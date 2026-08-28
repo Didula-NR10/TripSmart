@@ -61,8 +61,6 @@ export function TodayHero({
 
   const hero = heroForDistrict(district.key);
 
-  // A short crossfade whenever the district (and so the photo) changes,
-  // rather than the new landmark photo just popping in.
   const fade = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     fade.setValue(0);

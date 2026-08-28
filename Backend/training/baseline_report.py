@@ -1,21 +1,3 @@
-"""
-training.baseline_report
-────────────────────────────
-No training, no candidate, no promotion — just an honest measurement: pull
-real data (see training/data_source.py — defaults to the live database, set
-TRAINING_DATA_SOURCE=archive for real historical data with no waiting), hold
-out the most recent slice chronologically, and report the CURRENTLY DEPLOYED
-model's real MAE / RMSE / R² against real outcomes it never trained on.
-
-This is the number to show an evaluator first: it's the honest, out-of-sample
-accuracy of what's actually deployed today, measured the same rigorous way
-(chronological holdout, real recorded ground truth) as every other backtest
-in this repo — not a training-time metric, and not a claim about a model
-that doesn't exist yet.
-
-Usage (from Backend/):
-    TRAINING_DATA_SOURCE=archive python -m training.baseline_report
-"""
 from __future__ import annotations
 
 import json
@@ -27,7 +9,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("trip_smart.training.baseline_report")
-
 
 def main() -> int:
     import joblib
@@ -75,7 +56,6 @@ def main() -> int:
     log.info("Report:\n%s", json.dumps(report, indent=2, default=str))
     log.info("Saved to %s", report_path)
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

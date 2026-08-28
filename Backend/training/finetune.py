@@ -1,20 +1,3 @@
-"""
-training.finetune
-────────────────────
-Produces the candidate checkpoint by WARM-STARTING from the currently
-deployed model rather than training a fresh network from random weights.
-
-Why fine-tune instead of retrain-from-scratch: the original checkpoint was
-trained on a large multi-year dataset (see SYSTEM_DOCUMENTATION.md §4.3);
-whatever has accumulated in `weather_observations` since the app went live
-will, for a long time, be far smaller than that. A freshly-initialized
-network trained only on that slice would almost certainly be worse than the
-existing checkpoint — fine-tuning at a low learning rate instead treats the
-new real data as a correction nudged on top of everything the model already
-learned, which is the realistic way to benefit from a small trickle of new
-ground truth. The mandatory "only promote if it backtests better" gate in
-evaluate.py is what makes this safe either way.
-"""
 from __future__ import annotations
 
 import logging
@@ -30,11 +13,8 @@ from training.config import (
 
 log = logging.getLogger("trip_smart.training.finetune")
 
-
 def fine_tune(current_model, X_train: np.ndarray, y_train: np.ndarray,
               X_val: np.ndarray, y_val: np.ndarray):
-    """Returns a NEW model instance (the input model is left untouched) fit
-    on the given already-scaled windows. Caller decides whether to keep it."""
     import tensorflow as tf
 
     candidate = tf.keras.models.clone_model(current_model)

@@ -1,8 +1,3 @@
-/**
- * PageTabs — the little page-edge tabs down the side of the book (1..10).
- * Tapping one folds the book to that page. A page can only be opened if it's
- * already written, or it's the very next blank one.
- */
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { JournalFont, JournalPalette, MAX_PAGES_PER_BOOK } from './JournalTheme';
 
@@ -12,7 +7,7 @@ export function PageTabs({
   onSelect,
 }: {
   filledCount: number;
-  current: number; // 1-based
+  current: number;
   onSelect: (page: number) => void;
 }) {
   return (

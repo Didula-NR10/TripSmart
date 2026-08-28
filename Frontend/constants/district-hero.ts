@@ -1,22 +1,8 @@
-/**
- * constants/district-hero.ts — one recognizable landmark photo per district.
- *
- * Powers the Forecast tab hero: picking a district (map, dropdown, or GPS)
- * swaps the background photo to that district's own famous location, not a
- * generic stock photo. Images are freely-licensed Wikimedia Commons photos
- * (stable, direct-linkable, no API key) keyed by the same district `key`
- * used everywhere else in the app (constants/districts.ts).
- */
 export type DistrictHero = {
   url: string;
   landmark: string;
 };
 
-/**
- * Wikimedia now rejects image requests from non-browser User-Agents (RN's
- * OkHttp-based fetcher included) with a 403. Pass these on every <Image>
- * source built from a wikimedia.org URL to make it look like a browser.
- */
 export const WIKIMEDIA_IMAGE_HEADERS = {
   'User-Agent':
     'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',

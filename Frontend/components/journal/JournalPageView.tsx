@@ -1,17 +1,10 @@
-/**
- * JournalPageView — one leaf of the book: a location, its story, and (if the
- * traveller added one) a photo that looks hand-glued into the page — tilted,
- * cream-bordered, taped at the corners, not a clean app-style thumbnail.
- */
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { JournalFont, JournalPalette } from './JournalTheme';
 import { JournalPage } from '../../lib/api';
 
-// A small deterministic "hand-placed" tilt per page, so photos don't all
-// lean the same way but stay stable across re-renders (no Math.random jitter).
-const tiltFor = (seed: number) => ((seed * 37) % 7) - 3; // -3..+3 degrees
+const tiltFor = (seed: number) => ((seed * 37) % 7) - 3;
 
 export function JournalPageView({
   page,

@@ -1,26 +1,3 @@
-"""
-training.pipeline
-────────────────────
-The orchestrator: collect -> retrain -> test -> deploy-only-if-better, as
-one script. Run manually (`python -m training.pipeline` from Backend/, with
-SUPABASE_DB_URL set) or on a schedule via
-.github/workflows/retrain-model.yml.
-
-This script NEVER pushes to git and never touches Render — it only decides
-whether a candidate model earns a place in the working tree
-(Backend/models/best_checkpoint.keras + bias_correction.json) and reports
-its reasoning. Turning a promoted candidate into a live deployment is the
-calling workflow's job (open a PR; merging it is what redeploys).
-
-Exit behavior:
-  - Not enough real data yet          -> report says so, nothing touched, exit 0.
-  - Candidate does not beat current   -> report says so, nothing touched, exit 0.
-  - Candidate beats current           -> Backend/models/ is updated in place,
-                                          report says PROMOTED, exit 0.
-Every path exits 0 on success; a real failure (e.g. can't reach the
-database) raises and exits non-zero so CI shows a red run instead of a
-silently-empty report.
-"""
 from __future__ import annotations
 
 import json
@@ -29,11 +6,10 @@ import os
 import sys
 from datetime import datetime, timezone
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # Backend/ on sys.path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("trip_smart.training.pipeline")
-
 
 def _write_github_output(promoted: bool) -> None:
     path = os.environ.get("GITHUB_OUTPUT")
@@ -41,7 +17,6 @@ def _write_github_output(promoted: bool) -> None:
         return
     with open(path, "a", encoding="utf-8") as f:
         f.write(f"promoted={'true' if promoted else 'false'}\n")
-
 
 def _render_markdown(report: dict) -> str:
     c, cur = report["candidate_metrics"], report["current_metrics"]
@@ -83,7 +58,6 @@ def _render_markdown(report: dict) -> str:
                     f"({r['hum_mae_raw']:.3f} -> {r['hum_mae_corrected']:.3f}) |"
                 )
     return "\n".join(lines)
-
 
 def main() -> int:
     from core.config import settings
@@ -173,7 +147,6 @@ def main() -> int:
     _finish(report, promoted=promoted)
     return 0
 
-
 def _finish(report: dict, promoted: bool) -> None:
     from training import config as tcfg
 
@@ -185,7 +158,6 @@ def _finish(report: dict, promoted: bool) -> None:
     ))
     _write_github_output(promoted)
     log.info("Report written to %s / %s", tcfg.REPORT_JSON_PATH, tcfg.REPORT_MD_PATH)
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

@@ -1,8 +1,3 @@
-/**
- * EmptyPageView — a blank leaf. The next unwritten page invites the
- * traveller to fill it; pages further ahead are just blank paper (you
- * can't skip ahead — one page per location, in order).
- */
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { JournalFont, JournalPalette } from './JournalTheme';

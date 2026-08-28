@@ -1,8 +1,3 @@
-/**
- * QuickActions — the 2x2 grid at the bottom of the Profile tab. Each tile
- * jumps to one of the app's four other real tabs (Profile itself is where
- * this grid lives), so it's a shortcut grid rather than a dead-end menu.
- */
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';

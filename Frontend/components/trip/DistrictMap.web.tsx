@@ -1,13 +1,3 @@
-/**
- * DistrictMap.web.tsx — real map picker for the browser.
- *
- * Uses the Google Maps JavaScript API, loaded client-side with the key in
- * app.config.js (expo-constants -> extra.googleMapsApiKey). The contract is
- * the same as the native map: the user drops a pin (tap, drag, or search)
- * and `onPick(lat, lng)` hands the coordinates to the parent, which resolves
- * the district — the forecast then runs on that district's own coordinates
- * through the unchanged 7-days-back + GRU pipeline.
- */
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import Constants from 'expo-constants';
 import { District } from '../../constants/districts';

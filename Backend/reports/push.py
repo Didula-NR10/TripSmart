@@ -1,10 +1,3 @@
-"""
-reports.push — fan out an Expo push notification to every device currently
-subscribed to a district, when a new ground report is posted there.
-
-Best-effort: a failed push send must never break report creation, so every
-error here is caught and logged, not raised back to the caller.
-"""
 from __future__ import annotations
 
 import logging
@@ -15,8 +8,7 @@ import httpx
 log = logging.getLogger("trip_smart.reports.push")
 
 EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send"
-BATCH_SIZE = 100  # Expo's own limit per request
-
+BATCH_SIZE = 100
 
 async def send_district_push(tokens: List[str], title: str, body: str, data: Dict) -> None:
     if not tokens:

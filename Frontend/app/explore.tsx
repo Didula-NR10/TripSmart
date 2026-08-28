@@ -25,8 +25,6 @@ export default function ExploreScreen() {
   const [locating, setLocating] = useState(false);
   const [locStatus, setLocStatus] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
-  // Page filter: a district key, or 'all' for the island-wide view. Follows
-  // the app-wide district (GPS or other tabs) until the user picks manually.
   const [filterKey, setFilterKey] = useState<string>(districtKey);
   const watcher = useRef<Location.LocationSubscription | null>(null);
 
@@ -34,7 +32,6 @@ export default function ExploreScreen() {
     setFilterKey(districtKey);
   }, [districtKey]);
 
-  // Stop watching GPS when the screen unmounts.
   useEffect(
     () => () => {
       watcher.current?.remove();
@@ -77,8 +74,6 @@ export default function ExploreScreen() {
         'Following your location. Crossing a district notifies you, then one law or specialty every 30 minutes.',
       );
 
-      // Keep following while the app is open: crossing into a new district
-      // re-resolves it and fires the entry notification.
       watcher.current?.remove();
       watcher.current = await Location.watchPositionAsync(
         { accuracy: Location.Accuracy.Balanced, distanceInterval: 1000 },
@@ -127,7 +122,7 @@ export default function ExploreScreen() {
           </View>
         </Pressable>
 
-        {/* ── district filter: 25 districts + All Sri Lanka ─────────────── */}
+        {}
         <View style={styles.filterWrap}>
           <FilterRow label="Filtering by" value={filterName} onPress={() => setPicking(true)} />
         </View>

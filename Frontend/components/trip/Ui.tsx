@@ -78,9 +78,6 @@ export function Banner({
   body: string;
   action?: string;
   onPress?: () => void;
-  /** A big, faint version of the same icon bleeding off the card's edge —
-   *  matches the reference design's illustrated feel without needing bespoke
-   *  art per hazard. Set false for compact/dense lists. */
   decorative?: boolean;
 }) {
   const skin = {
@@ -114,8 +111,6 @@ export function Banner({
   );
 }
 
-/** Full-width "Filtering by / All districts" row — the district picker
- *  trigger shared by Local Guide and Ground Reports. */
 export function FilterRow({
   label,
   value,

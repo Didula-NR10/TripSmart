@@ -1,30 +1,3 @@
-"""
-04_lightgbm_multioutput/train.py
-───────────────────────────────────
-Trains gradient-boosted trees (LightGBM) instead of a neural network — see
-features_gbm.py for why and how. Three models total (one per target:
-temperature, precipitation, humidity), each covering all 24 lead hours via
-a `lead_hour` input feature, rather than 72 tiny per-hour models.
-
-Why this folder matters for YOUR hardware specifically: this trains on
-CPU only, no GPU required at all, and typically finishes in well under a
-minute on a dataset of a few years — genuinely usable on an i5 3rd-gen /
-16GB machine without needing Colab. It's also a strong baseline: tree
-ensembles with good engineered features are frequently competitive with, or
-better than, small deep learning models on tabular-ish weather data, so
-treat this as a serious contender, not just "the cheap option."
-
-Usage:
-    python train.py --data path/to/your_data.xlsx
-    python train.py                                   # uses the synthetic smoke-test sample
-
-Outputs (in ./artifacts/):
-    model_temperature.pkl, model_precipitation.pkl, model_humidity.pkl
-    tabular_feature_cols.json  - exact feature list each model expects
-    metrics.json               - full R²/MAE/RMSE report (same format as the deep models)
-    per_hour_metrics.png, sample_predictions.png
-    feature_importance.png     - which engineered features each model actually uses
-"""
 from __future__ import annotations
 
 import argparse
@@ -56,7 +29,6 @@ MODEL_NAME = "04_lightgbm_multioutput"
 
 TARGET_TO_SLUG = {"Temperature_C": "temperature", "Precipitation_mm": "precipitation", "Humidity_%": "humidity"}
 
-
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Train the LightGBM multi-horizon forecaster")
     p.add_argument("--data", type=str, default=str(config.DATA_DIR / "synthetic_sample.xlsx"))
@@ -66,7 +38,6 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--num_leaves", type=int, default=63)
     p.add_argument("--early_stopping_rounds", type=int, default=50)
     return p.parse_args()
-
 
 def main() -> None:
     args = parse_args()
@@ -127,7 +98,6 @@ def main() -> None:
     elapsed = time.time() - start
     print(f"\nTraining took {elapsed:.1f} seconds for all 3 targets.")
 
-    # Evaluate on test set, reshaped back to (n_origins, 24, 3) for the shared report format
     test_table = splits["test"].copy()
     pred_cols = {}
     for target_col in config.TARGET_COLS:
@@ -164,7 +134,6 @@ def main() -> None:
     print(f"[metrics] Feature importance plot saved to {ARTIFACTS_DIR / 'feature_importance.png'}")
 
     print(f"\nAll artifacts saved to {ARTIFACTS_DIR}")
-
 
 if __name__ == "__main__":
     main()

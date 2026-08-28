@@ -1,9 +1,3 @@
-"""
-forecast.services — the business logic.
-
-Owns the pipeline: observations → features → scale → GRU → inverse-scale →
-clamp → advisory. Routers stay thin; repositories stay dumb.
-"""
 from __future__ import annotations
 
 import logging
@@ -40,10 +34,7 @@ weather_repo = WeatherRepository()
 forecast_repo = ForecastRepository()
 observation_repo = ObservationRepository()
 
-
 class ForecastService:
-
-    # ---- catalog ----
 
     def list_districts(self) -> List[Dict[str, Any]]:
         return [
@@ -51,11 +42,7 @@ class ForecastService:
             for name, c in sorted(DISTRICT_COORDS.items())
         ]
 
-    # ---- geocoding (destination search on the map picker) ----
-
     async def geocode(self, query: str) -> Dict[str, Any]:
-        """Place name -> coordinates, via Google's Geocoding API, biased to
-        Sri Lanka. Server-side so the key never reaches the client."""
         if not settings.GOOGLE_MAPS_API_KEY:
             raise HTTPException(
                 status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -95,10 +82,6 @@ class ForecastService:
         }
 
     async def reverse_geocode(self, lat: float, lon: float) -> Dict[str, Any]:
-        """Coordinates -> the nearest town/city/village name, via Google's
-        Geocoding API in reverse mode. Backs the Ground Reports form's
-        'share location from map' flow: a dropped pin becomes a real place
-        name instead of raw coordinates in the report's location field."""
         if not settings.GOOGLE_MAPS_API_KEY:
             raise HTTPException(
                 status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -129,9 +112,6 @@ class ForecastService:
             )
 
         result = data["results"][0]
-        # Prefer the specific locality/sublocality/village component's short
-        # name over the full formatted address (which includes street +
-        # postal code clutter the report form doesn't want).
         place_name = result.get("formatted_address", "")
         for comp in result.get("address_components", []):
             comp_types = comp.get("types", [])
@@ -149,10 +129,7 @@ class ForecastService:
             "formatted_address": result.get("formatted_address", place_name),
         }
 
-    # ---- the pipeline ----
-
     def _run_model(self, frame: pd.DataFrame) -> np.ndarray:
-        """168 rows of raw observations → (24, 3) real-unit predictions."""
         engineered = engineer_features(frame)
 
         if engineered.isnull().any().any():
@@ -165,7 +142,7 @@ class ForecastService:
         model = ModelRepository.get_model()
 
         scaled = scaler.transform(engineered.values).astype(np.float32)
-        tensor = scaled[np.newaxis, :, :]   # (1, 168, 12)
+        tensor = scaled[np.newaxis, :, :]
 
         expected = (1, settings.INPUT_WINDOW, 12)
         if tensor.shape != expected:
@@ -174,31 +151,13 @@ class ForecastService:
                 detail=f"Tensor shape {tensor.shape}, expected {expected}.",
             )
 
-        raw = model.predict(tensor, verbose=0)[0].astype(np.float32)   # (24, 3)
+        raw = model.predict(tensor, verbose=0)[0].astype(np.float32)
 
-        # Mixed-precision training can push outputs a hair outside the scaler's
-        # fitted range; clip before inverting or the error is amplified.
         raw = np.clip(raw, 0.0, 1.0)
 
         return inverse_transform_targets(raw, scaler, settings.TARGET_HORIZON)
 
-    # ---- rain: analog + WeatherAPI's own forecast, not the GRU's regressor ----
-    #
-    # A GRU trained with MSE on a mostly-dry variable learns that predicting
-    # near-zero is usually "safe" — it systematically underpredicts real light
-    # rain rather than being randomly noisy around it (proven: a real overnight
-    # test predicted flat 0.0mm for 8 straight hours while actual rain reached
-    # 1.3mm). No amount of retrying fixes a training-objective bias, so rain
-    # doesn't use the GRU's own regression output at all. Instead: how much did
-    # it typically rain at this exact clock hour over the past 7 real days
-    # (the "analog"), cross-checked against WeatherAPI's own forecast for that
-    # hour (an independently-modeled second opinion, not our regressor's
-    # guess) — reported as a [low, high] range, not a single misleadingly
-    # precise number. Both signals come from WeatherAPI only.
-
     def _analog_rain_by_hour(self, frame: pd.DataFrame) -> Dict[int, float]:
-        """Average recorded rain at each clock hour, from a 168h (or shorter,
-        for bring-your-own-context) window of real observations."""
         return frame.groupby("Hour")["Precipitation_mm"].mean().to_dict()
 
     def _rain_range(
@@ -319,16 +278,8 @@ class ForecastService:
             log.warning("24h outlook failed for %s: %s", district, e)
             return None
 
-    # ---- public entry points ----
-
     @staticmethod
     def _payload_matches_schema(payload: dict) -> bool:
-        """Guards against serving a forecast_runs row saved under an older
-        response shape (e.g. before rain became a [low, high] range instead
-        of a single point value) — FastAPI's response_model validation would
-        otherwise 500 on the mismatch. A schema change should degrade to
-        "treat as a cache miss, run fresh" here, not a crash whenever a
-        pre-change row is next read from the cache."""
         summary = payload.get("summary", {})
         if "rain_mm_low" not in summary or "rain_mm_high" not in summary:
             return False
@@ -338,7 +289,6 @@ class ForecastService:
         )
 
     async def forecast_district(self, district: str, refresh: bool = False) -> dict:
-        """The one the UI calls: fetch context, predict, advise."""
         if district not in DISTRICT_COORDS:
             raise HTTPException(
                 status.HTTP_404_NOT_FOUND,
@@ -361,10 +311,6 @@ class ForecastService:
         try:
             frame = await weather_repo.fetch_context_window(district)
         except RuntimeError as e:
-            # WeatherAPI is unreachable/rate-limited even after retries. Serving
-            # the last known-good forecast beats a hard error — the frontend's
-            # "predict" button otherwise looks broken during a transient upstream
-            # rate limit.
             stale = forecast_repo.get_stale(district)
             if stale and self._payload_matches_schema(stale["payload"]):
                 payload = stale["payload"]
@@ -374,25 +320,17 @@ class ForecastService:
                 return payload
             raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail=str(e))
 
-        # Every fetched window tops up weather_observations — the growing
-        # per-hour history behind the almanac and time-machine features.
         observation_repo.save_window(district, frame)
 
         real = self._run_model(frame)
 
         origin = datetime.now(timezone.utc)
-        # The final context row is the current hour in Colombo; hour +1 of the
-        # forecast is the hour after the user asked.
         last_obs_local = frame["datetime"].iloc[-1].to_pydatetime()
 
         analog_by_hour = self._analog_rain_by_hour(frame)
         future = weather_repo.get_future_forecast(district, settings.TARGET_HORIZON)
         future_lookup = future.set_index("datetime")["Precipitation_mm"] if future is not None and not future.empty else None
 
-        # Computed BEFORE _assemble so the hybrid can disaggregate the 24h
-        # model's total across the individual hours — see _assemble's
-        # docstring for why this replaces _rain_range's analog+WeatherAPI
-        # blend for the hourly breakdown specifically when available.
         outlook = self._predict_24h_outlook(frame, district)
 
         result = self._assemble(
@@ -403,23 +341,6 @@ class ForecastService:
         return result
 
     async def weekly_outlook(self, district: str) -> dict:
-        """The climate-disruption planner: a 7-day outlook where EVERY day is a
-        GRU prediction, not a static climatology row.
-
-        Hours 1-24 are the standard forecast — the model reading 168 hours of
-        real observations. Beyond that the rollout is autoregressive: each
-        day's predicted temperature, rain and humidity are appended to the
-        input window and the model runs again on the shifted window. The three
-        channels the model predicts come from the model itself; the channels
-        it does not predict (cloud cover, wind, gusts, daylight) are filled
-        with the past observed week's value at the same clock hour — the
-        recent diurnal pattern of that exact district.
-
-        Skill decays with distance: day 1 carries real-data momentum, later
-        days increasingly reflect the model's own assumptions. Each day is
-        therefore labeled with its source and an honest confidence tier
-        instead of pretending day 6 is as trustworthy as tomorrow.
-        """
         if district not in DISTRICT_COORDS:
             raise HTTPException(
                 status.HTTP_404_NOT_FOUND,
@@ -438,16 +359,10 @@ class ForecastService:
 
         observation_repo.save_window(district, frame)
 
-        # The past week's diurnal pattern, keyed by clock hour, for the
-        # channels the GRU cannot predict about its own future.
         pattern = frame.groupby("Hour")[
             ["CloudCover_%", "WindSpeed_kmh", "WindGusts_kmh", "DaylightScore"]
         ].mean()
 
-        # WeatherAPI's own forecast only reaches ~48h out (see
-        # WeatherRepository.fetch_context_window); rollout days beyond that
-        # naturally fall back to the analog-only [0, analog] range inside
-        # _rain_range (future_lookup simply won't have those hours).
         future = weather_repo.get_future_forecast(district, settings.TARGET_HORIZON)
         future_lookup = future.set_index("datetime")["Precipitation_mm"] if future is not None and not future.empty else None
 
@@ -459,14 +374,10 @@ class ForecastService:
             window = work.tail(settings.INPUT_WINDOW).reset_index(drop=True)
             real = self._run_model(window)
             last_dt = work["datetime"].iloc[-1]
-            # Recomputed each day: `work` keeps growing with the model's own
-            # prior predictions, so the analog reflects the latest 168h view.
             analog_by_hour = self._analog_rain_by_hour(window)
 
             new_rows: List[Dict[str, Any]] = []
             for i in range(settings.TARGET_HORIZON):
-                # real[i][1] (the GRU's own rain channel) is deliberately
-                # unused — see ForecastService._rain_range's docstring.
                 temp, _, humidity = clamp_physical(
                     real[i][0], real[i][1], real[i][2], hour_index=i, district=district
                 )
@@ -485,9 +396,6 @@ class ForecastService:
                 new_rows.append({
                     "datetime": valid,
                     "Temperature_C": temp,
-                    # Feed the rollout's own memory with the range's high end
-                    # (the more cautious estimate) rather than reintroducing
-                    # the GRU's own biased-toward-zero rain guess.
                     "Precipitation_mm": rain_high,
                     "Humidity_%": humidity,
                     "CloudCover_%": float(pattern.loc[hour, "CloudCover_%"]),
@@ -500,8 +408,6 @@ class ForecastService:
 
             work = pd.concat([work, pd.DataFrame(new_rows)], ignore_index=True)
 
-        # Roll the 168 predicted hours up into calendar days (Colombo dates).
-        # Partial edge days (< 12 hours) can't carry a fair daily verdict.
         by_date: Dict[str, List[Dict[str, Any]]] = {}
         for h in predicted_hours:
             by_date.setdefault(h["valid_time"][:10], []).append(h)
@@ -510,8 +416,6 @@ class ForecastService:
         for date_str, hours in sorted(by_date.items()):
             if len(hours) < 12:
                 continue
-            # A day mostly inside the first 24 predicted hours is the real
-            # single-shot GRU forecast; later days are rollout territory.
             median_ahead = sorted(x["forecast_hour"] for x in hours)[len(hours) // 2]
             if median_ahead <= 24:
                 source, confidence = "gru", "high"
@@ -536,7 +440,6 @@ class ForecastService:
         }
 
     def predict_from_records(self, district: str, records: list) -> dict:
-        """Bring-your-own-context inference — the original /predict contract."""
         rows = [{
             "Hour": r.Hour,
             "Month": r.Month,
@@ -551,20 +454,13 @@ class ForecastService:
         frame = pd.DataFrame(rows)
 
         real = self._run_model(frame)
-        # Caller-supplied records carry no timestamps; anchor to the current
-        # Colombo hour, which is what the last record is expected to be.
         now_lk = datetime.now(ZoneInfo("Asia/Colombo")).replace(
             minute=0, second=0, microsecond=0, tzinfo=None
         )
-        # No live WeatherAPI fetch here (caller supplied the context), so rain
-        # is analog-only — _rain_range degrades to [0, analog] with no
-        # future_lookup, still better than trusting the GRU's zero-biased guess.
         analog_by_hour = self._analog_rain_by_hour(frame)
         return self._assemble(district, real, datetime.now(timezone.utc), now_lk, analog_by_hour)
 
     async def current_conditions(self, district: str) -> dict:
-        """A live WeatherAPI snapshot for `district` — no model, just what the
-        sky is doing right now. Powers the "current conditions" comparer mode."""
         if district not in DISTRICT_COORDS:
             raise HTTPException(
                 status.HTTP_404_NOT_FOUND,

@@ -1,18 +1,3 @@
-"""
-training.pull_archive_data
-─────────────────────────────
-An ALTERNATIVE to pull_data.py that needs no live app traffic and no
-database credentials at all: real historical weather (ERA5-based reanalysis)
-from Open-Meteo's free, keyless archive API — the same source and same
-fields extra/model_pipeline.py's `fetch_archive` already uses for backtesting.
-
-Use this when you need real numbers NOW (e.g. for an evaluation/demo)
-instead of waiting for weather_observations to accumulate from real app
-usage — pull_data.py's source. Both return the exact same shape
-(dict[district] -> DataFrame with observed_at + the 7 raw fields), so
-everything downstream (dataset.py, evaluate.py, rain_hurdle.py) works
-identically regardless of which one supplied the data.
-"""
 from __future__ import annotations
 
 import logging
@@ -32,10 +17,9 @@ HOURLY_FIELDS = [
     "cloudcover", "windspeed_10m", "windgusts_10m", "direct_radiation",
 ]
 MAX_RADIATION_WM2 = 1000.0
-ARCHIVE_LAG_DAYS = 3  # avoid the last couple of days, which may still be preliminary ERA5T
+ARCHIVE_LAG_DAYS = 3
 
 EXTENDED_HOURLY_FIELDS = HOURLY_FIELDS + ["dewpoint_2m", "pressure_msl", "winddirection_10m"]
-
 
 def _fetch_one_district(district: str, start_date: str, end_date: str, extended: bool = False) -> pd.DataFrame:
     coords = DISTRICT_COORDS[district]
@@ -72,7 +56,6 @@ def _fetch_one_district(district: str, start_date: str, end_date: str, extended:
     df = df.drop(columns=["radiation"])
     return df
 
-
 def _fetch_all(lookback_days: int, districts: list[str] | None, extended: bool) -> dict[str, pd.DataFrame]:
     end = datetime.now() - timedelta(days=ARCHIVE_LAG_DAYS)
     start = end - timedelta(days=lookback_days)
@@ -89,24 +72,12 @@ def _fetch_all(lookback_days: int, districts: list[str] | None, extended: bool) 
         log.info("%s: %d hours (%s to %s) [%d/%d]", district, len(df), start_str, end_str,
                   i + 1, len(targets))
         out[district] = df
-        time.sleep(0.3)  # be polite to the free, keyless endpoint
+        time.sleep(0.3)
 
     return out
 
-
 def fetch_all_districts(lookback_days: int = 365, districts: list[str] | None = None) -> dict[str, pd.DataFrame]:
-    """Real recorded weather for the last `lookback_days` days, per district —
-    the base 7-field contract (forecast.utils.FINAL_FEATURE_COLS' raw
-    inputs). Default 365 days keeps a single run's fetch time and API load
-    reasonable; raise it if you want more history and don't mind a longer
-    run (Open-Meteo's archive itself goes back decades, so the ceiling is
-    your own patience, not data availability)."""
     return _fetch_all(lookback_days, districts, extended=False)
 
-
 def fetch_all_districts_extended(lookback_days: int = 365, districts: list[str] | None = None) -> dict[str, pd.DataFrame]:
-    """Same as fetch_all_districts, plus DewPoint_C, Pressure_hPa, and
-    WindDirection_deg — the raw ingredients extended_features.py needs.
-    Use this for the expanded rain model, not the base temp/humidity model
-    (which was trained on, and expects, exactly the original 7 fields)."""
     return _fetch_all(lookback_days, districts, extended=True)

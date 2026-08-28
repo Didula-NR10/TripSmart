@@ -1,17 +1,3 @@
-"""
-verify_predictions.py
-────────────────────────
-Step 2: checks the log written by predict_8h.py for any prediction whose
-target window has now fully elapsed, fetches what actually happened for
-those exact hours, and plots the 3-way comparison: GRU (predicted) vs
-Open-Meteo (predicted) vs real weather (actual). Prints MAE for both
-against reality — so you can see who was actually closer, not just who
-agreed with whom.
-
-Usage:
-    python verify_predictions.py            # check every logged prediction, any district
-    python verify_predictions.py Colombo     # check just this district's logged predictions
-"""
 from __future__ import annotations
 
 import json
@@ -38,7 +24,6 @@ COLOR_AXIS = "#c3c2b7"
 COLOR_TEXT = "#0b0b0b"
 COLOR_TEXT_MUTED = "#898781"
 
-
 def style_axis(ax, ylabel: str) -> None:
     ax.set_ylabel(ylabel, color=COLOR_TEXT, fontsize=10)
     ax.tick_params(colors=COLOR_TEXT_MUTED, labelsize=9)
@@ -48,7 +33,6 @@ def style_axis(ax, ylabel: str) -> None:
     for side in ("left", "bottom"):
         ax.spines[side].set_color(COLOR_AXIS)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-
 
 def load_log() -> list[dict]:
     if not LOG_PATH.exists():
@@ -61,20 +45,15 @@ def load_log() -> list[dict]:
                 records.append(json.loads(line))
     return records
 
-
 def save_log(records: list[dict]) -> None:
     with open(LOG_PATH, "w") as f:
         for r in records:
             f.write(json.dumps(r) + "\n")
 
-
 def mae(a, b) -> float:
     return float(np.mean(np.abs(np.array(a) - np.array(b))))
 
-
 def verify_record(record: dict) -> bool:
-    """Fetches real data and fills in actual_* fields in place. Returns
-    False (no-op) if the window hasn't fully elapsed yet."""
     district = record["district"]
     hours = record["hours"]
     last_valid = pd.to_datetime(hours[-1]["valid_time"])
@@ -99,7 +78,6 @@ def verify_record(record: dict) -> bool:
 
     record["verified"] = True
     return True
-
 
 def plot_verified(record: dict) -> Path:
     district = record["district"]
@@ -139,7 +117,6 @@ def plot_verified(record: dict) -> Path:
     plt.close(fig)
     return out_path
 
-
 def print_summary(record: dict) -> None:
     hours = record["hours"]
     metrics = [
@@ -155,7 +132,6 @@ def print_summary(record: dict) -> None:
         o = mae([h[om_key] for h in hours], [h[truth_key] for h in hours])
         winner = "GRU" if g < o else ("Open-Meteo" if o < g else "tie")
         print(f"{name:<16}{g:<12.3f}{o:<16.3f}{winner}")
-
 
 def main() -> None:
     district_filter = sys.argv[1] if len(sys.argv) > 1 else None
@@ -184,7 +160,6 @@ def main() -> None:
         save_log(records)
     else:
         print("\nNo predictions were ready to verify yet.")
-
 
 if __name__ == "__main__":
     main()

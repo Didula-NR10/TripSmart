@@ -9,7 +9,6 @@ type Props = {
   onClose: () => void;
   onSelect: (key: string) => void;
   title?: string;
-  /** Show an "All Sri Lanka" row on top that selects the pseudo-key 'all'. */
   allOption?: boolean;
 };
 

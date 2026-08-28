@@ -1,21 +1,8 @@
-/**
- * lib/api.ts — the bridge to the FastAPI backend.
- *
- * fetchForecastBundle() pulls one 24-hour GRU run from the server and returns
- * it in two shapes at once:
- *   - `prediction`: the clock-hour Prediction the existing UI consumes
- *   - `live`:       the +1..+24 sequence with advisories and the daily summary
- * Every successful call is cached in AsyncStorage for 24 hours (factor 4);
- * the server independently persists the run to Supabase (forecast_runs) and
- * tops up weather_observations.
- */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { districtByKey, districts } from '../constants/districts';
 import { API_BASE_URL } from './config';
 import { HourPrediction, Prediction, predict } from './engine';
 
-// The current session token, set by the auth provider. Kept module-level so
-// data functions can attach it without importing React context.
 let authToken: string | null = null;
 export const setAuthToken = (token: string | null) => {
   authToken = token;

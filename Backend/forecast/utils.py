@@ -1,13 +1,3 @@
-"""
-forecast.utils
-──────────────
-Pure, dependency-free helpers: no I/O, no FastAPI, no Supabase.
-
-Everything that must EXACTLY mirror the training pipeline lives here, in one
-place. If `1_prepare_forecast.py` ever changes, this is the only file that has
-to change with it — get these wrong and the model silently returns nonsense
-rather than failing loudly.
-"""
 from __future__ import annotations
 
 import json
@@ -19,10 +9,6 @@ import numpy as np
 import pandas as pd
 
 log = logging.getLogger("trip_smart.forecast.utils")
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Districts — the upstream weather API works from lat/lon
-# ──────────────────────────────────────────────────────────────────────────────
 
 DISTRICT_COORDS: Dict[str, Dict[str, float]] = {
     "Colombo":      {"lat": 6.9271, "lon": 79.8612},
@@ -52,10 +38,6 @@ DISTRICT_COORDS: Dict[str, Dict[str, float]] = {
     "Kegalle":      {"lat": 7.2513, "lon": 80.3464},
 }
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Feature contract — the order is STRUCTURAL. Do not sort, do not "tidy".
-# ──────────────────────────────────────────────────────────────────────────────
-
 FINAL_FEATURE_COLS: List[str] = [
     "Temperature_C",
     "Precipitation_mm",
@@ -72,17 +54,9 @@ FINAL_FEATURE_COLS: List[str] = [
 ]
 
 TARGET_COLS: List[str] = ["Temperature_C", "Precipitation_mm", "Humidity_%"]
-TARGET_INDICES: List[int] = [FINAL_FEATURE_COLS.index(c) for c in TARGET_COLS]  # [0, 1, 2]
-
+TARGET_INDICES: List[int] = [FINAL_FEATURE_COLS.index(c) for c in TARGET_COLS]
 
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Raw hourly observations → the 12 model features, in the fixed order.
-
-    Cyclical encodings keep hour 23 adjacent to hour 0 (and December adjacent to
-    January), which a raw integer cannot express. `Temp_Change_3h` is an
-    atmospheric-momentum proxy computed only within this contiguous window; the
-    first three rows have no prior context and get 0.0, exactly as in training.
-    """
     df = df.copy()
 
     df["Hour_sin"] = np.sin(2 * np.pi * df["Hour"] / 24.0)
@@ -94,14 +68,7 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
 
     return df[FINAL_FEATURE_COLS]
 
-
 def inverse_transform_targets(raw_pred: np.ndarray, scaler: Any, horizon: int) -> np.ndarray:
-    """(H, 3) scaled predictions → (H, 3) real units.
-
-    The scaler was fitted on all 12 features, so `inverse_transform` insists on
-    12 columns. We slot the 3 predicted channels into their original positions in
-    a zero matrix, invert the lot, then pull those 3 columns back out.
-    """
     placeholder = np.zeros((horizon, len(FINAL_FEATURE_COLS)), dtype=np.float32)
     for out_idx, feat_idx in enumerate(TARGET_INDICES):
         placeholder[:, feat_idx] = raw_pred[:, out_idx]
@@ -109,35 +76,8 @@ def inverse_transform_targets(raw_pred: np.ndarray, scaler: Any, horizon: int) -
     real_values = scaler.inverse_transform(placeholder)
     return real_values[:, TARGET_INDICES]
 
-
-# MSE-trained regressors never predict an exact 0 on zero-inflated targets like
-# rain: dry hours come out as a small positive "noise floor" instead of 0.0
-# (observed ~0.13-0.4mm on dry hours during evaluation). Snapping anything at
-# or below this floor to 0 trades a little sensitivity to genuine light drizzle
-# for removing that persistent phantom-rain bias.
 RAIN_ZERO_FLOOR_MM = 0.3
 
-# Per-lead-hour bias correction (index 0 = hour+1 ... index 23 = hour+24),
-# added to the raw prediction before rounding/clamping. Keyed by district,
-# because climate varies a lot across Sri Lanka (coastal vs hill-country vs
-# dry-zone) — a bias fitted on one district doesn't necessarily transfer to
-# another. A district missing from a table falls back to zero (no
-# correction), not a guess.
-#
-# History: a first pass (extra/compute_bias_correction.py) compared the GRU
-# against Open-Meteo's own FORECAST at a single point in time across 24
-# districts and suggested a large, consistent temperature correction — but
-# that was chasing Open-Meteo's forecast bias at that one moment, not a real
-# model error. extra/backtest.py validates properly against Open-Meteo's
-# HISTORICAL ARCHIVE (actual recorded weather, real ground truth): fit on the
-# first 70% of origins chronologically, *evaluated on the untouched last
-# 30%*. extra/backtest_all_districts.py runs that per district (165 origins,
-# 48 days each) and keeps a district's correction ONLY if it beats the raw
-# model on its own holdout — 19/25 districts get a temperature correction,
-# 21/25 get a humidity correction; the rest (e.g. Colombo's temperature: raw
-# 0.37 degC MAE beats corrected 0.40) fall back to zero deliberately, not
-# because they were skipped. Computed 2026-07-26. Regenerate both tables
-# together (rerun extra/backtest_all_districts.py) if the model is retrained.
 _DEFAULT_TEMP_BIAS_CORRECTION_C: Dict[str, List[float]] = {
     "Ampara": [-0.507, -0.280, -0.194, -0.307, -0.399, -0.169, -0.451, -0.213, -0.135, -0.266, -0.324, -0.039, -0.283, -0.040, 0.016, -0.143, -0.299, -0.078, -0.356, -0.107, -0.017, -0.146, -0.221, -0.007],
     "Anuradhapura": [-0.472, -0.477, -0.410, -0.364, -0.374, -0.105, -0.393, -0.357, -0.277, -0.239, -0.225, 0.068, -0.197, -0.181, -0.132, -0.133, -0.214, 0.008, -0.301, -0.275, -0.197, -0.161, -0.174, 0.055],
@@ -182,14 +122,7 @@ _DEFAULT_HUMIDITY_BIAS_CORRECTION_PCT: Dict[str, List[float]] = {
     "Trincomalee": [-1.533, -1.455, -0.646, -0.532, -0.589, -2.422, -1.931, -2.254, -1.745, -1.758, -1.918, -3.855, -3.383, -3.618, -3.075, -3.035, -3.042, -4.872, -4.323, -4.460, -3.863, -3.606, -3.538, -4.982],
     "Vavuniya": [-0.682, 0.192, -0.614, -0.713, -0.715, -1.905, -0.844, -0.329, -1.359, -1.525, -1.664, -3.004, -2.065, -1.565, -2.665, -2.826, -2.797, -3.898, -2.853, -2.310, -3.313, -3.368, -3.244, -4.026],
 }
-# Retraining (Backend/training/) regenerates these tables for whichever
-# checkpoint it produces and writes them here, alongside the model artifacts
-# — never hand-edited. If the file is absent (fresh clone, or retraining has
-# never run) the hardcoded tables above — the ones fit against the original
-# shipped checkpoint — are used unchanged, so behavior is identical to before
-# this loader existed.
 _BIAS_CORRECTION_JSON_PATH = Path(__file__).resolve().parent.parent / "models" / "bias_correction.json"
-
 
 def _load_bias_tables() -> tuple[Dict[str, List[float]], Dict[str, List[float]]]:
     if _BIAS_CORRECTION_JSON_PATH.exists():
@@ -203,11 +136,9 @@ def _load_bias_tables() -> tuple[Dict[str, List[float]], Dict[str, List[float]]]
             )
     return _DEFAULT_TEMP_BIAS_CORRECTION_C, _DEFAULT_HUMIDITY_BIAS_CORRECTION_PCT
 
-
 TEMP_BIAS_CORRECTION_C, HUMIDITY_BIAS_CORRECTION_PCT = _load_bias_tables()
 
 _ZERO_24: List[float] = [0.0] * 24
-
 
 def clamp_physical(
     temp: float,
@@ -216,14 +147,6 @@ def clamp_physical(
     hour_index: int | None = None,
     district: str | None = None,
 ) -> tuple[float, float, float]:
-    """The model is a regressor: nothing stops it predicting -2 mm of rain.
-    Physics does. Clamp before anyone sees a number.
-
-    `hour_index` (0-based lead hour, 0 = 1h ahead) + `district` apply the
-    empirical per-district, per-lead-hour bias correction when both are
-    known; omit either (e.g. bring-your-own-context inference with no fixed
-    horizon anchor) to skip correction.
-    """
     if hour_index is not None:
         temp += TEMP_BIAS_CORRECTION_C.get(district, _ZERO_24)[hour_index]
         humidity += HUMIDITY_BIAS_CORRECTION_PCT.get(district, _ZERO_24)[hour_index]
@@ -237,18 +160,11 @@ def clamp_physical(
         round(min(100.0, max(0.0, float(humidity))), 1),
     )
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Travel advisory — the thresholds from the reference runner, kept identical
-# ──────────────────────────────────────────────────────────────────────────────
-
 ADVISORY_GOOD = "GOOD"
 ADVISORY_CAUTION = "CAUTION"
 ADVISORY_AVOID = "AVOID"
 
-
 def hourly_advisory(temp: float, rain: float, humidity: float) -> Dict[str, str]:
-    """Turn three numbers into a decision a traveler can act on."""
     if rain > 10.0:
         return {"level": ADVISORY_AVOID, "reason": "Heavy rain"}
     if rain > 3.0:
@@ -259,20 +175,7 @@ def hourly_advisory(temp: float, rain: float, humidity: float) -> Dict[str, str]
         return {"level": ADVISORY_CAUTION, "reason": "Extreme heat"}
     return {"level": ADVISORY_GOOD, "reason": "Clear conditions"}
 
-
 def daily_summary(forecast: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Roll 24 hours up into the one line a traveler actually reads.
-
-    Rain is a [low, high] range per hour (see ForecastService._rain_range).
-    rain_mm_low/rain_mm_high mirror temp_min_c/temp_max_c and
-    humidity_min_pct/humidity_max_pct exactly — the calmest hour's low bound
-    to the wettest hour's high bound across the day, NOT a daily cumulative
-    total (24 individually-tiny hours can sum to a number that looks alarming
-    despite no single hour ever feeling properly wet; the per-hour peak is
-    the more honest "how bad could the worst hour get" read). The
-    GOOD/CAUTION/AVOID call uses the same thresholds as `hourly_advisory`,
-    since both now describe the same thing: a single hour's rain intensity.
-    """
     temps = [h["temperature_c"] for h in forecast]
     rains_low = [h["precipitation_mm_low"] for h in forecast]
     rains_high = [h["precipitation_mm_high"] for h in forecast]
@@ -281,11 +184,6 @@ def daily_summary(forecast: List[Dict[str, Any]]) -> Dict[str, Any]:
     peak_rain_high = max(rains_high)
     wet_hours = sum(1 for r in rains_high if r > 0.5)
 
-    # Peak-hour intensity AND how much of the day it's spread across both
-    # matter — a day with rain smeared thin across many hours (e.g. 10+ of
-    # 24) never trips the peak-intensity check on its own but is still a
-    # genuinely different travel day than one with 2-3 wet hours, so a high
-    # wet_hours count forces at least CAUTION even when no single hour spikes.
     if peak_rain_high > 10.0:
         level, verdict = ADVISORY_AVOID, "Not recommended for travel"
     elif peak_rain_high > 3.0 or wet_hours >= 8:

@@ -41,8 +41,6 @@ export function TripProvider({ children }: { children: ReactNode }) {
   const [offline, setOffline] = useState(false);
   const [watches, setWatches] = useState<Watch[]>([]);
 
-  // The synthetic engine renders instantly; the real GRU output replaces it
-  // when the backend answers. Offline (or on failure) the last cached run wins.
   const [prediction, setPrediction] = useState<Prediction>(() => predict(districtKey));
   const [cachedAt, setCachedAt] = useState<number>(() => Date.now());
   const [source, setSource] = useState<ForecastSource>('synthetic');
@@ -64,7 +62,7 @@ export function TripProvider({ children }: { children: ReactNode }) {
     };
 
     setPrediction(predict(districtKey));
-    setForecast24(null); // a run for another district is not this district's forecast
+    setForecast24(null);
     setCachedAt(Date.now());
     setSource('synthetic');
 
@@ -90,16 +88,10 @@ export function TripProvider({ children }: { children: ReactNode }) {
     };
   }, [districtKey, offline]);
 
-  // Ground-report push alerts follow whichever district is active — GPS fix
-  // or manual pick alike — independent of the forecast fetch above.
   useEffect(() => {
     subscribeDistrictAlerts(districtKey);
   }, [districtKey]);
 
-  // The explicit "Next 24 Hours Weather" button. refresh=true forces a fresh
-  // model run anchored to the moment the user pressed — a cached run from up
-  // to an hour ago would start its 24 hours at an earlier hour. The server
-  // persists every run to Supabase.
   const runForecast24 = useCallback(async () => {
     setForecast24Loading(true);
     try {

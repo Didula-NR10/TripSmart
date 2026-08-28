@@ -1,30 +1,3 @@
-"""
-training.extended_features
-──────────────────────────────
-Item 3 of the improvement plan: real new signal, not just more of what the
-model already has. Adds 10 columns on top of the production 12-feature
-contract (forecast/utils.py's FINAL_FEATURE_COLS, left completely
-untouched — this is a SEPARATE, wider contract for an experimental model,
-not a change to what's deployed):
-
-  - DewPoint_C, Pressure_hPa       — raw
-  - Pressure_Change_3h             — trend matters more than the raw value,
-                                      same logic as the existing Temp_Change_3h
-  - WindDir_sin, WindDir_cos       — circular encoding (wind direction is
-                                      exactly the kind of 0°/360°-wraparound
-                                      quantity the existing Hour/Month
-                                      cyclical encoding already handles)
-  - Rain_lag_1h/3h/6h              — storm persistence (rain tends to cluster)
-  - Rain_rolling_6h, Rain_rolling_24h — recent wet-spell context
-
-Why these specifically, not an arbitrary larger set: each one is a concrete,
-named meteorological mechanism for rain (falling pressure precedes storms;
-dew-point gap measures saturation; wind direction indicates which air mass —
-moist monsoon vs dry interior — is arriving; rain persistence and recent
-wetness are the closest thing to genuine short-term memory a point-based
-model can have). Every feature engineered here is defensible on its own
-terms, not just "more numbers."
-"""
 from __future__ import annotations
 
 from typing import List
@@ -49,14 +22,8 @@ NEW_FEATURE_COLS: List[str] = [
 
 EXTENDED_FEATURE_COLS: List[str] = FINAL_FEATURE_COLS + NEW_FEATURE_COLS
 
-
 def engineer_extended_features(df: pd.DataFrame) -> pd.DataFrame:
-    """df must already have the base 7 raw columns (see forecast.utils) PLUS
-    DewPoint_C, Pressure_hPa, WindDirection_deg, Hour, Month. Must be called
-    on one CONTIGUOUS hourly segment of one district at a time — lags and
-    rolling windows must never cross a real data gap or a district
-    boundary, same discipline dataset.py already applies for the base 12."""
-    base = engineer_features(df)  # the untouched, production 12-column contract
+    base = engineer_features(df)
 
     df = df.copy()
     df["Pressure_Change_3h"] = df["Pressure_hPa"].diff(periods=3).fillna(0.0)

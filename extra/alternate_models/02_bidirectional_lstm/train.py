@@ -1,23 +1,3 @@
-"""
-02_bidirectional_lstm/train.py
-──────────────────────────────────
-Trains the bidirectional stacked LSTM encoder-decoder (see model.py) and
-evaluates it the same way as every other model in alternate_models/, so its
-R²/MAE/RMSE numbers are directly comparable.
-
-Usage:
-    python train.py --data path/to/your_data.xlsx
-    python train.py                                   # uses the synthetic smoke-test sample
-
-Runtime: LSTM is somewhat heavier per-step than GRU, and this one is
-bidirectional (roughly 2x the recurrent compute of a unidirectional layer),
-so expect this to be the slowest of the three deep models here per epoch.
-Recommended on Colab's free T4 GPU rather than local CPU for a full run.
-
-Outputs (in ./artifacts/): same set as 01_gru_seq2seq — model.keras,
-scaler.pkl, feature_cols.json, metrics.json, training_curve.png,
-per_hour_metrics.png, sample_predictions.png.
-"""
 from __future__ import annotations
 
 import argparse
@@ -43,7 +23,6 @@ from model import build_model
 ARTIFACTS_DIR = THIS_DIR / "artifacts"
 MODEL_NAME = "02_bidirectional_lstm"
 
-
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Train the bidirectional LSTM forecaster")
     p.add_argument("--data", type=str, default=str(config.DATA_DIR / "synthetic_sample.xlsx"))
@@ -52,7 +31,6 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--patience", type=int, default=10)
     return p.parse_args()
-
 
 def main() -> None:
     args = parse_args()
@@ -129,7 +107,6 @@ def main() -> None:
         json.dump(feature_cols, f, indent=2)
 
     print(f"\nAll artifacts saved to {ARTIFACTS_DIR}")
-
 
 if __name__ == "__main__":
     main()

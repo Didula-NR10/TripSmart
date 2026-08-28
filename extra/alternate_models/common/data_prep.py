@@ -1,17 +1,3 @@
-"""
-alternate_models/common/data_prep.py
-──────────────────────────────────────
-Shared data pipeline for every model in alternate_models/: load the xlsx,
-resolve whatever column names it has onto the canonical contract, engineer
-features (base 12-feature contract + optional extended features), build
-sliding windows safely (per district — never sliding across a district
-boundary), and split chronologically into train/val/test.
-
-Every function here raises a clear, actionable error instead of a bare
-KeyError/IndexError when the input data doesn't match expectations — the
-goal is that when you hand this real data, failures tell you exactly what
-to fix.
-"""
 from __future__ import annotations
 
 import re
@@ -36,15 +22,10 @@ from config import (
     VAL_FRACTION,
 )
 
-
 def _normalize(name: str) -> str:
     return re.sub(r"[^a-z0-9]", "", str(name).lower())
 
-
 def resolve_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Rename whatever columns the source file has onto the canonical names
-    in RAW_COLUMN_ALIASES. Raises with a clear message listing what was
-    found vs what's required if something can't be matched."""
     normalized_lookup = {_normalize(c): c for c in df.columns}
 
     rename_map: dict[str, str] = {}
@@ -75,11 +56,7 @@ def resolve_columns(df: pd.DataFrame) -> pd.DataFrame:
               f"depending on them are skipped): {missing_optional}")
     return df
 
-
 def load_raw_table(path: str | Path, sheet_name: Optional[str] = None) -> pd.DataFrame:
-    """Load an xlsx (or csv, detected by extension) and resolve its columns.
-    Parses `datetime`, sorts by it, and — if a `district` column exists —
-    sorts within each district too (required before windowing)."""
     path = Path(path)
     if path.suffix.lower() in (".xlsx", ".xls"):
         df = pd.read_excel(path, sheet_name=sheet_name or 0)
@@ -109,12 +86,7 @@ def load_raw_table(path: str | Path, sheet_name: Optional[str] = None) -> pd.Dat
 
     return df
 
-
 def _fill_gaps_per_district(df: pd.DataFrame) -> pd.DataFrame:
-    """Reindex each district onto a complete hourly range and forward/back-fill
-    small gaps — matches production's ffill/bfill treatment of Open-Meteo
-    gaps. Prints how many hours were synthesized per district so silent data
-    quality problems don't hide inside a good-looking R²."""
     out = []
     for district, g in df.groupby("district", sort=False):
         g = g.set_index("datetime").sort_index()
@@ -130,14 +102,7 @@ def _fill_gaps_per_district(df: pd.DataFrame) -> pd.DataFrame:
         out.append(g.reset_index())
     return pd.concat(out, ignore_index=True)
 
-
 def engineer_features(df: pd.DataFrame, extended: bool = False) -> pd.DataFrame:
-    """Raw per-hour observations -> the model feature columns, computed
-    PER DISTRICT so lag/rolling/diff features never leak across a district
-    boundary. Mirrors Backend/forecast/utils.py's engineer_features() for the
-    base 12 columns exactly; `extended=True` adds the richer feature set in
-    EXTENDED_FEATURE_COLS for models that can use it (LightGBM especially).
-    """
     df = _fill_gaps_per_district(df)
 
     out_frames = []
@@ -189,7 +154,6 @@ def engineer_features(df: pd.DataFrame, extended: bool = False) -> pd.DataFrame:
 
     return result
 
-
 def feature_columns(extended: bool = False, df: Optional[pd.DataFrame] = None) -> list[str]:
     cols = list(BASE_FEATURE_COLS)
     if extended:
@@ -199,7 +163,6 @@ def feature_columns(extended: bool = False, df: Optional[pd.DataFrame] = None) -
         cols = cols + extra
     return cols
 
-
 def make_windows(
     df: pd.DataFrame,
     feature_cols: list[str],
@@ -207,13 +170,6 @@ def make_windows(
     horizon: int = TARGET_HORIZON,
     target_cols: list[str] = TARGET_COLS,
 ):
-    """Sliding (input_window -> horizon) windows, built separately per
-    district so a window never spans a district boundary. Returns
-    (X, y, origin_datetimes, origin_districts) as numpy arrays / lists.
-
-    X: (n_samples, input_window, n_features)
-    y: (n_samples, horizon, n_targets)
-    """
     X_list, y_list, dt_list, dist_list = [], [], [], []
 
     for district, g in df.groupby("district", sort=False):
@@ -248,12 +204,7 @@ def make_windows(
           f"({X.shape[1]}h context, {y.shape[1]}h horizon, {X.shape[2]} features).")
     return X, y, dt_list, dist_list
 
-
 def chronological_split(X, y, dt_list, dist_list):
-    """Split by ORIGIN TIME (the timestamp the window's context ends at),
-    not randomly — a random split would let windows whose context overlaps
-    a test-set window's target leak information across the split. Windows
-    are sorted by origin time first, then cut at the fraction boundaries."""
     order = np.argsort(dt_list)
     X, y = X[order], y[order]
     dt_sorted = [dt_list[i] for i in order]

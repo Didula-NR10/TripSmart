@@ -50,8 +50,6 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  // District-scoped ground-report pushes from other users — registered once
-  // for the app's lifetime, independent of which tab/screen is active.
   useEffect(() => initRemoteReportListener(), []);
 
   if (!loaded) {

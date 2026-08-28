@@ -1,0 +1,194 @@
+{
+  "trained_at": "2026-08-24 08:52:47",
+  "training_time_seconds": 1459.6,
+  "n_features": 35,
+  "n_train": 97790,
+  "n_val": 20955,
+  "n_test": 20955,
+  "pos_weight_used": 1.0,
+  "neg_weight_used": 1.6346786772734363,
+  "occurrence": {
+    "accuracy": 0.7688379861608208,
+    "precision": 0.81484337921215,
+    "recall": 0.8885366800362272,
+    "f1": 0.8500959336510491,
+    "roc_auc": 0.8013894321684256,
+    "brier_score": 0.16465177478004897,
+    "confusion_matrix": [
+      [
+        2376,
+        3121
+      ],
+      [
+        1723,
+        13735
+      ]
+    ],
+    "threshold_used": 0.35000000000000003
+  },
+  "amount": {
+    "mae": 5.948421955108643,
+    "rmse": 14.160310745239258,
+    "mse": 200.51438903808594,
+    "r2": 0.2615094780921936,
+    "n_real_rain_windows_in_test": 15458
+  },
+  "combined": {
+    "mae": 4.957574367523193,
+    "rmse": 12.31267261505127,
+    "mse": 151.60189819335938,
+    "r2": 0.2918575406074524
+  },
+  "per_district": {
+    "Ampara": {
+      "n_windows": 838,
+      "combined_mae": 5.391518592834473,
+      "combined_r2": 0.2405070662498474,
+      "occurrence_f1": 0.8343108504398827
+    },
+    "Anuradhapura": {
+      "n_windows": 838,
+      "combined_mae": 5.237495422363281,
+      "combined_r2": 0.1637359857559204,
+      "occurrence_f1": 0.7688123300090662
+    },
+    "Badulla": {
+      "n_windows": 839,
+      "combined_mae": 6.180410385131836,
+      "combined_r2": 0.2908816933631897,
+      "occurrence_f1": 0.8551236749116607
+    },
+    "Batticaloa": {
+      "n_windows": 838,
+      "combined_mae": 5.507969856262207,
+      "combined_r2": 0.297076940536499,
+      "occurrence_f1": 0.8227060653188181
+    },
+    "Colombo": {
+      "n_windows": 838,
+      "combined_mae": 5.404183387756348,
+      "combined_r2": 0.24505525827407837,
+      "occurrence_f1": 0.903954802259887
+    },
+    "Galle": {
+      "n_windows": 838,
+      "combined_mae": 5.327853679656982,
+      "combined_r2": 0.20597028732299805,
+      "occurrence_f1": 0.9408740359897172
+    },
+    "Gampaha": {
+      "n_windows": 838,
+      "combined_mae": 6.637746810913086,
+      "combined_r2": 0.19322365522384644,
+      "occurrence_f1": 0.9101123595505618
+    },
+    "Hambantota": {
+      "n_windows": 838,
+      "combined_mae": 3.0386533737182617,
+      "combined_r2": 0.3673911690711975,
+      "occurrence_f1": 0.7271028037383177
+    },
+    "Jaffna": {
+      "n_windows": 838,
+      "combined_mae": 3.7444674968719482,
+      "combined_r2": 0.37294232845306396,
+      "occurrence_f1": 0.7928513403736799
+    },
+    "Kalutara": {
+      "n_windows": 838,
+      "combined_mae": 5.313920021057129,
+      "combined_r2": 0.2454938292503357,
+      "occurrence_f1": 0.93421926910299
+    },
+    "Kandy": {
+      "n_windows": 838,
+      "combined_mae": 4.778006076812744,
+      "combined_r2": 0.3243741989135742,
+      "occurrence_f1": 0.8925373134328358
+    },
+    "Kegalle": {
+      "n_windows": 839,
+      "combined_mae": 5.994653224945068,
+      "combined_r2": 0.25742560625076294,
+      "occurrence_f1": 0.896399706098457
+    },
+    "Kilinochchi": {
+      "n_windows": 838,
+      "combined_mae": 4.062676906585693,
+      "combined_r2": 0.3654380440711975,
+      "occurrence_f1": 0.7509578544061303
+    },
+    "Kurunegala": {
+      "n_windows": 838,
+      "combined_mae": 5.079232215881348,
+      "combined_r2": 0.3081004023551941,
+      "occurrence_f1": 0.8805409466566492
+    },
+    "Mannar": {
+      "n_windows": 838,
+      "combined_mae": 3.099381446838379,
+      "combined_r2": 0.44092535972595215,
+      "occurrence_f1": 0.7093779015784587
+    },
+    "Matale": {
+      "n_windows": 838,
+      "combined_mae": 5.735474109649658,
+      "combined_r2": 0.28599488735198975,
+      "occurrence_f1": 0.9141234918381831
+    },
+    "Matara": {
+      "n_windows": 838,
+      "combined_mae": 4.14608097076416,
+      "combined_r2": 0.31405705213546753,
+      "occurrence_f1": 0.9282920469361148
+    },
+    "Monaragala": {
+      "n_windows": 839,
+      "combined_mae": 4.995225429534912,
+      "combined_r2": 0.24717634916305542,
+      "occurrence_f1": 0.7993754879000781
+    },
+    "Mullaitivu": {
+      "n_windows": 838,
+      "combined_mae": 4.238983154296875,
+      "combined_r2": 0.3883001208305359,
+      "occurrence_f1": 0.797804208600183
+    },
+    "NuwaraEliya": {
+      "n_windows": 838,
+      "combined_mae": 4.88191032409668,
+      "combined_r2": 0.3084988594055176,
+      "occurrence_f1": 0.9048951048951049
+    },
+    "Polonnaruwa": {
+      "n_windows": 839,
+      "combined_mae": 5.233376979827881,
+      "combined_r2": 0.33833545446395874,
+      "occurrence_f1": 0.7813357731015553
+    },
+    "Puttalam": {
+      "n_windows": 838,
+      "combined_mae": 4.462190628051758,
+      "combined_r2": 0.3216937780380249,
+      "occurrence_f1": 0.810853950518755
+    },
+    "Ratnapura": {
+      "n_windows": 839,
+      "combined_mae": 6.318709850311279,
+      "combined_r2": 0.32762545347213745,
+      "occurrence_f1": 0.9388020833333334
+    },
+    "Trincomalee": {
+      "n_windows": 838,
+      "combined_mae": 5.027494430541992,
+      "combined_r2": 0.33261674642562866,
+      "occurrence_f1": 0.7711711711711712
+    },
+    "Vavuniya": {
+      "n_windows": 838,
+      "combined_mae": 4.09705114364624,
+      "combined_r2": 0.27431243658065796,
+      "occurrence_f1": 0.7699619771863118
+    }
+  }
+}

@@ -18,7 +18,6 @@ import { bestWindow, resolveDistrict, zonesNear } from '../lib/engine';
 import { profileByKey } from '../constants/profiles';
 import { Palette, Radius, Space, Type } from '../constants/trip-theme';
 
-// Hidden for now — flip back on if the hour-by-hour strip comes back.
 const SHOW_HOUR_STRIP = false;
 
 const fmtHour = (h: number) => {

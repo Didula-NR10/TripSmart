@@ -1,14 +1,3 @@
-/**
- * DistrictMap.tsx — real map picker for native (Android/iOS).
- *
- * Same engine as the web version (DistrictMap.web.tsx): the Google Maps
- * JavaScript API loaded inside a WebView, keyed from app.config.js
- * (extra.googleMapsApiKey). This is deliberately the JS API in a WebView
- * rather than react-native-maps, so nothing here needs a native dev build —
- * it still runs in Expo Go. The contract is the same on both platforms: the
- * user drops a pin (tap or drag) and `onPick(lat, lng)` hands the
- * coordinates to the parent, which resolves the district.
- */
 import { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
@@ -28,8 +17,6 @@ type Props = {
 const GOOGLE_MAPS_API_KEY: string =
   (Constants.expoConfig?.extra as any)?.googleMapsApiKey ?? '';
 
-// Self-contained Google Maps page: locked to Sri Lanka, same key and bounds
-// as the web picker. Pin taps/drags post {lat, lng} back to RN.
 const MAP_HTML = `<!DOCTYPE html>
 <html>
 <head>
@@ -72,7 +59,6 @@ const MAP_HTML = `<!DOCTYPE html>
     }
     window.initMap = initMap;
 
-    // Bridge for RN -> WebView recentring when the selected district changes.
     document.addEventListener('message', onRNMessage);
     window.addEventListener('message', onRNMessage);
     function onRNMessage(e) {

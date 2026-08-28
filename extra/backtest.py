@@ -1,27 +1,3 @@
-"""
-backtest.py
-────────────
-The rigorous version of compute_bias_correction.py: instead of comparing the
-model's prediction against Open-Meteo's own forecast (a proxy — it hasn't
-happened yet either), this checks the model against Open-Meteo's HISTORICAL
-ARCHIVE — actual recorded/reanalysis weather, i.e. real ground truth.
-
-For one district, it fetches N days of real hourly history, then slides a
-window through it: at every origin timestamp, feed the model the preceding
-168 real hours (exactly like production does) and compare its 24h prediction
-against what the archive says actually happened next.
-
-It reports honest, out-of-sample numbers: the bias-correction table is fitted
-on the first ~70% of origins (chronologically) and evaluated on the held-out
-last ~30% it never saw — the same discipline you'd want from any model
-evaluation. It also validates the currently-shipped correction table (in
-model_pipeline.py / Backend/forecast/utils.py) against this same holdout, so
-you can see whether it's actually helping.
-
-Usage:
-    python backtest.py                       # Colombo, 40 days, 6h step
-    python backtest.py Kandy 60 4             # district, days_back, step_hours
-"""
 from __future__ import annotations
 
 import sys
@@ -43,13 +19,12 @@ from model_pipeline import (
 )
 
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
-ARCHIVE_LAG_DAYS = 3   # avoid the last couple of days, which may still be preliminary ERA5T
-TRAIN_FRACTION = 0.7   # chronological split — fit correction on the past, test on the future
-
+ARCHIVE_LAG_DAYS = 3
+TRAIN_FRACTION = 0.7
 
 def run_backtest(district: str, days_back: int, step_hours: int):
     end = datetime.now() - timedelta(days=ARCHIVE_LAG_DAYS)
-    start = end - timedelta(days=days_back + 8)  # +8 buffer for the first context window
+    start = end - timedelta(days=days_back + 8)
 
     print(f"Fetching {days_back + 8} days of archive history for {district} "
           f"({start:%Y-%m-%d} to {end:%Y-%m-%d})...")
@@ -74,7 +49,7 @@ def run_backtest(district: str, days_back: int, step_hours: int):
         future = df.iloc[o + 1: o + 1 + TARGET_HORIZON].reset_index(drop=True)
 
         try:
-            real = run_model(context)  # (24, 3) raw temp/rain/humidity, no clamp/floor/bias
+            real = run_model(context)
         except Exception as e:
             print(f"  origin {df['datetime'].iloc[o]}: skipped ({e})")
             continue
@@ -101,22 +76,15 @@ def run_backtest(district: str, days_back: int, step_hours: int):
         "origin_times": origin_times,
     }
 
-
 def mae(pred: np.ndarray, actual: np.ndarray) -> float:
     return float(np.mean(np.abs(pred - actual)))
-
 
 def apply_floor(rain: np.ndarray, floor: float = RAIN_ZERO_FLOOR_MM) -> np.ndarray:
     return np.where(rain <= floor, 0.0, rain)
 
-
 ZERO_24 = [0.0] * 24
 
-
 def fit_and_evaluate(district: str, data: dict) -> dict:
-    """All the numbers, no printing — used by both this file's CLI and
-    backtest_all_districts.py. Fits any correction on the first
-    TRAIN_FRACTION of origins (chronologically), reports MAE on the rest."""
     n = len(data["raw_temp"])
     split = int(n * TRAIN_FRACTION)
     if split < 5 or n - split < 5:
@@ -164,7 +132,6 @@ def fit_and_evaluate(district: str, data: dict) -> dict:
         "dry_hours": int(dry_hours.sum()), "total_hours": int(dry_hours.size),
     }
 
-
 def evaluate(district: str, data: dict) -> None:
     r = fit_and_evaluate(district, data)
     n, split = r["n_total"], r["n_train"]
@@ -209,7 +176,6 @@ def evaluate(district: str, data: dict) -> None:
     out.to_csv(out_path, index=False)
     print(f"\nPer-origin results saved to {out_path}")
 
-
 def main() -> None:
     district = sys.argv[1] if len(sys.argv) > 1 else "Colombo"
     days_back = int(sys.argv[2]) if len(sys.argv) > 2 else 40
@@ -222,7 +188,6 @@ def main() -> None:
 
     data = run_backtest(district, days_back, step_hours)
     evaluate(district, data)
-
 
 if __name__ == "__main__":
     main()

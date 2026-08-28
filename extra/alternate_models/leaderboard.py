@@ -1,18 +1,3 @@
-"""
-alternate_models/leaderboard.py
-──────────────────────────────────
-Reads metrics.json from every model folder that has been trained so far
-(01_gru_seq2seq, 02_bidirectional_lstm, 03_seq2seq_attention,
-04_lightgbm_multioutput) and prints + charts a side-by-side comparison, so
-you can see which one actually won before deciding which to adopt.
-
-Run this any time after training one or more models — it skips any folder
-that hasn't been trained yet (no artifacts/metrics.json) rather than
-failing.
-
-Usage:
-    python leaderboard.py
-"""
 from __future__ import annotations
 
 import json
@@ -27,7 +12,7 @@ import numpy as np
 THIS_DIR = Path(__file__).resolve().parent
 COMMON_DIR = THIS_DIR / "common"
 sys.path.insert(0, str(COMMON_DIR))
-from config import TARGET_COLS  # noqa: E402
+from config import TARGET_COLS
 
 MODEL_FOLDERS = [
     "01_gru_seq2seq",
@@ -39,7 +24,6 @@ MODEL_FOLDERS = [
 OUTPUT_DIR = THIS_DIR / "output"
 COLOR_SERIES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]
 
-
 def load_all_reports() -> dict[str, dict]:
     reports = {}
     for folder in MODEL_FOLDERS:
@@ -50,7 +34,6 @@ def load_all_reports() -> dict[str, dict]:
         else:
             print(f"[leaderboard] {folder}: not trained yet (no {metrics_path.relative_to(THIS_DIR)}) — skipped.")
     return reports
-
 
 def print_table(reports: dict[str, dict]) -> None:
     if not reports:
@@ -80,7 +63,6 @@ def print_table(reports: dict[str, dict]) -> None:
         t = report.get("training_seconds", float("nan"))
         size = report.get("n_params", report.get("n_train_rows", "?"))
         print(f"{folder:<26}{t:<18.1f}{str(size):<20}")
-
 
 def plot_leaderboard(reports: dict[str, dict]) -> None:
     if not reports:
@@ -112,12 +94,10 @@ def plot_leaderboard(reports: dict[str, dict]) -> None:
     plt.close(fig)
     print(f"\nLeaderboard chart saved to {out_path}")
 
-
 def main() -> None:
     reports = load_all_reports()
     print_table(reports)
     plot_leaderboard(reports)
-
 
 if __name__ == "__main__":
     main()

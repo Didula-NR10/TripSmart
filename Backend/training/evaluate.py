@@ -1,14 +1,3 @@
-"""
-training.evaluate
-────────────────────
-Turns a candidate checkpoint into honest, held-out MAE numbers, and decides
-whether it's actually allowed to replace the deployed model. Mirrors the
-"fit on the past, only trust the held-out future" discipline used everywhere
-else in this repo's backtesting (extra/backtest.py, SYSTEM_DOCUMENTATION.md
-§8) — the holdout slice here was never seen during fine-tuning (see
-dataset.chronological_split), so this is a real out-of-sample check, not a
-training-time metric.
-"""
 from __future__ import annotations
 
 import logging
@@ -20,11 +9,7 @@ from training.config import PROMOTION_MARGIN, RAIN_ZERO_FLOOR_MM
 
 log = logging.getLogger("trip_smart.training.evaluate")
 
-
 def _inverse_transform_batch(y_scaled: np.ndarray, scaler) -> np.ndarray:
-    """(n, horizon, 3) scaled -> (n, horizon, 3) real units. Same
-    zero-placeholder trick as forecast.utils.inverse_transform_targets,
-    vectorized across every window at once instead of one call per sample."""
     n, h, t = y_scaled.shape
     placeholder = np.zeros((n * h, len(FINAL_FEATURE_COLS)), dtype=np.float32)
     for out_idx, feat_idx in enumerate(TARGET_INDICES):
@@ -32,40 +17,24 @@ def _inverse_transform_batch(y_scaled: np.ndarray, scaler) -> np.ndarray:
     real = scaler.inverse_transform(placeholder)
     return real[:, TARGET_INDICES].reshape(n, h, t)
 
-
 def predict_real_units(model, X_scaled: np.ndarray, scaler) -> np.ndarray:
-    """(n, 168, 12) scaled input -> (n, 24, 3) real-unit predictions, clipped
-    the same way production clips before inverting (services.py's own
-    comment: mixed-precision rounding can push values a hair outside [0,1])."""
     raw = model.predict(X_scaled, verbose=0)
     raw = np.clip(raw, 0.0, 1.0)
     return _inverse_transform_batch(raw, scaler)
 
-
 def mae(pred: np.ndarray, actual: np.ndarray) -> float:
     return float(np.mean(np.abs(pred - actual)))
-
 
 def rmse(pred: np.ndarray, actual: np.ndarray) -> float:
     return float(np.sqrt(np.mean((pred - actual) ** 2)))
 
-
 def r2(pred: np.ndarray, actual: np.ndarray) -> float:
-    """Coefficient of determination — the standard "how much of the real
-    variance does this explain" number an evaluator will expect alongside
-    MAE/RMSE. 1.0 is a perfect fit; 0.0 is "no better than always predicting
-    the mean"; it can go negative (worse than the mean) on a hard holdout set.
-    Computed by hand (not sklearn.metrics.r2_score) so this file only needs
-    numpy, matching the rest of this pure-computation module."""
     actual_flat, pred_flat = actual.ravel(), pred.ravel()
     ss_res = np.sum((actual_flat - pred_flat) ** 2)
     ss_tot = np.sum((actual_flat - np.mean(actual_flat)) ** 2)
     return float(1 - ss_res / ss_tot) if ss_tot > 0 else 0.0
 
-
 def evaluate_model(model, scaler, X_holdout: np.ndarray, y_holdout: np.ndarray) -> dict:
-    """y_holdout must be RAW (unscaled) real-unit targets — dataset.py's
-    chronological_split output, before scale_targets() is applied."""
     pred = predict_real_units(model, X_holdout, scaler)
 
     temp_pred, rain_pred, hum_pred = pred[:, :, 0], pred[:, :, 1], pred[:, :, 2]
@@ -87,16 +56,7 @@ def evaluate_model(model, scaler, X_holdout: np.ndarray, y_holdout: np.ndarray) 
         "rain_r2_floored": r2(rain_floored, rain_actual),
     }
 
-
 def is_better(candidate: dict, current: dict) -> tuple[bool, str]:
-    """The promotion gate. Rain is reported but NOT part of the gate —
-    production doesn't serve the GRU's own rain channel (SYSTEM_DOCUMENTATION
-    §5.3), so a rain-channel change alone should never trigger a deploy.
-
-    Requires the candidate to not regress on either gated channel, AND to
-    improve the combined average by at least PROMOTION_MARGIN — guards
-    against promoting a "win" that's really just noise from a small holdout.
-    """
     cand_avg = (candidate["temp_mae"] + candidate["humidity_mae"]) / 2
     curr_avg = (current["temp_mae"] + current["humidity_mae"]) / 2
 

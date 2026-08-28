@@ -1,25 +1,10 @@
-"""
-compare_with_openmeteo.py
-───────────────────────────
-Runs the GRU model's 24h-ahead prediction and Open-Meteo's own 24h-ahead
-forecast for the same district and the same hours, then plots them side by
-side so you can see how closely the trained model tracks a reference
-forecasting service.
-
-Saves PNG charts to extra/output/ and prints a numeric comparison table
-(mean absolute difference per metric) to the terminal.
-
-Usage:
-    python compare_with_openmeteo.py                 # defaults to Colombo
-    python compare_with_openmeteo.py Kandy
-"""
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
 import matplotlib
-matplotlib.use("Agg")  # headless-safe; script still saves PNGs either way
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
@@ -36,15 +21,12 @@ from model_pipeline import (
 
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 
-# Validated 2-series categorical pair (adjacent-pair CVD-safe, see
-# dataviz skill's reference palette): slot 1 blue = model, slot 2 orange = Open-Meteo.
 COLOR_PREDICTED = "#2a78d6"
 COLOR_OPEN_METEO = "#eb6834"
 COLOR_GRID = "#e1e0d9"
 COLOR_AXIS = "#c3c2b7"
 COLOR_TEXT = "#0b0b0b"
 COLOR_TEXT_MUTED = "#898781"
-
 
 def build_comparison(district: str) -> pd.DataFrame:
     df = fetch_open_meteo(district, forecast_days=2)
@@ -67,7 +49,6 @@ def build_comparison(district: str) -> pd.DataFrame:
         })
     predicted = pd.DataFrame(predicted_rows)
 
-    # Open-Meteo's own forecast for the same next 24 hours, as the reference line.
     om = future.head(TARGET_HORIZON)[
         ["datetime", "Temperature_C", "Precipitation_mm", "Humidity_%"]
     ].rename(columns={
@@ -84,7 +65,6 @@ def build_comparison(district: str) -> pd.DataFrame:
         )
     return merged
 
-
 def style_axis(ax, ylabel: str) -> None:
     ax.set_ylabel(ylabel, color=COLOR_TEXT, fontsize=10)
     ax.tick_params(colors=COLOR_TEXT_MUTED, labelsize=9)
@@ -95,9 +75,7 @@ def style_axis(ax, ylabel: str) -> None:
         ax.spines[side].set_color(COLOR_AXIS)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
 
-
 def plot_comparison(merged: pd.DataFrame, district: str) -> Path:
-    """One axis per unit — three stacked panels, never a dual y-axis."""
     fig, axes = plt.subplots(3, 1, figsize=(10, 11), sharex=True)
     fig.patch.set_facecolor("#fcfcfb")
 
@@ -132,7 +110,6 @@ def plot_comparison(merged: pd.DataFrame, district: str) -> Path:
     plt.close(fig)
     return out_path
 
-
 def print_summary(merged: pd.DataFrame, district: str) -> None:
     def mae(pred_col: str, om_col: str) -> float:
         return float(np.mean(np.abs(merged[pred_col] - merged[om_col])))
@@ -152,7 +129,6 @@ def print_summary(merged: pd.DataFrame, district: str) -> None:
             f"{r['pred_humidity_pct']:<10}{r['om_humidity_pct']:<8}"
         )
 
-
 def main() -> None:
     district = sys.argv[1] if len(sys.argv) > 1 else "Colombo"
     if district not in DISTRICT_COORDS:
@@ -166,7 +142,6 @@ def main() -> None:
 
     out_path = plot_comparison(merged, district)
     print(f"\nChart saved to: {out_path}")
-
 
 if __name__ == "__main__":
     main()

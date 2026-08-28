@@ -1,13 +1,3 @@
-"""
-training.dataset_extended
-─────────────────────────────
-Same windowing discipline as dataset.py — per district, gap-aware, a window
-never spans a real data gap or a district boundary — but running the
-EXTENDED 22-feature pipeline (extended_features.py) instead of the
-production 12-feature contract. Kept as a separate module (reusing
-dataset.py's gap-detection helper) so the production windowing path stays
-visibly untouched by this experimental, wider one.
-"""
 from __future__ import annotations
 
 import logging
@@ -22,7 +12,6 @@ from training.extended_features import EXTENDED_FEATURE_COLS, engineer_extended_
 log = logging.getLogger("trip_smart.training.dataset_extended")
 
 TARGET_COLS = ["Temperature_C", "Precipitation_mm", "Humidity_%"]
-
 
 def build_extended_windows(
     district_frames: dict[str, pd.DataFrame],
@@ -62,7 +51,6 @@ def build_extended_windows(
         raise ValueError(f"No district has {need} contiguous hourly observations yet.")
 
     return np.stack(X_list), np.stack(y_list), dt_list, dist_list
-
 
 def chronological_split(X, y, dt_list, dist_list) -> dict[str, dict]:
     order = np.argsort(dt_list)

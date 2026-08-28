@@ -1,16 +1,11 @@
-"""
-forecast.schemas — the API contract. Nothing here knows about TensorFlow.
-"""
 from typing import List, Optional
 
 from pydantic import BaseModel, Field, field_validator
-
 
 class DistrictInfo(BaseModel):
     name: str
     lat: float
     lon: float
-
 
 class GeocodeResult(BaseModel):
     query: str
@@ -18,13 +13,11 @@ class GeocodeResult(BaseModel):
     lat: float
     lon: float
 
-
 class ReverseGeocodeResult(BaseModel):
     lat: float
     lon: float
-    place_name: str          # nearest locality/sublocality/village — short name
+    place_name: str
     formatted_address: str
-
 
 class HourlyForecast(BaseModel):
     forecast_hour: int = Field(..., description="Hours ahead of the forecast origin (1-24)")
@@ -39,7 +32,6 @@ class HourlyForecast(BaseModel):
     humidity_pct: float
     advisory_level: str = Field(..., description="GOOD | CAUTION | AVOID")
     advisory_reason: str
-
 
 class DailySummary(BaseModel):
     temp_min_c: float
@@ -57,8 +49,6 @@ class DailySummary(BaseModel):
     advisory_level: str
     verdict: str
 
-    # ---- 24h-total rain model outlook (optional: an enrichment, absent if
-    # the model artifacts aren't deployed or the prediction failed) ----
     rain_24h_probability: Optional[float] = Field(
         default=None, description="Model's probability that measurable rain falls somewhere in the next 24h"
     )
@@ -77,7 +67,6 @@ class DailySummary(BaseModel):
     )
     day_type_reason: Optional[str] = None
 
-
 class ForecastResponse(BaseModel):
     district: str
     forecast_origin: str = Field(..., description="UTC timestamp the model ran at")
@@ -90,7 +79,6 @@ class ForecastResponse(BaseModel):
     stale_reason: Optional[str] = None
     summary: DailySummary
     forecast: List[HourlyForecast]
-
 
 class WeeklyDay(BaseModel):
     date: str = Field(..., description="Colombo calendar date (YYYY-MM-DD)")
@@ -109,15 +97,12 @@ class WeeklyDay(BaseModel):
     advisory_level: str
     verdict: str
 
-
 class WeeklyOutlookResponse(BaseModel):
     district: str
     forecast_origin: str
     days: List[WeeklyDay]
 
-
 class HourlyRecord(BaseModel):
-    """One hour of raw observations — for callers supplying their own context."""
     Hour: int
     Month: int
     Temperature_C: float
@@ -142,9 +127,7 @@ class HourlyRecord(BaseModel):
             raise ValueError(f"Month must be 1-12, got {v}")
         return v
 
-
 class PredictRequest(BaseModel):
-    """Bring-your-own-context inference, mirroring the original /predict."""
     district: str
     records: List[HourlyRecord]
 
@@ -155,12 +138,10 @@ class PredictRequest(BaseModel):
             raise ValueError(f"Exactly 168 hourly records are required; received {len(v)}")
         return v
 
-
 class HealthResponse(BaseModel):
     status: str
     model_loaded: bool
     districts: int
-
 
 class CurrentConditionsResponse(BaseModel):
     district: str

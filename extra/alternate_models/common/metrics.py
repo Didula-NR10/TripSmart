@@ -1,12 +1,3 @@
-"""
-alternate_models/common/metrics.py
-─────────────────────────────────────
-Shared evaluation + plotting for every model in alternate_models/, so all
-four are scored identically and their numbers are directly comparable.
-Reports R², MAE, RMSE — overall, per-target, and per-lead-hour (hour 1
-ahead vs hour 24 ahead almost always differ a lot; averaging them away
-hides that).
-"""
 from __future__ import annotations
 
 import json
@@ -27,10 +18,7 @@ COLOR_AXIS = "#c3c2b7"
 COLOR_TEXT = "#0b0b0b"
 COLOR_TEXT_MUTED = "#898781"
 
-
 def regression_report(y_true: np.ndarray, y_pred: np.ndarray, model_name: str) -> dict[str, Any]:
-    """y_true, y_pred: (n_samples, horizon, n_targets). Returns a JSON-able
-    dict with overall + per-target + per-lead-hour R²/MAE/RMSE."""
     n_samples, horizon, n_targets = y_true.shape
     report: dict[str, Any] = {"model_name": model_name, "n_samples": n_samples, "horizon": horizon}
 
@@ -59,7 +47,6 @@ def regression_report(y_true: np.ndarray, y_pred: np.ndarray, model_name: str) -
     report["per_hour"] = per_hour
     return report
 
-
 def print_report(report: dict[str, Any]) -> None:
     print(f"\n{'=' * 72}")
     print(f"REGRESSION REPORT — {report['model_name']}  ({report['n_samples']} test windows)")
@@ -75,13 +62,11 @@ def print_report(report: dict[str, Any]) -> None:
         print(f"\n{name}: hour+1 R2={r2_h1:.4f} MAE={mae_h1:.4f}  ->  "
               f"hour+{len(hours)} R2={r2_h24:.4f} MAE={mae_h24:.4f}")
 
-
 def save_report(report: dict[str, Any], out_path: Path) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w") as f:
         json.dump(report, f, indent=2)
     print(f"[metrics] Report saved to {out_path}")
-
 
 def _style_axis(ax, ylabel: str) -> None:
     ax.set_ylabel(ylabel, color=COLOR_TEXT, fontsize=10)
@@ -92,11 +77,7 @@ def _style_axis(ax, ylabel: str) -> None:
     for side in ("left", "bottom"):
         ax.spines[side].set_color(COLOR_AXIS)
 
-
 def plot_training_curves(history: dict, out_path: Path, model_name: str) -> None:
-    """`history` is a Keras History.history dict (or an equivalent dict of
-    lists) with 'loss' and optionally 'val_loss'. No-op (with a message) for
-    models like LightGBM that don't have a Keras-style loss curve."""
     if "loss" not in history:
         print("[metrics] No 'loss' key in history — skipping training curve plot.")
         return
@@ -119,10 +100,7 @@ def plot_training_curves(history: dict, out_path: Path, model_name: str) -> None
     plt.close(fig)
     print(f"[metrics] Training curve saved to {out_path}")
 
-
 def plot_per_hour_metrics(report: dict[str, Any], out_path: Path, model_name: str) -> None:
-    """One panel per target: MAE by lead hour (1..24). Shows whether the
-    model degrades gracefully with distance or falls apart early."""
     targets = list(report["per_hour"].keys())
     fig, axes = plt.subplots(len(targets), 1, figsize=(9, 3.2 * len(targets)), sharex=True)
     if len(targets) == 1:
@@ -145,12 +123,8 @@ def plot_per_hour_metrics(report: dict[str, Any], out_path: Path, model_name: st
     plt.close(fig)
     print(f"[metrics] Per-hour metrics plot saved to {out_path}")
 
-
 def plot_predictions_vs_actual(y_true: np.ndarray, y_pred: np.ndarray, out_path: Path,
                                 model_name: str, n_examples: int = 3) -> None:
-    """Pick a few random test windows and plot predicted vs actual across
-    the 24h horizon, one figure per target — a sanity-check visual, not just
-    a scalar metric."""
     n_samples, horizon, n_targets = y_true.shape
     rng = np.random.default_rng(42)
     idxs = rng.choice(n_samples, size=min(n_examples, n_samples), replace=False)

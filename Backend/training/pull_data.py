@@ -1,16 +1,3 @@
-"""
-training.pull_data
-────────────────────
-Reads accumulated real observations back out of Supabase — the same
-`weather_observations` rows that `WeatherRepository` tops up on every live
-forecast request (Backend/forecast/repositories.py). This is the only new
-"raw ingredient" a retrain has that the original training run didn't: real,
-ground-truth weather that has happened since the app went live.
-
-Deliberately a plain SQLAlchemy query, not the FastAPI app — this module is
-run standalone (see pipeline.py), so it only needs core.database's engine,
-not the web server around it.
-"""
 from __future__ import annotations
 
 import logging
@@ -23,9 +10,6 @@ from forecast.utils import DISTRICT_COORDS
 
 log = logging.getLogger("trip_smart.training.pull_data")
 
-# Renames DB columns onto the exact names forecast.utils.engineer_features
-# expects (FINAL_FEATURE_COLS minus the derived ones) — keep this mapping in
-# sync with core/models.py's WeatherObservation if that schema ever changes.
 _COLUMN_MAP = {
     "temperature_c": "Temperature_C",
     "precipitation_mm": "Precipitation_mm",
@@ -47,13 +31,7 @@ _QUERY = text(
     """
 )
 
-
 def fetch_all_districts() -> dict[str, pd.DataFrame]:
-    """One DataFrame per district, raw+renamed but not yet feature-engineered.
-
-    Districts with no rows at all are omitted (not returned as empty frames)
-    so callers don't have to special-case them.
-    """
     if engine is None:
         raise RuntimeError(
             "SUPABASE_DB_URL is not set — the retrain pipeline needs the same "

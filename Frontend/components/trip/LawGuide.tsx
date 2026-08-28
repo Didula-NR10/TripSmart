@@ -4,7 +4,6 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LawEntry, RiskLevel, lawsDisclaimer, typeLabel } from '../../constants/laws';
 import { Palette, Radius, Shadow, Space, Type } from '../../constants/trip-theme';
 
-/** Severity → the same tones the advisory banners use. */
 const riskTone = (risk: RiskLevel) =>
   (({ high: 'danger', medium: 'warn', low: 'primary' }) as const)[risk];
 
@@ -22,9 +21,6 @@ const typeIcon: Record<LawEntry['type'], keyof typeof Ionicons.glyphMap> = {
   ethics: 'leaf-outline',
 };
 
-/** A more specific glyph for a handful of common categories, falling back to
- *  the generic per-type icon above. Cosmetic only — matches the reference
- *  design's per-topic icons without needing bespoke art per law. */
 function lawIcon(law: LawEntry) {
   const category = law.category.toLowerCase();
   if (category.includes('drone')) return { lib: 'mci' as const, name: 'quadcopter' as const };
@@ -43,8 +39,6 @@ function LawGlyph({ law, size, color }: { law: LawEntry; size: number; color: st
 
 const INITIAL_COUNT = 6;
 
-/** The pop-up: same layout as the zone advisory modal — badge, eyebrow,
- *  title, severity-colored bullets, "I understand". */
 function LawModal({ law, onClose }: { law: LawEntry | null; onClose: () => void }) {
   if (!law) return null;
   const skin = riskSkin(law.risk_level);

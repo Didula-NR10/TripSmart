@@ -1,15 +1,3 @@
-/**
- * app/settings.tsx — account and app settings. Reached from Profile's
- * settings icon; not a tab, so it has its own back button rather than
- * living in the bottom bar (same pattern as app/journal.tsx).
- *
- * Every control here does something real:
- *   - Notifications toggle actually gates lib/notify.ts's OS scheduling.
- *   - Clear cached forecast data actually wipes the AsyncStorage entries
- *     lib/api.ts's cacheForecast() writes.
- *   - Delete account actually calls the backend and signs the device out.
- * Nothing here is a placeholder.
- */
 import { ReactNode, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -82,7 +70,7 @@ export default function SettingsScreen() {
   }, []);
 
   const toggleNotifications = async (value: boolean) => {
-    setNotifsEnabled(value); // optimistic — this is a local preference, not a network call
+    setNotifsEnabled(value);
     await setNotificationsEnabled(value);
   };
 

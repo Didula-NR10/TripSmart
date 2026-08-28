@@ -1,6 +1,3 @@
-"""
-auth.schemas — the auth API contract.
-"""
 import re
 from typing import Optional
 
@@ -9,13 +6,11 @@ from pydantic import BaseModel, Field, field_validator
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 _USERNAME_RE = re.compile(r"^[a-zA-Z0-9_]{3,20}$")
 
-
 def _clean_email(v: str) -> str:
     v = v.strip().lower()
     if not _EMAIL_RE.match(v):
         raise ValueError("Enter a valid email address.")
     return v
-
 
 class SignupRequest(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=80)
@@ -42,7 +37,6 @@ class SignupRequest(BaseModel):
     def _trim(cls, v: str) -> str:
         return v.strip()
 
-
 class VerifyEmailRequest(BaseModel):
     email: str
     otp: str = Field(..., min_length=6, max_length=6)
@@ -52,15 +46,12 @@ class VerifyEmailRequest(BaseModel):
     def _email(cls, v: str) -> str:
         return _clean_email(v)
 
-
 class LoginRequest(BaseModel):
     identifier: str = Field(..., description="Username or email")
     password: str
 
-
 class GoogleAuthRequest(BaseModel):
     id_token: str = Field(..., description="ID token from the native Google Sign-In flow")
-
 
 class ForgotPasswordRequest(BaseModel):
     email: str
@@ -69,7 +60,6 @@ class ForgotPasswordRequest(BaseModel):
     @classmethod
     def _email(cls, v: str) -> str:
         return _clean_email(v)
-
 
 class ResetPasswordRequest(BaseModel):
     email: str
@@ -81,7 +71,6 @@ class ResetPasswordRequest(BaseModel):
     def _email(cls, v: str) -> str:
         return _clean_email(v)
 
-
 class ResendOtpRequest(BaseModel):
     email: str
     purpose: str = Field(..., pattern="^(signup|reset)$")
@@ -90,7 +79,6 @@ class ResendOtpRequest(BaseModel):
     @classmethod
     def _email(cls, v: str) -> str:
         return _clean_email(v)
-
 
 class UserOut(BaseModel):
     id: str
@@ -103,7 +91,6 @@ class UserOut(BaseModel):
     created_at: str
     last_login_at: Optional[str] = None
 
-
 class UpdateUsernameRequest(BaseModel):
     username: str
 
@@ -115,20 +102,16 @@ class UpdateUsernameRequest(BaseModel):
             raise ValueError("Username must be 3-20 characters: letters, numbers, underscore.")
         return v
 
-
 class AvatarRequest(BaseModel):
     avatar_url: str = Field(..., max_length=500, description="Cloudinary secure_url, or '' to remove")
-
 
 class ChangePasswordConfirmRequest(BaseModel):
     otp: str = Field(..., min_length=6, max_length=6)
     new_password: str = Field(..., min_length=8, max_length=128)
 
-
 class AuthResponse(BaseModel):
     token: str
     user: UserOut
-
 
 class MessageResponse(BaseModel):
     message: str

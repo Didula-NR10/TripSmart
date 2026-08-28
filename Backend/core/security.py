@@ -1,7 +1,3 @@
-"""
-JWT verification. The forecast endpoints are public reads, but history and
-admin routes can depend on these.
-"""
 from datetime import datetime, timedelta
 
 import jwt
@@ -12,7 +8,6 @@ from core.config import settings
 
 security = HTTPBearer(auto_error=False)
 
-
 def create_access_token(subject: str, role: str = "user") -> str:
     payload = {
         "sub": subject,
@@ -21,9 +16,7 @@ def create_access_token(subject: str, role: str = "user") -> str:
     }
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
-
 def verify_role(allowed_roles: list[str]):
-    """Dependency factory: `Depends(verify_role(["admin"]))`."""
 
     def dependency(credentials: HTTPAuthorizationCredentials = Security(security)) -> dict:
         if credentials is None:

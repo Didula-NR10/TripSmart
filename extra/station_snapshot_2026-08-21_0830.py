@@ -1,39 +1,3 @@
-"""
-station_snapshot_2026-08-21_0830.py
-────────────────────────────────────
-Compares the Sri Lanka Department of Meteorology's live station report for
-2026-08-21 08:30 SLT (Asia/Colombo, UTC+05:30 → 03:00 UTC) against what
-Open-Meteo and WeatherAPI.com report for the exact same stations, at the
-exact same time.
-
-The MET Dept table (as read off the report screenshot) has, per station:
-    Report_Time            - always "2026-08-21 0830" (SLT)
-    Rainfall (mm)           - rain in the single hour ending at the report time
-    Tot RF since 830am      - cumulative rain since the PREVIOUS day's 08:30
-                              (the standard 24h Sri Lankan met-reporting window)
-    Temperature (C)         - the temperature reading at the report time
-
-This script reproduces those same four columns from Open-Meteo (free,
-keyless) and WeatherAPI.com (needs WEATHERAPI_KEY — reads it from the
-environment, falling back to Backend/.env same as model_pipeline.py), using
-each station's own coordinates (not a district centroid) for accuracy.
-
-Open-Meteo: uses the live forecast endpoint's `past_days` window, which
-returns real analysed observations for hours before now — not a forecast —
-exactly like extra/open_meteo.py already does for the other verification
-workbook.
-
-WeatherAPI: uses the history.json endpoint for 2026-08-20 and 2026-08-21,
-exactly like extra/weatherapi.py already does.
-
-Writes extra/output/station_snapshot_2026-08-21_0830.xlsx with 3 sheets:
-    MetDept_Station   - transcribed from the report screenshot
-    OpenMeteo
-    WeatherAPI
-
-Usage:
-    python station_snapshot_2026-08-21_0830.py
-"""
 from __future__ import annotations
 
 import os
@@ -49,18 +13,14 @@ OUT_DIR.mkdir(exist_ok=True)
 OUT_PATH = OUT_DIR / "station_snapshot_2026-08-21_0830.xlsx"
 
 REPORT_TIME = "2026-08-21 0830"
-HOUR_END = pd.Timestamp("2026-08-21 08:00")     # nearest hourly reading to 08:30
-HOUR_START = pd.Timestamp("2026-08-21 07:00")   # the "last hour" rainfall window
-WINDOW_START = pd.Timestamp("2026-08-20 09:00")  # 24h-since-yesterday's-0830 window
+HOUR_END = pd.Timestamp("2026-08-21 08:00")
+HOUR_START = pd.Timestamp("2026-08-21 07:00")
+WINDOW_START = pd.Timestamp("2026-08-20 09:00")
 WINDOW_END = pd.Timestamp("2026-08-21 08:00")
 
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 WEATHERAPI_BASE_URL = "https://api.weatherapi.com/v1"
 
-# ── Station coordinates — the station's own location, not a district centroid ─
-# (matches extra/met_dept_pdf_reference.py's station set, plus 4 more that
-# appear in this particular report: Maha Illuppallama, Ratmalana, Bandarawela,
-# Mattala.)
 STATIONS: dict[str, tuple[float, float]] = {
     "JAFFNA":             (9.6615, 80.0255),
     "MULLATIVU":          (9.2671, 80.8128),
@@ -88,9 +48,6 @@ STATIONS: dict[str, tuple[float, float]] = {
     "POLONNARUWA":        (7.9403, 81.0188),
 }
 
-# ── The real report, transcribed from the station-data screenshot ────────────
-# (Station, Rainfall_mm, TotRF_since_830am, Temperature_C). "Trace" (rain too
-# light to measure) is kept as the string "Trace", matching the source report.
 MET_DEPT_REPORT: dict[str, tuple] = {
     "JAFFNA":            (0.0, 0.0, 29.2),
     "MULLATIVU":         (0.0, 0.0, 29.5),
@@ -118,7 +75,6 @@ MET_DEPT_REPORT: dict[str, tuple] = {
     "POLONNARUWA":       (0.0, 0.0, 31.7),
 }
 
-
 def fetch_open_meteo_hourly(lat: float, lon: float) -> pd.DataFrame:
     params = {
         "latitude": lat,
@@ -137,7 +93,6 @@ def fetch_open_meteo_hourly(lat: float, lon: float) -> pd.DataFrame:
         "Precipitation_mm": hourly["precipitation"],
     })
 
-
 def load_weatherapi_key() -> str:
     key = os.environ.get("WEATHERAPI_KEY", "").strip()
     if key:
@@ -153,7 +108,6 @@ def load_weatherapi_key() -> str:
         "No WeatherAPI key found. Set WEATHERAPI_KEY as an environment variable "
         "before running this script."
     )
-
 
 def fetch_weatherapi_hourly(lat: float, lon: float, key: str) -> pd.DataFrame:
     q = f"{lat},{lon}"
@@ -172,7 +126,6 @@ def fetch_weatherapi_hourly(lat: float, lon: float, key: str) -> pd.DataFrame:
         "Precipitation_mm": [h["precip_mm"] for h in hours],
     })
 
-
 def snapshot_row(station: str, df: pd.DataFrame) -> dict:
     at_report = df[df["datetime"] == HOUR_END]
     last_hour = df[(df["datetime"] > HOUR_START) & (df["datetime"] <= HOUR_END)]
@@ -190,7 +143,6 @@ def snapshot_row(station: str, df: pd.DataFrame) -> dict:
         "Temperature (C)": temp,
     }
 
-
 def build_met_dept_sheet() -> pd.DataFrame:
     rows = []
     for station, (rain, tot_rf, temp) in MET_DEPT_REPORT.items():
@@ -202,7 +154,6 @@ def build_met_dept_sheet() -> pd.DataFrame:
             "Temperature (C)": temp,
         })
     return pd.DataFrame(rows)
-
 
 def main() -> None:
     print("Report time: 2026-08-21 08:30 SLT (Asia/Colombo, UTC+05:30) = 2026-08-21 03:00 UTC\n")
@@ -255,7 +206,6 @@ def main() -> None:
         wa_df.to_excel(writer, sheet_name="WeatherAPI", index=False)
 
     print(f"\nSaved: {OUT_PATH}")
-
 
 if __name__ == "__main__":
     main()

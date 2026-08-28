@@ -34,3 +34,7 @@ dd.txt
 
 # --- Retraining pipeline output (regenerated every run, never committed by hand) ---
 extra/
+
+# --- Everything else outside the actual app + essentials bundle ---
+phtos/
+uml/

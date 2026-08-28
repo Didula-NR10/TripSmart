@@ -1,21 +1,3 @@
-"""
-alternate_models/compare_with_openmeteo.py
-─────────────────────────────────────────────
-Run any trained model from this folder against Open-Meteo's own live
-forecast for the same next-24h window and chart the two — the
-alternate-models equivalent of ../compare_with_openmeteo.py, pointed at
-whichever candidate model you choose instead of the production one.
-
-Same honesty caveat as ../compare_with_openmeteo.py: Open-Meteo's forecast
-is a proxy for truth (it hasn't happened yet either), useful for a quick
-sanity check. For a real accuracy measurement against what actually
-happened, train the model and then adapt the backtesting approach in
-../backtest.py (see the top-level README).
-
-Usage:
-    python compare_with_openmeteo.py 01_gru_seq2seq
-    python compare_with_openmeteo.py 04_lightgbm_multioutput --district Kandy
-"""
 from __future__ import annotations
 
 import argparse
@@ -33,9 +15,9 @@ THIS_DIR = Path(__file__).resolve().parent
 COMMON_DIR = THIS_DIR / "common"
 sys.path.insert(0, str(COMMON_DIR))
 
-from inference import load_trained_model, predict_next_24h  # noqa: E402
-from live_fetch import fetch_context_and_future  # noqa: E402
-from model_pipeline import DISTRICT_COORDS  # noqa: E402
+from inference import load_trained_model, predict_next_24h
+from live_fetch import fetch_context_and_future
+from model_pipeline import DISTRICT_COORDS
 
 OUTPUT_DIR = THIS_DIR / "output"
 
@@ -46,13 +28,11 @@ COLOR_AXIS = "#c3c2b7"
 COLOR_TEXT = "#0b0b0b"
 COLOR_TEXT_MUTED = "#898781"
 
-
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Compare a trained alternate model with Open-Meteo's live forecast")
     p.add_argument("model_dir", type=str, help="e.g. 01_gru_seq2seq")
     p.add_argument("--district", type=str, default="Colombo")
     return p.parse_args()
-
 
 def style_axis(ax, ylabel: str) -> None:
     ax.set_ylabel(ylabel, color=COLOR_TEXT, fontsize=10)
@@ -63,7 +43,6 @@ def style_axis(ax, ylabel: str) -> None:
     for side in ("left", "bottom"):
         ax.spines[side].set_color(COLOR_AXIS)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-
 
 def main() -> None:
     args = parse_args()
@@ -132,7 +111,6 @@ def main() -> None:
     fig.savefig(out_path, dpi=150, facecolor=fig.get_facecolor())
     plt.close(fig)
     print(f"\nChart saved to: {out_path}")
-
 
 if __name__ == "__main__":
     main()

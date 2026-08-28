@@ -1,18 +1,3 @@
-"""
-model_pipeline.py
-──────────────────
-Standalone copy of the TripSmart GRU forecaster pipeline — this is the exact
-same feature engineering / inference logic used by Backend/forecast/utils.py
-and Backend/forecast/repositories.py, extracted so it can run on its own in a
-terminal with no FastAPI, no Supabase, no backend server required.
-
-Nothing here talks to the Backend or Frontend folders. It reads the model
-artifacts from ./models (a copy of Backend/models) and hits Open-Meteo's free,
-keyless API directly with `requests`.
-
-If you ever retrain the model, drop the new best_checkpoint.keras / scaler.pkl
-into extra/models/ to update this copy too.
-"""
 from __future__ import annotations
 
 import os
@@ -72,7 +57,6 @@ DISTRICT_COORDS: Dict[str, Dict[str, float]] = {
     "Kegalle":      {"lat": 7.2513, "lon": 80.3464},
 }
 
-# Feature contract — the order is STRUCTURAL, mirrors Backend/forecast/utils.py.
 FINAL_FEATURE_COLS: List[str] = [
     "Temperature_C",
     "Precipitation_mm",
@@ -91,14 +75,8 @@ FINAL_FEATURE_COLS: List[str] = [
 TARGET_COLS: List[str] = ["Temperature_C", "Precipitation_mm", "Humidity_%"]
 TARGET_INDICES: List[int] = [FINAL_FEATURE_COLS.index(c) for c in TARGET_COLS]
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Model + scaler — loaded once, lazily (TensorFlow import is slow/heavy)
-# ──────────────────────────────────────────────────────────────────────────────
-
 _model = None
 _scaler = None
-
 
 def get_model():
     global _model
@@ -111,7 +89,6 @@ def get_model():
         _model.predict(dummy, verbose=0)
         print(f"Model ready. Input shape: {_model.input_shape}")
     return _model
-
 
 def get_scaler():
     global _scaler
@@ -127,11 +104,6 @@ def get_scaler():
         _scaler = scaler
     return _scaler
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Feature engineering — identical to Backend/forecast/utils.py
-# ──────────────────────────────────────────────────────────────────────────────
-
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df["Hour_sin"] = np.sin(2 * np.pi * df["Hour"] / 24.0)
@@ -141,7 +113,6 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     df["Temp_Change_3h"] = df["Temperature_C"].diff(periods=3).fillna(0.0)
     return df[FINAL_FEATURE_COLS]
 
-
 def inverse_transform_targets(raw_pred: np.ndarray, scaler: Any, horizon: int) -> np.ndarray:
     placeholder = np.zeros((horizon, len(FINAL_FEATURE_COLS)), dtype=np.float32)
     for out_idx, feat_idx in enumerate(TARGET_INDICES):
@@ -149,21 +120,8 @@ def inverse_transform_targets(raw_pred: np.ndarray, scaler: Any, horizon: int) -
     real_values = scaler.inverse_transform(placeholder)
     return real_values[:, TARGET_INDICES]
 
-
-# Mirrors Backend/forecast/utils.py — keep both in sync.
 RAIN_ZERO_FLOOR_MM = 0.3
 
-# Per-district: extra/backtest_all_districts.py runs the holdout method
-# separately for each of the 25 districts (climate varies a lot across Sri
-# Lanka — coastal vs hill-country vs dry-zone — so one district's bias
-# doesn't necessarily transfer to another) and only keeps a district's
-# correction if it actually beats the raw model on its own holdout set (165
-# origins, 48 days each, fit on the first 70% chronologically, evaluated on
-# the untouched last 30%). 19/25 districts get a temperature correction,
-# 21/25 get a humidity correction; the rest (e.g. Colombo's temperature: raw
-# 0.37 degC MAE beats corrected 0.40) are intentionally absent, meaning zero
-# correction, not "not yet done". Computed 2026-07-26. Regenerate both tables
-# together (rerun extra/backtest_all_districts.py) if the model is retrained.
 ZERO_24 = [0.0] * 24
 
 TEMP_BIAS_CORRECTION_C: dict[str, list[float]] = {
@@ -211,7 +169,6 @@ HUMIDITY_BIAS_CORRECTION_PCT: dict[str, list[float]] = {
     "Vavuniya": [-0.682, 0.192, -0.614, -0.713, -0.715, -1.905, -0.844, -0.329, -1.359, -1.525, -1.664, -3.004, -2.065, -1.565, -2.665, -2.826, -2.797, -3.898, -2.853, -2.310, -3.313, -3.368, -3.244, -4.026],
 }
 
-
 def clamp_physical(
     temp: float,
     rain: float,
@@ -232,9 +189,7 @@ def clamp_physical(
         round(min(100.0, max(0.0, float(humidity))), 1),
     )
 
-
 def run_model(frame: pd.DataFrame) -> np.ndarray:
-    """168 rows of raw observations -> (24, 3) real-unit predictions [temp, rain, humidity]."""
     engineered = engineer_features(frame)
     if engineered.isnull().any().any():
         raise ValueError("Gaps in the input window produced NaNs after feature engineering.")
@@ -253,14 +208,7 @@ def run_model(frame: pd.DataFrame) -> np.ndarray:
     raw = np.clip(raw, 0.0, 1.0)
     return inverse_transform_targets(raw, scaler, TARGET_HORIZON)
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Open-Meteo — fetch both the past context window AND Open-Meteo's own future
-# forecast in one call (forecast_days=2 buys the 24h-ahead comparison window).
-# ──────────────────────────────────────────────────────────────────────────────
-
 ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
-
 
 def _parse_hourly(hourly: dict) -> pd.DataFrame:
     df = pd.DataFrame({
@@ -279,11 +227,7 @@ def _parse_hourly(hourly: dict) -> pd.DataFrame:
     df["DaylightScore"] = (df["radiation"] / MAX_RADIATION_WM2).clip(0.0, 1.0)
     return df
 
-
 def fetch_open_meteo(district: str, forecast_days: int = 2) -> pd.DataFrame:
-    """Live forecast endpoint — past_days of real observations + Open-Meteo's
-    own forecast for the days ahead. Open-Meteo's forecast is a proxy for
-    truth (it hasn't happened yet either), not ground truth."""
     if district not in DISTRICT_COORDS:
         raise ValueError(f"Unknown district: '{district}'. See DISTRICT_COORDS.")
 
@@ -302,11 +246,7 @@ def fetch_open_meteo(district: str, forecast_days: int = 2) -> pd.DataFrame:
     resp.raise_for_status()
     return _parse_hourly(resp.json()["hourly"])
 
-
 def fetch_archive(district: str, start_date: str, end_date: str) -> pd.DataFrame:
-    """Historical reanalysis (ERA5-based) — what actually happened, per
-    Open-Meteo's archive. This is real ground truth, unlike the forecast
-    endpoint's future rows. `start_date`/`end_date` are 'YYYY-MM-DD'."""
     if district not in DISTRICT_COORDS:
         raise ValueError(f"Unknown district: '{district}'. See DISTRICT_COORDS.")
 
@@ -325,9 +265,7 @@ def fetch_archive(district: str, start_date: str, end_date: str) -> pd.DataFrame
     resp.raise_for_status()
     return _parse_hourly(resp.json()["hourly"])
 
-
 def split_context_and_future(df: pd.DataFrame):
-    """Split one fetched frame into (168h past context, rows at/after now)."""
     now = pd.Timestamp.now(tz="Asia/Colombo").tz_localize(None)
     context = df[df["datetime"] <= now].tail(INPUT_WINDOW).reset_index(drop=True)
     future = df[df["datetime"] > now].reset_index(drop=True)
@@ -338,20 +276,10 @@ def split_context_and_future(df: pd.DataFrame):
         )
     return context, future
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# WeatherAPI.com — mirrors Backend/forecast/repositories.py's WeatherRepository
-# ──────────────────────────────────────────────────────────────────────────────
-
 WEATHERAPI_BASE_URL = "https://api.weatherapi.com/v1"
-# WeatherAPI's free/standard plans expose no solar-irradiance (W/m2) field, so
-# DaylightScore is approximated from UV index instead — 11 is a "very high"
-# tropical UV reading. Mirrors Backend/forecast/repositories.py exactly.
 MAX_UV_INDEX = 11.0
 
-
 def load_weatherapi_key() -> str:
-    """Reads WEATHERAPI_KEY from the environment, falling back to Backend/.env."""
     key = os.environ.get("WEATHERAPI_KEY", "").strip()
     if key:
         return key
@@ -370,12 +298,10 @@ def load_weatherapi_key() -> str:
         "https://www.weatherapi.com/signup.aspx)."
     )
 
-
 def _weatherapi_get(path: str, params: dict, key: str) -> dict:
     resp = requests.get(f"{WEATHERAPI_BASE_URL}/{path}", params={**params, "key": key}, timeout=15)
     resp.raise_for_status()
     return resp.json()
-
 
 def _frame_from_weatherapi_hours(hours: List[dict]) -> pd.DataFrame:
     df = pd.DataFrame({
@@ -388,18 +314,13 @@ def _frame_from_weatherapi_hours(hours: List[dict]) -> pd.DataFrame:
         "WindGusts_kmh": [h["gust_kph"] for h in hours],
         "DaylightScore": [(h["uv"] / MAX_UV_INDEX) if h.get("is_day") else 0.0 for h in hours],
     })
-    # Independent calls (history x7 + forecast) can overlap at day boundaries.
     df = df.drop_duplicates(subset="datetime").sort_values("datetime").reset_index(drop=True)
     df["DaylightScore"] = df["DaylightScore"].clip(0.0, 1.0)
     df["Hour"] = df["datetime"].dt.hour
     df["Month"] = df["datetime"].dt.month
     return df
 
-
 def fetch_weatherapi(district: str, key: str, forecast_days: int = 2) -> pd.DataFrame:
-    """168h of real observations (7 history days + today) PLUS WeatherAPI's own
-    forecast for `forecast_days` ahead, all in one frame — mirrors
-    Backend/forecast/repositories.py's WeatherRepository.fetch_context_window."""
     if district not in DISTRICT_COORDS:
         raise ValueError(f"Unknown district: '{district}'. See DISTRICT_COORDS.")
 
@@ -423,11 +344,7 @@ def fetch_weatherapi(district: str, key: str, forecast_days: int = 2) -> pd.Data
 
     return _frame_from_weatherapi_hours(hours)
 
-
 def fetch_weatherapi_actual(district: str, dates: List, key: str) -> pd.DataFrame:
-    """Real recorded observations for specific calendar dates, via WeatherAPI's
-    history endpoint. Used as ground truth once a prediction window has
-    elapsed — `dates` is a list of `datetime.date` objects."""
     if district not in DISTRICT_COORDS:
         raise ValueError(f"Unknown district: '{district}'. See DISTRICT_COORDS.")
 
@@ -441,9 +358,7 @@ def fetch_weatherapi_actual(district: str, dates: List, key: str) -> pd.DataFram
 
     return _frame_from_weatherapi_hours(hours)
 
-
 def predict_next_24h(district: str) -> Dict[str, Any]:
-    """Fetch context, run the GRU, return the 24h prediction + timestamps."""
     df = fetch_open_meteo(district, forecast_days=1)
     context, _ = split_context_and_future(df)
 

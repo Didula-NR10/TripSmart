@@ -1,10 +1,3 @@
-/**
- * ProfileOverview — the account card at the top of the (logged-in) Profile
- * tab: avatar, name, verified badge, the computed travel-points chip, the
- * account fact rows, and the change-password / sign-out actions. Avatar
- * upload and password-change logic mirror what AuthPanel used to own for the
- * logged-in state; AuthPanel now only handles the logged-out forms.
- */
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -548,7 +541,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Palette.danger,
   },
-  // change-password sheet
   sheetScrim: {
     flex: 1,
     backgroundColor: 'rgba(9, 34, 38, 0.45)',

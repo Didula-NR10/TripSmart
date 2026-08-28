@@ -1,14 +1,3 @@
-"""
-training.dataset
-──────────────────
-Raw per-district observation frames -> (X, y) windows, engineered through
-the exact same `forecast.utils.engineer_features` the live app uses, so a
-retrained model is guaranteed to have been trained on the identical 12-column
-contract it will be served with. Windows are built PER DISTRICT and never
-span a gap in real hourly data — a missing hour breaks the window rather
-than being silently interpolated, since fabricated hours are not the "real
-new ground truth" this whole pipeline exists to learn from.
-"""
 from __future__ import annotations
 
 import logging
@@ -21,29 +10,17 @@ from training.config import INPUT_WINDOW, TARGET_HORIZON, TRAIN_FRACTION, VAL_FR
 
 log = logging.getLogger("trip_smart.training.dataset")
 
-
 def _contiguous_hourly_segments(df: pd.DataFrame) -> list[pd.DataFrame]:
-    """Split one district's timeline at any gap (missing or duplicate hour),
-    returning only the contiguous hourly-spaced runs."""
     gaps = df["observed_at"].diff() != pd.Timedelta(hours=1)
-    gaps.iloc[0] = True  # first row always starts a new segment
+    gaps.iloc[0] = True
     segment_id = gaps.cumsum()
     return [g.reset_index(drop=True) for _, g in df.groupby(segment_id)]
-
 
 def build_windows(
     district_frames: dict[str, pd.DataFrame],
     input_window: int = INPUT_WINDOW,
     horizon: int = TARGET_HORIZON,
 ) -> tuple[np.ndarray, np.ndarray, list[pd.Timestamp], list[str]]:
-    """(X, y, origin_time, origin_district) across every district.
-
-    X: (n, input_window, 12) engineered+ordered features (still UNSCALED —
-       scaling happens later against whichever scaler the caller chooses).
-    y: (n, horizon, 3) raw target values in real units.
-    origin_time: the timestamp the window's context ends at (used for the
-       chronological split, matching extra/alternate_models/common/data_prep.py).
-    """
     X_list, y_list, dt_list, dist_list = [], [], [], []
     need = input_window + horizon
 
@@ -83,15 +60,9 @@ def build_windows(
 
     return np.stack(X_list), np.stack(y_list), dt_list, dist_list
 
-
 def chronological_split(
     X: np.ndarray, y: np.ndarray, dt_list: list, dist_list: list[str],
 ) -> dict[str, dict]:
-    """Split by ORIGIN time, sorted globally (not per district) — matches the
-    discipline documented across every training/backtest script in this repo:
-    earliest windows train, next validate, most recent are held out untouched
-    for the promotion decision. A random split would leak future information
-    into training through overlapping windows."""
     order = np.argsort(dt_list)
     X, y = X[order], y[order]
     dt_sorted = [dt_list[i] for i in order]
@@ -116,20 +87,11 @@ def chronological_split(
                   f" ({result[name]['dt'][0]} to {result[name]['dt'][-1]})" if sl.stop > sl.start else "")
     return result
 
-
 def scale_features(X: np.ndarray, scaler) -> np.ndarray:
-    """(n, window, 12) real-unit -> same shape, scaled [0,1] by the existing
-    fitted scaler. Flattened to 2D for sklearn, reshaped back."""
     n, w, f = X.shape
     return scaler.transform(X.reshape(-1, f)).reshape(n, w, f).astype(np.float32)
 
-
 def scale_targets(y: np.ndarray, scaler) -> np.ndarray:
-    """(n, horizon, 3) real-unit targets -> scaled [0,1], using the same
-    zero-placeholder trick as forecast.utils.inverse_transform_targets (the
-    scaler was fit on all 12 columns; MinMaxScaler has no cross-feature
-    coupling, so filling the other 9 with zero and pulling the 3 target
-    columns back out is exact, not an approximation)."""
     n, h, t = y.shape
     placeholder = np.zeros((n * h, len(FINAL_FEATURE_COLS)), dtype=np.float32)
     for out_idx, feat_idx in enumerate(TARGET_INDICES):

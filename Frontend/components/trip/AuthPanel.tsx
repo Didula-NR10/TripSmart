@@ -1,8 +1,3 @@
-/**
- * AuthPanel — the logged-out account UI on the Profile tab: login / signup /
- * verify-OTP / forgot / reset forms. Once logged in, ProfileOverview takes
- * over (avatar, account facts, change password, sign out).
- */
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -54,13 +49,12 @@ export function AuthPanel() {
     try {
       await GoogleSignin.hasPlayServices();
       const response = await GoogleSignin.signIn();
-      if (!isSuccessResponse(response)) return; // user cancelled — not an error
+      if (!isSuccessResponse(response)) return;
       const idToken = response.data.idToken;
       if (!idToken) throw new Error('Google did not return an ID token.');
       await auth.loginWithGoogle(idToken);
     } catch (e) {
       if (isErrorWithCode(e) && e.code === statusCodes.SIGN_IN_CANCELLED) {
-        // silent — the user backed out of the Google sheet
       } else {
         setError(e instanceof Error ? e.message : 'Google sign-in failed.');
       }
@@ -69,7 +63,6 @@ export function AuthPanel() {
     }
   };
 
-  // form fields
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');

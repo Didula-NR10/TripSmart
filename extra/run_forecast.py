@@ -1,21 +1,8 @@
-"""
-run_forecast.py
-────────────────
-Run the TripSmart GRU forecaster on its own, in a terminal, with no backend
-server running. Fetches the last 168 hours of real observations for a
-district from Open-Meteo, runs the model, prints the next 24 hours.
-
-Usage:
-    python run_forecast.py                  # defaults to Colombo
-    python run_forecast.py Kandy
-    python run_forecast.py NuwaraEliya
-"""
 from __future__ import annotations
 
 import sys
 
 from model_pipeline import DISTRICT_COORDS, predict_next_24h
-
 
 def main() -> None:
     district = sys.argv[1] if len(sys.argv) > 1 else "Colombo"
@@ -36,7 +23,6 @@ def main() -> None:
             f"{row['temperature_c']:<12}{row['precipitation_mm']:<12}{row['humidity_pct']:<14}"
         )
     print()
-
 
 if __name__ == "__main__":
     main()

@@ -1,12 +1,3 @@
-"""
-auth.services — signup, email verification, login, password reset.
-
-All flows follow the same shape: validate → mutate inside one get_session()
-unit of work → answer. OTP codes live 10 minutes, allow 5 wrong attempts, and
-are deleted the moment they succeed. Passwords exist only as PBKDF2 hashes.
-Login itself is throttled per identifier (see auth.rate_limit) after 5 wrong
-passwords within a rolling 15-minute window, to close off brute-forcing.
-"""
 from __future__ import annotations
 
 import logging
@@ -26,7 +17,6 @@ from auth.security import hash_password, new_otp, new_session_token, verify_pass
 
 log = logging.getLogger("trip_smart.auth.service")
 
-
 def _require_db() -> None:
     if not db_available():
         raise HTTPException(
@@ -34,10 +24,8 @@ def _require_db() -> None:
             detail="Accounts need the database; SUPABASE_DB_URL is not configured.",
         )
 
-
 def _now() -> datetime:
     return datetime.now(timezone.utc)
-
 
 def _user_out(user: User) -> dict:
     return {
@@ -52,9 +40,7 @@ def _user_out(user: User) -> dict:
         "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
     }
 
-
 def _issue_otp(session, email: str, purpose: str) -> str:
-    """Replace any previous code for (email, purpose) with a fresh one."""
     session.query(EmailOtp).filter(
         EmailOtp.email == email, EmailOtp.purpose == purpose
     ).delete()
@@ -67,11 +53,7 @@ def _issue_otp(session, email: str, purpose: str) -> str:
     ))
     return code
 
-
 async def _deliver(email: str, code: str, purpose: str) -> Optional[str]:
-    """Email the code. Returns the code itself as `dev_otp` when it could not
-    be emailed AND we are in development — so the flow stays testable without
-    SMTP credentials. In production an email failure is a hard error."""
     if await send_otp(email, code, purpose):
         return None
     if settings.ENVIRONMENT == "development":
@@ -82,7 +64,6 @@ async def _deliver(email: str, code: str, purpose: str) -> Optional[str]:
         detail="Could not send the verification email. Try again later.",
     )
 
-
 def _create_session(session, user: User) -> str:
     token = new_session_token()
     session.add(AuthToken(
@@ -92,9 +73,7 @@ def _create_session(session, user: User) -> str:
     ))
     return token
 
-
 def _check_otp(session, email: str, purpose: str, code: str) -> None:
-    """Validate a submitted code or raise. Deletes the code when it matches."""
     otp: Optional[EmailOtp] = (
         session.query(EmailOtp)
         .filter(EmailOtp.email == email, EmailOtp.purpose == purpose)
@@ -117,10 +96,7 @@ def _check_otp(session, email: str, purpose: str, code: str) -> None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Incorrect code.")
     session.delete(otp)
 
-
 class AuthService:
-
-    # ---- signup + verification ----
 
     async def signup(self, full_name: str, username: str, email: str, country: str,
                       password: str) -> dict:
@@ -140,7 +116,6 @@ class AuthService:
                 )
 
             if by_email:
-                # Unverified account re-registering: refresh the details.
                 by_email.full_name = full_name
                 by_email.username = username
                 by_email.country = country
@@ -178,8 +153,6 @@ class AuthService:
             token = _create_session(session, user)
             return {"token": token, "user": _user_out(user)}
 
-    # ---- login ----
-
     def login(self, identifier: str, password: str) -> dict:
         _require_db()
         ident = identifier.strip().lower()
@@ -210,17 +183,7 @@ class AuthService:
             token = _create_session(session, user)
             return {"token": token, "user": _user_out(user)}
 
-    # ---- Google sign-in ----
-
     async def login_with_google(self, id_token: str) -> dict:
-        """Verifies the ID token from the native Android Google Sign-In flow,
-        then logs in the matching account or creates one — Google has
-        already verified the email, so there's no OTP step here.
-
-        Verification is a plain HTTPS call to Google's tokeninfo endpoint
-        (no extra dependency) rather than local JWT/JWKS verification —
-        consistent with this codebase's existing httpx-based external-call
-        style (WeatherAPI, Maps geocoding)."""
         _require_db()
         if not settings.GOOGLE_OAUTH_WEB_CLIENT_ID:
             raise HTTPException(
@@ -261,15 +224,13 @@ class AuthService:
                     username=username,
                     email=email,
                     country="",
-                    # Unusable random hash — this account only ever logs in via
-                    # Google, but password_hash is NOT NULL in the schema.
                     password_hash=hash_password(secrets.token_hex(32)),
                     email_verified=True,
                     google_sub=google_sub,
                 )
                 session.add(user)
             else:
-                user.email_verified = True  # Google already verified it
+                user.email_verified = True
                 if not user.google_sub:
                     user.google_sub = google_sub
                 user.updated_at = _now()
@@ -290,8 +251,6 @@ class AuthService:
             candidate = f"{base}{suffix}"
         return candidate
 
-    # ---- password reset ----
-
     async def forgot_password(self, email: str) -> dict:
         _require_db()
         dev_otp = None
@@ -302,7 +261,6 @@ class AuthService:
         if code:
             dev_otp = await _deliver(email, code, "reset")
 
-        # The response never reveals whether the account exists.
         return {
             "message": f"If an account exists for {email}, a reset code is on its way.",
             "dev_otp": dev_otp,
@@ -317,7 +275,6 @@ class AuthService:
                 raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Account not found.")
             user.password_hash = hash_password(new_password)
             user.updated_at = _now()
-            # A password change revokes every open session.
             session.query(AuthToken).filter(AuthToken.user_id == user.id).delete()
         return {"message": "Password changed. Log in with your new password.", "dev_otp": None}
 
@@ -336,8 +293,6 @@ class AuthService:
             "message": f"If an account exists for {email}, a new code is on its way.",
             "dev_otp": dev_otp,
         }
-
-    # ---- change password (logged in — OTP goes to the account's own email) ----
 
     async def change_password_request(self, user: User) -> dict:
         _require_db()
@@ -367,11 +322,7 @@ class AuthService:
             ).delete()
         return {"message": "Password changed.", "dev_otp": None}
 
-    # ---- profile ----
-
     def update_username(self, user: User, new_username: str) -> dict:
-        """Rename the logged-in user's account. Rejects a username already
-        taken by someone else; a no-op rename (same username) is allowed."""
         _require_db()
         with get_session() as session:
             clash = session.query(User).filter(
@@ -389,20 +340,12 @@ class AuthService:
             return _user_out(row)
 
     def delete_account(self, user: User) -> dict:
-        """Permanently deletes the account. auth_tokens, travel_journals and
-        travel_notes all cascade via ON DELETE CASCADE (core/models.py) — the
-        session that made this request is deleted along with everything else,
-        so the bearer token used here is invalid the instant this returns.
-        Ground reports are left untouched by design: GroundReport.author is a
-        plain text column, not a foreign key, so past reports keep showing
-        the (now-deleted) username rather than silently vanishing."""
         _require_db()
         with get_session() as session:
             session.query(User).filter(User.id == user.id).delete()
         return {"message": "Account deleted.", "dev_otp": None}
 
     def set_avatar(self, user: User, avatar_url: str) -> dict:
-        """Store the Cloudinary URL the client uploaded the picture to."""
         _require_db()
         url = avatar_url.strip()
         if url and not (url.startswith("https://") and "res.cloudinary.com" in url):
@@ -417,8 +360,6 @@ class AuthService:
             row.avatar_url = url
             row.updated_at = _now()
             return _user_out(row)
-
-    # ---- sessions ----
 
     def logout(self, token: str) -> dict:
         _require_db()

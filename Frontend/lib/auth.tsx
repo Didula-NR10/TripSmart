@@ -1,11 +1,3 @@
-/**
- * lib/auth.tsx — the account layer.
- *
- * AuthProvider holds the logged-in user + bearer token, persists the session
- * in AsyncStorage, and pushes the token into lib/api so data calls carry it.
- * useAuthGate() is how features demand login: `if (!gate()) return;` shows a
- * "sign in required" prompt that routes to the Profile tab.
- */
 import {
   ReactNode,
   createContext,

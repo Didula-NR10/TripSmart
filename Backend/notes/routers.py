@@ -1,8 +1,3 @@
-"""
-notes.routers — the traveller's private notebook. Login required throughout;
-every query is scoped to the authenticated user, so nobody reads anyone
-else's notes.
-"""
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -13,7 +8,6 @@ from core.database import db_available, get_session
 from core.models import TravelNote, User
 
 router = APIRouter(prefix="/api/v1/notes", tags=["Travel Notebook"])
-
 
 class NoteCreate(BaseModel):
     place: str = Field(..., max_length=120, description="Where you went")
@@ -27,18 +21,15 @@ class NoteCreate(BaseModel):
             raise ValueError("must not be blank")
         return v
 
-
 class NoteOut(BaseModel):
     id: str
     place: str
     body: str
     created_at: str
 
-
 class NoteList(BaseModel):
     count: int
     notes: List[NoteOut]
-
 
 def _require_db() -> None:
     if not db_available():
@@ -47,7 +38,6 @@ def _require_db() -> None:
             detail="The notebook needs the database; SUPABASE_DB_URL is not configured.",
         )
 
-
 def _to_dict(n: TravelNote) -> dict:
     return {
         "id": str(n.id),
@@ -55,7 +45,6 @@ def _to_dict(n: TravelNote) -> dict:
         "body": n.body,
         "created_at": n.created_at.isoformat(),
     }
-
 
 @router.get("", response_model=NoteList)
 def list_notes(user: User = Depends(get_current_user)):
@@ -71,7 +60,6 @@ def list_notes(user: User = Depends(get_current_user)):
         )
         return {"count": len(rows), "notes": [_to_dict(n) for n in rows]}
 
-
 @router.post("", response_model=NoteOut, status_code=status.HTTP_201_CREATED)
 def create_note(payload: NoteCreate, user: User = Depends(get_current_user)):
     """Write a notebook entry: where you went, what you saw."""
@@ -82,7 +70,6 @@ def create_note(payload: NoteCreate, user: User = Depends(get_current_user)):
         session.flush()
         session.refresh(note)
         return _to_dict(note)
-
 
 @router.delete("/{note_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_note(note_id: str, user: User = Depends(get_current_user)):

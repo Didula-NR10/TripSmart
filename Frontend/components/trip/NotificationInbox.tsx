@@ -1,10 +1,3 @@
-/**
- * NotificationInbox — the bell button's target: an in-app list of every
- * notification the app has fired (district entry, laws/specialties, ground
- * reports). Exists because expo-notifications has no tray on web and Expo Go
- * users don't always see the OS panel, so there needs to be a reliable place
- * to answer "what did I just get notified about".
- */
 import { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';

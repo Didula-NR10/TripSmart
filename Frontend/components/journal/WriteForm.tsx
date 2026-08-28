@@ -1,8 +1,3 @@
-/**
- * WriteForm — the "write a page" overlay: where you went, what you saw, and
- * an optional photo (uploaded straight to Cloudinary, same as an avatar —
- * see lib/cloudinary.uploadJournalPhoto).
- */
 import { useState } from 'react';
 import {
   ActivityIndicator,

@@ -1,16 +1,3 @@
-"""
-alternate_models/common/make_synthetic_data.py
-──────────────────────────────────────────────────
-Generates a small, plausible-looking hourly weather xlsx so every train.py
-in alternate_models/ can be run and sanity-checked end-to-end BEFORE your
-real data arrives. Not real data — a smooth diurnal/seasonal curve plus
-noise, for two synthetic districts. Its only purpose is to prove the code
-runs without errors; don't read anything into the R² scores it produces.
-
-Usage:
-    python make_synthetic_data.py
-Writes: alternate_models/data/synthetic_sample.xlsx
-"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -21,7 +8,6 @@ import pandas as pd
 OUT_PATH = Path(__file__).resolve().parent.parent / "data" / "synthetic_sample.xlsx"
 DISTRICTS = {"Colombo": (6.9271, 79.8612), "Kandy": (7.2906, 80.6337)}
 DAYS = 70
-
 
 def make_district(name: str, seed: int) -> pd.DataFrame:
     rng = np.random.default_rng(seed)
@@ -67,7 +53,6 @@ def make_district(name: str, seed: int) -> pd.DataFrame:
         "DewPoint_C": dewpoint.round(2),
     })
 
-
 def main() -> None:
     frames = [make_district(name, seed=i * 7 + 1) for i, name in enumerate(DISTRICTS)]
     df = pd.concat(frames, ignore_index=True)
@@ -75,7 +60,6 @@ def main() -> None:
     df.to_excel(OUT_PATH, index=False)
     print(f"Synthetic sample written to {OUT_PATH} ({len(df)} rows, "
           f"{df['district'].nunique()} districts, {DAYS} days each).")
-
 
 if __name__ == "__main__":
     main()

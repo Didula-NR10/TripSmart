@@ -1,0 +1,22 @@
+TripSmart 24-Hour Rainfall Model — Final Statistics
+Trained: 2026-08-24 08:52:47   Time: 1459.6s
+Train/Val/Test windows: 97,790 / 20,955 / 20,955
+============================================================
+Category                      Metric          Value     
+------------------------------------------------------------
+Occurrence                    Accuracy        0.769     
+Occurrence                    Precision       0.815     
+Occurrence                    Recall          0.889     
+Occurrence                    F1              0.850     
+Occurrence                    ROC-AUC         0.801     
+Occurrence                    Brier score     0.165     
+Amount (rain windows only)    MAE (mm)        5.948     
+Amount (rain windows only)    RMSE (mm)       14.160    
+Amount (rain windows only)    MSE (mm2)       200.514   
+Amount (rain windows only)    R2              0.262     
+Combined (final estimate)     MAE (mm)        4.958     
+Combined (final estimate)     RMSE (mm)       12.313    
+Combined (final estimate)     MSE (mm2)       151.602   
+Combined (final estimate)     R2              0.292     
+============================================================
+Per-district breakdown (25 districts) in report.json

@@ -1,6 +1,3 @@
-"""
-reports.routers — HTTP surface for ground reports. Thin: validate, delegate.
-"""
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -20,7 +17,6 @@ from reports.schemas import (
 router = APIRouter(prefix="/api/v1/reports", tags=["Ground Reports"])
 repo = ReportRepository()
 
-
 @router.get("", response_model=ReportList)
 def list_reports(
     district: Optional[str] = Query(default=None, description="Filter to one district, e.g. 'Colombo'"),
@@ -36,7 +32,6 @@ def list_reports(
     except RuntimeError as e:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
     return {"count": len(reports), "reports": reports}
-
 
 @router.post("", response_model=ReportOut, status_code=status.HTTP_201_CREATED)
 async def create_report(payload: ReportCreate, user: User = Depends(get_current_user)):
@@ -78,7 +73,6 @@ async def create_report(payload: ReportCreate, user: User = Depends(get_current_
 
     return created
 
-
 @router.post("/subscribe", response_model=SubscribeResponse)
 def subscribe(payload: SubscribeRequest):
     """Register (or move) this device's push token to one district, so it
@@ -94,7 +88,6 @@ def subscribe(payload: SubscribeRequest):
             detail=f"Unknown district '{payload.district}'.",
         )
     return {"message": f"Subscribed to ground-report alerts for {payload.district}."}
-
 
 @router.delete("/{report_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_report(report_id: str, user: User = Depends(get_current_user)):

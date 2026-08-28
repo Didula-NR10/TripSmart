@@ -1,10 +1,3 @@
-"""
-reports.repositories — ground_reports persistence.
-
-Every read and write first purges anything older than 24 hours, so expiry
-needs no scheduler: the table cleans itself on use, and the database is never
-serving stale reports.
-"""
 from __future__ import annotations
 
 import logging
@@ -20,7 +13,6 @@ from core.models import District, GroundReport, PushSubscription, User
 log = logging.getLogger("trip_smart.reports.repo")
 
 REPORT_TTL_HOURS = 24
-
 
 class ReportRepository:
 
@@ -42,7 +34,6 @@ class ReportRepository:
         author: str = "",
         posted_by_id: Optional[uuid.UUID] = None,
     ) -> Optional[dict]:
-        """Returns the stored report, or None when the district is unknown."""
         if not db_available():
             raise RuntimeError("Database is not configured.")
         with get_session() as session:
@@ -59,16 +50,13 @@ class ReportRepository:
                 posted_by_id=posted_by_id,
             )
             session.add(report)
-            session.flush()          # server defaults (id, created_at) come back
+            session.flush()
             session.refresh(report)
             out = self._to_dict(report, d.name)
-            out["_district_id"] = d.id  # internal only — ReportOut doesn't declare this field
+            out["_district_id"] = d.id
             return out
 
     def list(self, district: Optional[str] = None, search: Optional[str] = None) -> List[dict]:
-        """Live reports, newest first. `district` narrows to one district;
-        `search` matches title, body or location, case-insensitively. Both
-        combine: filter by Colombo + search 'rain' = rain reports in Colombo."""
         if not db_available():
             raise RuntimeError("Database is not configured.")
         with get_session() as session:
@@ -91,10 +79,6 @@ class ReportRepository:
                 )
             rows = query.order_by(GroundReport.created_at.desc()).limit(100).all()
 
-            # Avatar lookup: prefer the stable posted_by_id link, which
-            # survives the poster renaming their username; fall back to a
-            # username-text match only for legacy rows that predate that
-            # column (posted_by_id is NULL).
             user_ids = {r.posted_by_id for r, _ in rows if r.posted_by_id}
             avatars_by_id: dict = {}
             if user_ids:
@@ -119,11 +103,6 @@ class ReportRepository:
             ]
 
     def delete(self, report_id: str, user_id: uuid.UUID, author: str) -> bool:
-        """Delete a report — only its own poster may remove it. Authorizes on
-        the stable posted_by_id when the row has one; falls back to the
-        author-name match only for legacy rows without it (posted before
-        posted_by_id existed). Returns whether a row was actually deleted
-        (False = not found / not yours)."""
         if not db_available():
             raise RuntimeError("Database is not configured.")
         with get_session() as session:
@@ -145,9 +124,6 @@ class ReportRepository:
             return bool(deleted)
 
     def subscribe(self, expo_token: str, district: str) -> bool:
-        """This device now wants ground-report alerts for `district`, replacing
-        whatever district it was previously subscribed to. Returns False when
-        the district name is unrecognised."""
         if not db_available():
             raise RuntimeError("Database is not configured.")
         with get_session() as session:
@@ -167,9 +143,6 @@ class ReportRepository:
             return True
 
     def tokens_for_district(self, district_id, exclude_token: str = "") -> List[str]:
-        """Every device currently subscribed to this district, minus the
-        poster's own token (if supplied) so they don't get pushed their own
-        report."""
         if not db_available():
             return []
         with get_session() as session:

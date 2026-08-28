@@ -1,27 +1,3 @@
-"""
-compare_three_way.py
-──────────────────────
-Predictions-only comparison: your GRU model vs Open-Meteo's forecast vs
-WeatherAPI.com's forecast, for the same district and the same next N hours.
-No ground truth here — none of these have happened yet. This is a "do the
-three forecasters agree with each other" check, not an accuracy check. For
-accuracy against what actually happened, use backtest.py (GRU) or
-predict_8h.py + verify_predictions.py (GRU vs Open-Meteo vs reality).
-
-Needs a free WeatherAPI.com API key:
-    1. Sign up at https://www.weatherapi.com/signup.aspx (free tier: 1M
-       calls/month, forecast up to 3 days ahead — plenty for this).
-    2. Copy your key from https://www.weatherapi.com/my/
-    3. Either set it as an environment variable:
-         set WEATHERAPI_KEY=your_key_here          (Windows cmd)
-         $env:WEATHERAPI_KEY = "your_key_here"      (PowerShell)
-       or pass it directly with --api-key.
-
-Usage:
-    python compare_three_way.py Colombo
-    python compare_three_way.py Kandy --hours 12
-    python compare_three_way.py Colombo --api-key YOUR_KEY_HERE
-"""
 from __future__ import annotations
 
 import argparse
@@ -49,11 +25,7 @@ OUTPUT_DIR = BASE_DIR / "output"
 ENV_PATH = BASE_DIR / ".env"
 WEATHERAPI_URL = "http://api.weatherapi.com/v1/forecast.json"
 
-
 def load_env_file(path: Path) -> None:
-    """Minimal KEY=VALUE loader so a .env value works without needing the
-    python-dotenv package. Never overrides a variable already set in the
-    real environment."""
     if not path.exists():
         return
     for line in path.read_text().splitlines():
@@ -71,7 +43,6 @@ COLOR_AXIS = "#c3c2b7"
 COLOR_TEXT = "#0b0b0b"
 COLOR_TEXT_MUTED = "#898781"
 
-
 def style_axis(ax, ylabel: str) -> None:
     ax.set_ylabel(ylabel, color=COLOR_TEXT, fontsize=10)
     ax.tick_params(colors=COLOR_TEXT_MUTED, labelsize=9)
@@ -82,10 +53,7 @@ def style_axis(ax, ylabel: str) -> None:
         ax.spines[side].set_color(COLOR_AXIS)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
 
-
 def fetch_weatherapi(district: str, api_key: str) -> dict:
-    """Returns {datetime -> {temp_c, rain_mm, hum_pct}} for the next ~2 days,
-    keyed by exact hour so it can be looked up by timestamp."""
     coords = DISTRICT_COORDS[district]
     params = {
         "key": api_key,
@@ -112,7 +80,6 @@ def fetch_weatherapi(district: str, api_key: str) -> dict:
                 "hum_pct": float(hour["humidity"]),
             }
     return lookup
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -229,7 +196,6 @@ def main() -> None:
     print(f"\nChart saved to {out_path}")
     print("\nNote: none of these three have been checked against reality yet — this")
     print("only shows whether the three forecasters agree, not who's actually right.")
-
 
 if __name__ == "__main__":
     main()

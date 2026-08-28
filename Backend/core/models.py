@@ -1,10 +1,3 @@
-"""
-core.models — the database schema, as code.
-
-SQLAlchemy creates these tables in Supabase on startup (see core.database.init_db),
-so there is no SQL to paste into the dashboard. Column types and constraints
-mirror the model's feature contract exactly.
-"""
 from __future__ import annotations
 
 import uuid
@@ -22,16 +15,12 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, TIMESTAMP, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-
 class Base(DeclarativeBase):
     pass
 
-
 UTC_NOW = text("timezone('utc'::text, now())")
 
-
 class District(Base):
-    """The 25 administrative districts the model was trained on."""
 
     __tablename__ = "districts"
 
@@ -45,15 +34,10 @@ class District(Base):
         TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
     )
 
-
 class WeatherObservation(Base):
-    """One hour of recorded weather for a district — the raw numeric attributes
-    the model's feature engineering requires. Every forecast run tops this table
-    up with the 168-hour context window it fetched."""
 
     __tablename__ = "weather_observations"
     __table_args__ = (
-        # A district can only have one unique record per hour.
         UniqueConstraint("district_id", "observed_at", name="uq_district_hour"),
     )
 
@@ -79,22 +63,10 @@ class WeatherObservation(Base):
         TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
     )
 
-
 class GroundReport(Base):
-    """A traveller's live report of conditions on the ground. Reports are
-    ephemeral by design: anything older than 24 hours is purged from the
-    database — yesterday's trail mud is not information, it's noise.
-
-    `author` is a display-name snapshot, kept deliberately un-linked (no FK)
-    so a report still shows who posted it even after that account is
-    deleted. `posted_by_id` is the real, stable ownership link — used for
-    delete authorization and avatar lookup, and survives the poster
-    renaming their username (author would not). ON DELETE SET NULL rather
-    than CASCADE: deleting the account must not delete the report."""
 
     __tablename__ = "ground_reports"
     __table_args__ = (
-        # The list query is always (district?, newest first); expiry scans created_at.
         Index("ground_reports_district_created_idx", "district_id", "created_at"),
         Index("ground_reports_created_idx", "created_at"),
     )
@@ -107,8 +79,8 @@ class GroundReport(Base):
         ForeignKey("districts.id", ondelete="CASCADE"),
         nullable=False,
     )
-    location: Mapped[str] = mapped_column(Text, nullable=False)   # free text: "Ella Rock trail"
-    title: Mapped[str] = mapped_column(Text, nullable=False)      # the main purpose, one line
+    location: Mapped[str] = mapped_column(Text, nullable=False)
+    title: Mapped[str] = mapped_column(Text, nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
     author: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
     posted_by_id: Mapped[uuid.UUID | None] = mapped_column(
@@ -120,10 +92,7 @@ class GroundReport(Base):
         TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
     )
 
-
 class User(Base):
-    """A registered traveller. Passwords are stored only as PBKDF2 hashes;
-    the account activates once the emailed OTP is confirmed."""
 
     __tablename__ = "users"
 
@@ -131,16 +100,14 @@ class User(Base):
         UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
     )
     full_name: Mapped[str] = mapped_column(Text, nullable=False)
-    username: Mapped[str] = mapped_column(Text, unique=True, nullable=False)  # stored lowercase
-    email: Mapped[str] = mapped_column(Text, unique=True, nullable=False)     # stored lowercase
+    username: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
     country: Mapped[str] = mapped_column(Text, nullable=False)
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
     avatar_url: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
     email_verified: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("false")
     )
-    # Set once an account has ever signed in with Google — its email is
-    # already Google-verified, and it never needs a usable local password.
     google_sub: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
     created_at = mapped_column(
         TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
@@ -150,10 +117,7 @@ class User(Base):
     )
     last_login_at = mapped_column(TIMESTAMP(timezone=True), nullable=True)
 
-
 class EmailOtp(Base):
-    """A one-time code emailed for signup verification or a password reset.
-    Codes expire quickly, allow limited attempts, and are deleted on use."""
 
     __tablename__ = "email_otps"
     __table_args__ = (
@@ -164,17 +128,15 @@ class EmailOtp(Base):
         UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
     )
     email: Mapped[str] = mapped_column(Text, nullable=False)
-    code: Mapped[str] = mapped_column(Text, nullable=False)          # 6 digits
-    purpose: Mapped[str] = mapped_column(Text, nullable=False)       # 'signup' | 'reset'
+    code: Mapped[str] = mapped_column(Text, nullable=False)
+    purpose: Mapped[str] = mapped_column(Text, nullable=False)
     attempts: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
     expires_at = mapped_column(TIMESTAMP(timezone=True), nullable=False)
     created_at = mapped_column(
         TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
     )
 
-
 class AuthToken(Base):
-    """An opaque bearer session token. Deleting the row is the logout."""
 
     __tablename__ = "auth_tokens"
     __table_args__ = (
@@ -192,11 +154,7 @@ class AuthToken(Base):
     )
     expires_at = mapped_column(TIMESTAMP(timezone=True), nullable=False)
 
-
 class TravelJournal(Base):
-    """A 'book' in the traveller's journal — a container for up to 10 pages
-    (see notes.journal_router.MAX_PAGES_PER_BOOK). Deleting a book deletes
-    every page in it."""
 
     __tablename__ = "travel_journals"
     __table_args__ = (
@@ -211,20 +169,12 @@ class TravelJournal(Base):
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    title: Mapped[str] = mapped_column(Text, nullable=False)   # "Book 1", "Book 2", ...
+    title: Mapped[str] = mapped_column(Text, nullable=False)
     created_at = mapped_column(
         TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
     )
 
-
 class TravelNote(Base):
-    """A private notebook entry: where the traveller went and what they saw.
-    Notes belong to their author alone and live until deleted.
-
-    A note optionally belongs to one page of one TravelJournal book
-    (journal_id + page_number, 1-based, unique per book). Notes written
-    before the journal feature existed have both columns NULL — they still
-    count toward the traveller's stats, they just are not bound in a book."""
 
     __tablename__ = "travel_notes"
     __table_args__ = (
@@ -240,8 +190,8 @@ class TravelNote(Base):
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    place: Mapped[str] = mapped_column(Text, nullable=False)   # where they went
-    body: Mapped[str] = mapped_column(Text, nullable=False)    # what they saw
+    place: Mapped[str] = mapped_column(Text, nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
     photo_url: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
     journal_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
@@ -253,13 +203,10 @@ class TravelNote(Base):
         TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
     )
 
-
 class ForecastRun(Base):
-    """A completed model run. Serving repeats from here skips the GRU."""
 
     __tablename__ = "forecast_runs"
     __table_args__ = (
-        # Every cache lookup is (district, most recent) — index for exactly that.
         Index("forecast_runs_district_origin_idx", "district_id", "forecast_origin"),
     )
 
@@ -277,13 +224,7 @@ class ForecastRun(Base):
         TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
     )
 
-
 class PushSubscription(Base):
-    """One device's current district, for district-scoped ground-report push
-    notifications. A device only ever cares about the district it's
-    currently showing (GPS-detected or manually picked), so re-subscribing
-    replaces the previous district rather than accumulating rows — the
-    token is the primary key."""
 
     __tablename__ = "push_subscriptions"
     __table_args__ = (

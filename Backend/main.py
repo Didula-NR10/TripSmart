@@ -1,10 +1,3 @@
-"""
-Trip Smart — API entrypoint.
-
-Layered: routers → services → repositories → (model | WeatherAPI | Supabase).
-Each module (forecast, profile, almanac, suggestions, advisory) plugs in here
-and nowhere else.
-"""
 import logging
 from contextlib import asynccontextmanager
 
@@ -27,17 +20,13 @@ logging.basicConfig(
 
 log = logging.getLogger("trip_smart.main")
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Tables are created in Supabase here, on boot — never by hand in the dashboard.
     try:
         init_db()
     except Exception as e:
-        # A broken DB must not stop the API: forecasting itself is stateless.
         log.error("Database initialisation failed (continuing without persistence): %s", e)
     yield
-
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -49,9 +38,6 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
-    # In development, Expo web may serve from any localhost port (8081, 8099,
-    # 19006, ...) — accept them all so a port change never breaks the app.
-    # Production still relies on the explicit ALLOWED_ORIGINS list alone.
     allow_origin_regex=(
         r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"
         if settings.ENVIRONMENT == "development"
@@ -67,11 +53,6 @@ app.include_router(forecast_router)
 app.include_router(notes_router)
 app.include_router(journal_router)
 app.include_router(reports_router)
-# app.include_router(profile_router)
-# app.include_router(almanac_router)
-# app.include_router(suggestions_router)
-# app.include_router(advisory_router)
-
 
 @app.get("/", tags=["Health"])
 def root():

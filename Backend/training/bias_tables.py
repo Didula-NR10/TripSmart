@@ -1,17 +1,3 @@
-"""
-training.bias_tables
-──────────────────────
-Regenerates the per-district, per-lead-hour bias-correction tables
-(TEMP_BIAS_CORRECTION_C / HUMIDITY_BIAS_CORRECTION_PCT in
-Backend/forecast/utils.py) for a NEW candidate checkpoint. Required every
-time the model changes: SYSTEM_DOCUMENTATION.md §12.3 flags that these
-tables are only valid for the exact model they were fit against.
-
-Same methodology as extra/backtest.py's fit_and_evaluate (fit the correction
-on the first ~70% of a district's holdout origins, chronologically; keep it
-only if it beats the raw model on the untouched remaining ~30%) — reusing
-the windows this pipeline already built rather than re-fetching an archive.
-"""
 from __future__ import annotations
 
 import logging
@@ -25,11 +11,7 @@ log = logging.getLogger("trip_smart.training.bias_tables")
 
 _ZERO_24 = [0.0] * 24
 
-
 def regenerate(candidate_model, scaler, holdout: dict) -> tuple[dict, dict, dict]:
-    """Returns (temp_table, humidity_table, per_district_report). The two
-    tables are exactly the shape forecast/utils.py's dicts need: district ->
-    list of 24 floats, index 0 = 1h ahead."""
     districts = sorted(set(holdout["district"]))
     dist_arr = np.array(holdout["district"])
 
@@ -38,7 +20,7 @@ def regenerate(candidate_model, scaler, holdout: dict) -> tuple[dict, dict, dict
     report: dict[str, dict] = {}
 
     for district in districts:
-        idx = np.where(dist_arr == district)[0]  # holdout is already time-sorted; filtering preserves order
+        idx = np.where(dist_arr == district)[0]
         n = len(idx)
 
         if n < MIN_ORIGINS_FOR_BIAS_FIT:
@@ -51,7 +33,7 @@ def regenerate(candidate_model, scaler, holdout: dict) -> tuple[dict, dict, dict
         split = int(n * BIAS_FIT_FRACTION)
         fit_sl, eval_sl = slice(0, split), slice(split, n)
 
-        pred = predict_real_units(candidate_model, X_d, scaler)  # (n, 24, 3), real units, unfloored/uncorrected
+        pred = predict_real_units(candidate_model, X_d, scaler)
         temp_pred, hum_pred = pred[:, :, 0], pred[:, :, 2]
         temp_actual, hum_actual = y_d[:, :, 0], y_d[:, :, 2]
 

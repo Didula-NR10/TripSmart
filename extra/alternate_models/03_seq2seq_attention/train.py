@@ -1,22 +1,3 @@
-"""
-03_seq2seq_attention/train.py
-──────────────────────────────────
-Trains the attention-augmented encoder-decoder GRU (see model.py) and
-evaluates it the same way as every other model in alternate_models/.
-
-Usage:
-    python train.py --data path/to/your_data.xlsx
-    python train.py                                   # uses the synthetic smoke-test sample
-
-Runtime: the heaviest of the three deep models (attention adds real compute
-on top of the seq2seq decoder). Recommended on Colab's free T4 GPU rather
-than local CPU for a full run — this is the one most likely to feel slow on
-an i5 3rd-gen / GTX 960 4GB machine.
-
-Outputs (in ./artifacts/): same set as the other deep models — model.keras,
-scaler.pkl, feature_cols.json, metrics.json, training_curve.png,
-per_hour_metrics.png, sample_predictions.png.
-"""
 from __future__ import annotations
 
 import argparse
@@ -42,7 +23,6 @@ from model import build_model
 ARTIFACTS_DIR = THIS_DIR / "artifacts"
 MODEL_NAME = "03_seq2seq_attention"
 
-
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Train the attention seq2seq forecaster")
     p.add_argument("--data", type=str, default=str(config.DATA_DIR / "synthetic_sample.xlsx"))
@@ -51,7 +31,6 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--patience", type=int, default=10)
     return p.parse_args()
-
 
 def main() -> None:
     args = parse_args()
@@ -128,7 +107,6 @@ def main() -> None:
         json.dump(feature_cols, f, indent=2)
 
     print(f"\nAll artifacts saved to {ARTIFACTS_DIR}")
-
 
 if __name__ == "__main__":
     main()

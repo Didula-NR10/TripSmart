@@ -1,14 +1,3 @@
-/**
- * TravelNotebook — the logged-in traveller's private journal: where they
- * went, what they saw. Entries live on the server until deleted. Writing now
- * happens in the pirate-journal book (app/journal.tsx) — this component is
- * the read-only history + the entry point into it.
- *
- * `limit` caps how many notes are shown (the Profile screen passes 2 by
- * default and lets "View all" lift the cap). `onNotesChange` reports the
- * full, unfiltered list up to the parent so it can derive the travel-summary
- * stats without a second fetch.
- */
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
@@ -21,8 +10,6 @@ import { Palette, Radius, Space, Type } from '../../constants/trip-theme';
 const noteDate = (at: number) =>
   new Date(at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-/** Best-effort landmark photo for a note, matched from its free-text place
- *  field against the same district/landmark data the Forecast tab uses. */
 function thumbnailFor(place: string): string | null {
   const p = place.toLowerCase();
   for (const d of districts) {
@@ -63,17 +50,16 @@ export function TravelNotebook({
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const remove = async (id: string) => {
     const next = notes.filter((x) => x.id !== id);
-    setNotes(next); // optimistic
+    setNotes(next);
     onNotesChange?.(next);
     try {
       await deleteTravelNote(id);
     } catch {
-      load(); // restore truth on failure
+      load();
     }
   };
 

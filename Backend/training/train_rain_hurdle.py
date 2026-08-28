@@ -1,33 +1,3 @@
-"""
-training.train_rain_hurdle
-─────────────────────────────
-Standalone script: trains the rain hurdle heads (see rain_hurdle.py) on real
-accumulated data and reports whether they beat the existing raw GRU rain
-channel on the same held-out split.
-
-Deliberately NOT wired into training/pipeline.py's monthly automation, and
-NEVER touches Backend/models/best_checkpoint.keras: this is a new,
-un-proven piece of the system. Run it by hand, read the report, and only
-once it's been reviewed does wiring it into production become a separate,
-deliberate decision — not something that promotes itself the way the
-temp/humidity fine-tune loop does.
-
-Honest limitation, stated up front rather than glossed over: this evaluates
-the hurdle model against the GRU's OWN raw rain regression (the fair,
-apples-to-apples comparison this pipeline can actually run offline). It does
-NOT benchmark against the live production rain path (a historical-analog +
-WeatherAPI-forecast blend, see forecast/services.py), because that path
-needs WeatherAPI's forecast as it existed at prediction time, which isn't
-retained anywhere — only real recorded outcomes are. Beating the raw GRU
-channel here is necessary evidence the hurdle approach works; beating the
-live production blend is a second, separate question that would need
-WeatherAPI forecast snapshots collected going forward to answer rigorously.
-
-Usage (from Backend/):
-    python -m training.train_rain_hurdle                          # live app data (needs SUPABASE_DB_URL)
-    TRAINING_DATA_SOURCE=archive python -m training.train_rain_hurdle   # real historical data, no waiting, no DB needed
-See training/data_source.py.
-"""
 from __future__ import annotations
 
 import json
@@ -40,7 +10,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("trip_smart.training.train_rain_hurdle")
 
-
 def precision_recall_f1(pred_occurred, actual_occurred) -> dict:
     import numpy as np
     tp = float(np.sum((pred_occurred == 1) & (actual_occurred == 1)))
@@ -51,7 +20,6 @@ def precision_recall_f1(pred_occurred, actual_occurred) -> dict:
     f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
     return {"precision": round(precision, 3), "recall": round(recall, 3), "f1": round(f1, 3),
             "true_positives": int(tp), "false_positives": int(fp), "false_negatives": int(fn)}
-
 
 def main() -> int:
     import tensorflow as tf
@@ -186,7 +154,6 @@ def main() -> int:
     log.info("Candidate hurdle model saved to %s (NOT deployed — review the report first).", candidate_path)
 
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

@@ -1,9 +1,3 @@
-/**
- * TravelSummaryStats — the dark "Your travel summary" card on the Profile
- * tab. Values are computed by the caller from the traveller's own notebook
- * (unique places, notes written, matched districts) — there is no separate
- * gamification backend, so this is a client-side read of real activity.
- */
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Palette, Radius, Space, Type } from '../../constants/trip-theme';

@@ -1,21 +1,3 @@
-"""
-predict_8h.py
-───────────────
-Step 1 of a live prediction-vs-reality check: fetches context, gets the GRU
-model's prediction for the next N hours (default 8) AND Open-Meteo's own
-forecast for those same hours, plots the two side by side, and LOGS the
-predictions to disk so verify_predictions.py can check them against what
-actually happens once those hours have passed.
-
-This is the only honest way to get "Open-Meteo predicted X, reality was Y"
-— Open-Meteo doesn't archive its own past forecasts, so the comparison has
-to start now and wait for time to pass. See extra/README.md for the fuller
-explanation of why.
-
-Usage:
-    python predict_8h.py Colombo
-    python predict_8h.py Kandy --hours 6
-"""
 from __future__ import annotations
 
 import argparse
@@ -47,7 +29,6 @@ COLOR_AXIS = "#c3c2b7"
 COLOR_TEXT = "#0b0b0b"
 COLOR_TEXT_MUTED = "#898781"
 
-
 def style_axis(ax, ylabel: str) -> None:
     ax.set_ylabel(ylabel, color=COLOR_TEXT, fontsize=10)
     ax.tick_params(colors=COLOR_TEXT_MUTED, labelsize=9)
@@ -57,7 +38,6 @@ def style_axis(ax, ylabel: str) -> None:
     for side in ("left", "bottom"):
         ax.spines[side].set_color(COLOR_AXIS)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -149,7 +129,6 @@ def main() -> None:
     print(f"\nNeither line has been checked against reality yet.")
     print(f"Come back after {ready_at:%Y-%m-%d %H:%M} and run:")
     print(f"  python verify_predictions.py {args.district}")
-
 
 if __name__ == "__main__":
     main()

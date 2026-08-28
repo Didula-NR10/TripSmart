@@ -20,7 +20,6 @@ const categoryIcon: Record<SpecialtyCategory, keyof typeof Ionicons.glyphMap> = 
 
 const INITIAL_COUNT = 6;
 
-/** In the All Sri Lanka view each item carries the district it belongs to. */
 type TaggedSpecialty = Specialty & { district?: string };
 
 function SpecialtyRow({ item, onPress }: { item: TaggedSpecialty; onPress: () => void }) {

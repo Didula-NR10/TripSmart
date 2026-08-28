@@ -1,10 +1,6 @@
-"""
-reports.schemas — the API contract for crowd-sourced ground reports.
-"""
 from typing import List, Optional
 
 from pydantic import BaseModel, Field, field_validator
-
 
 class ReportCreate(BaseModel):
     district: str = Field(..., description="District name, e.g. 'Colombo' or 'NuwaraEliya'")
@@ -29,27 +25,23 @@ class ReportCreate(BaseModel):
     def _trim(cls, v: str) -> str:
         return v.strip()
 
-
 class ReportOut(BaseModel):
     id: str
     district: str
     location: str
     title: str
     body: str
-    author: str = ""          # username of the logged-in reporter
-    author_avatar: str = ""   # the reporter's profile-picture URL, if they set one
-    created_at: str           # ISO-8601 UTC
-
+    author: str = ""
+    author_avatar: str = ""
+    created_at: str
 
 class ReportList(BaseModel):
     count: int
     reports: List[ReportOut]
 
-
 class SubscribeRequest(BaseModel):
     expo_token: str = Field(..., description="Token from Notifications.getExpoPushTokenAsync()")
     district: str = Field(..., description="District this device wants ground-report alerts for")
-
 
 class SubscribeResponse(BaseModel):
     message: str

@@ -31,8 +31,6 @@ import { getCachedPushToken } from '../lib/notify';
 import { resolveDistrict } from '../lib/engine';
 import { Palette, Radius, Space, Type } from '../constants/trip-theme';
 
-// Hidden for now (manual entry only) — flip back on once GPS location-share
-// is ready to test again. Handler/state below are left in place.
 const SHOW_LOCATION_SHARE = false;
 
 const ago = (at: number) => {

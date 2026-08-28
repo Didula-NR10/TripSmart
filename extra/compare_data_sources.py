@@ -1,38 +1,10 @@
-"""
-compare_data_sources.py
-─────────────────────────
-Three-way comparison for the next 24 hours, same district, same clock hours:
-
-  1. The TripSmart GRU model's own prediction — fed by the last 168 hours of
-     REAL observations from WeatherAPI.com (the same source the live backend
-     now uses, since the Open-Meteo swap).
-  2. Open-Meteo's own forecast product for those same hours (not our model —
-     their forecasting engine).
-  3. WeatherAPI.com's own forecast product for those same hours (again, their
-     engine, not ours).
-
-This answers "how does what our model predicts compare to what the two raw
-weather services predict for the same moment" — useful for sanity-checking
-the model against independent references, and for seeing how much Open-Meteo
-and WeatherAPI disagree with each other in the first place.
-
-Saves a PNG chart to extra/output/ and prints a numeric comparison table
-(mean absolute difference between every pair of sources) to the terminal.
-
-Requires a WeatherAPI.com key. Reads WEATHERAPI_KEY from the environment, or
-falls back to Backend/.env (whichever line starts with WEATHERAPI_KEY=).
-
-Usage:
-    python compare_data_sources.py                 # defaults to Colombo
-    python compare_data_sources.py Kandy
-"""
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
 import matplotlib
-matplotlib.use("Agg")  # headless-safe; script still saves PNGs either way
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
@@ -52,17 +24,13 @@ from model_pipeline import (
 BASE_DIR = Path(__file__).resolve().parent
 OUTPUT_DIR = BASE_DIR / "output"
 
-# Okabe-Ito colorblind-safe triad — extends the 2-series palette from
-# compare_with_openmeteo.py (blue/orange kept identical) with a third,
-# distinguishable green for WeatherAPI.
-COLOR_PREDICTED = "#2a78d6"    # GRU model
-COLOR_OPEN_METEO = "#eb6834"   # Open-Meteo's own forecast
-COLOR_WEATHERAPI = "#0a9469"   # WeatherAPI's own forecast
+COLOR_PREDICTED = "#2a78d6"
+COLOR_OPEN_METEO = "#eb6834"
+COLOR_WEATHERAPI = "#0a9469"
 COLOR_GRID = "#e1e0d9"
 COLOR_AXIS = "#c3c2b7"
 COLOR_TEXT = "#0b0b0b"
 COLOR_TEXT_MUTED = "#898781"
-
 
 def build_comparison(district: str, key: str) -> pd.DataFrame:
     print(f"Fetching WeatherAPI data for {district} (context + their forecast)...")
@@ -119,7 +87,6 @@ def build_comparison(district: str, key: str) -> pd.DataFrame:
         )
     return merged
 
-
 def style_axis(ax, ylabel: str) -> None:
     ax.set_ylabel(ylabel, color=COLOR_TEXT, fontsize=10)
     ax.tick_params(colors=COLOR_TEXT_MUTED, labelsize=9)
@@ -130,9 +97,7 @@ def style_axis(ax, ylabel: str) -> None:
         ax.spines[side].set_color(COLOR_AXIS)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
 
-
 def plot_comparison(merged: pd.DataFrame, district: str) -> Path:
-    """One axis per unit — three stacked panels, never a dual y-axis."""
     fig, axes = plt.subplots(3, 1, figsize=(10, 11), sharex=True)
     fig.patch.set_facecolor("#fcfcfb")
 
@@ -169,7 +134,6 @@ def plot_comparison(merged: pd.DataFrame, district: str) -> Path:
     plt.close(fig)
     return out_path
 
-
 def print_summary(merged: pd.DataFrame, district: str) -> None:
     def mae(col_a: str, col_b: str) -> float:
         pair = merged[[col_a, col_b]].dropna()
@@ -197,7 +161,6 @@ def print_summary(merged: pd.DataFrame, district: str) -> None:
             f"{r['pred_humidity_pct']:<10}{r['om_humidity_pct']:<8}{r['wx_humidity_pct']:<8}"
         )
 
-
 def main() -> None:
     district = sys.argv[1] if len(sys.argv) > 1 else "Colombo"
     if district not in DISTRICT_COORDS:
@@ -211,7 +174,6 @@ def main() -> None:
 
     out_path = plot_comparison(merged, district)
     print(f"\nChart saved to: {out_path}")
-
 
 if __name__ == "__main__":
     main()

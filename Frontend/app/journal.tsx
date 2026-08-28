@@ -1,14 +1,3 @@
-/**
- * app/journal.tsx — the pirate travel journal: a book of up to
- * MAX_PAGES_PER_BOOK pages, one location per page, photos glued in. Reached
- * from Profile's "Write a travel note" card; not a tab, so it has its own
- * back button rather than living in the bottom bar.
- *
- * The page-flip is built on React Native's own Animated API (transform +
- * opacity only, so it runs on the native driver) — no reanimated/worklets,
- * which keeps this screen out of the native-build/NDK cost the rest of the
- * app deliberately avoids (see components/trip/DistrictMap.tsx).
- */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -90,7 +79,6 @@ export default function JournalScreen() {
   useEffect(() => {
     if (activeBook) loadDetail(activeBook.id);
     else setDetail(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeBook?.id]);
 
   const goToPage = (target: number) => {

@@ -18,9 +18,6 @@ export type Prediction = {
 };
 
 export function resolveDistrict(lat: number, lng: number): District | null {
-  // District bounding boxes overlap near borders (e.g. Ella sits inside both
-  // the Nuwara Eliya and Badulla boxes). Among the boxes containing the
-  // point, pick the district whose centre is closest, not the first match.
   const hits = districts.filter(
     (d) => lat >= d.bbox[0] && lat <= d.bbox[2] && lng >= d.bbox[1] && lng <= d.bbox[3],
   );
@@ -180,7 +177,6 @@ export function zonesNear(lat: number, lng: number): Zone[] {
   return zones.filter((z) => haversineKm(lat, lng, z.lat, z.lng) <= z.radiusKm);
 }
 
-/** Every advisory zone that sits inside a district — not just near its centre. */
 export function zonesInDistrict(districtKey: string): Zone[] {
   return zones.filter((z) => resolveDistrict(z.lat, z.lng)?.key === districtKey);
 }

@@ -1,6 +1,3 @@
-"""
-forecast.routers — HTTP surface. Thin: validate, delegate, return.
-"""
 from typing import List
 
 from fastapi import APIRouter, Query
@@ -20,18 +17,15 @@ from forecast.services import ForecastService
 router = APIRouter(prefix="/api/v1/forecast", tags=["Forecast"])
 service = ForecastService()
 
-
 @router.get("/health", response_model=HealthResponse)
 def health():
     """Is the model on disk and loadable?"""
     return service.health()
 
-
 @router.get("/districts", response_model=List[DistrictInfo])
 def list_districts():
     """The 25 districts the model was trained to serve."""
     return service.list_districts()
-
 
 @router.get("/current/{district}", response_model=CurrentConditionsResponse)
 async def current_conditions(district: str):
@@ -42,7 +36,6 @@ async def current_conditions(district: str):
     day/night and a condition label. Powers the "go now" district comparison.
     """
     return await service.current_conditions(district)
-
 
 @router.get("/weekly/{district}", response_model=WeeklyOutlookResponse)
 async def weekly_outlook(district: str):
@@ -55,7 +48,6 @@ async def weekly_outlook(district: str):
     """
     return await service.weekly_outlook(district)
 
-
 @router.get("/geocode", response_model=GeocodeResult)
 async def geocode(q: str = Query(..., min_length=1, description="Place name, e.g. 'Ella'")):
     """Place name -> coordinates for the map picker's search box.
@@ -65,7 +57,6 @@ async def geocode(q: str = Query(..., min_length=1, description="Place name, e.g
     install.
     """
     return await service.geocode(q)
-
 
 @router.get("/reverse-geocode", response_model=ReverseGeocodeResult)
 async def reverse_geocode(
@@ -80,8 +71,7 @@ async def reverse_geocode(
     """
     return await service.reverse_geocode(lat, lon)
 
-
-@router.get("/{district}", response_model=ForecastResponse) 
+@router.get("/{district}", response_model=ForecastResponse)
 async def forecast_district(
     district: str,
     refresh: bool = Query(default=False, description="Bypass the cache and re-run the model"),
@@ -93,7 +83,6 @@ async def forecast_district(
     GOOD / CAUTION / AVOID call — plus a daily verdict.
     """
     return await service.forecast_district(district, refresh=refresh)
-
 
 @router.post("/predict", response_model=ForecastResponse)
 def predict(payload: PredictRequest):

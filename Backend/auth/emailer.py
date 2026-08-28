@@ -1,22 +1,3 @@
-"""
-auth.emailer — sends OTP codes over HTTPS via SendGrid's Mail Send API.
-
-Why not SMTP: Render's free tier blocks outbound traffic to SMTP ports
-(25/465/587) as of September 2025, so aiosmtplib-over-SMTP silently times out
-there regardless of how correct the Gmail app password is. SendGrid's API is
-a plain HTTPS POST (port 443), which is never blocked.
-
-Configured with SENDGRID_API_KEY + SMTP_FROM_EMAIL (the "from" address must
-be a Single Sender verified in the SendGrid dashboard: Settings -> Sender
-Authentication -> Single Sender Verification). A legacy raw-SMTP path is
-kept as a fallback for local development or a paid Render instance, where
-SMTP ports aren't blocked — set SMTP_USER + SMTP_APP_PASSWORD instead and
-leave SENDGRID_API_KEY empty.
-
-Returns False instead of raising when email is unconfigured or fails, so
-development without credentials still works: the service layer then exposes
-the code in the API response in development mode.
-"""
 from __future__ import annotations
 
 import logging
@@ -57,24 +38,17 @@ _BODIES = {
     ),
 }
 
-
 def _from_address() -> str:
     return settings.SMTP_FROM_EMAIL or settings.SMTP_USER
-
 
 def sendgrid_configured() -> bool:
     return bool(settings.SENDGRID_API_KEY and _from_address())
 
-
 def smtp_configured() -> bool:
     return bool(settings.SMTP_USER and settings.SMTP_APP_PASSWORD)
 
-
 def _app_password() -> str:
-    # Gmail's UI displays app passwords with spaces for readability; SMTP
-    # login needs them removed.
     return settings.SMTP_APP_PASSWORD.replace(" ", "")
-
 
 async def _send_via_sendgrid(to_email: str, subject: str, body: str) -> bool:
     payload = {
@@ -98,10 +72,9 @@ async def _send_via_sendgrid(to_email: str, subject: str, body: str) -> bool:
             to_email, response.status_code, response.text[:500],
         )
         return False
-    except Exception as e: 
+    except Exception as e:
         log.error("SendGrid request failed for %s: %s", to_email, e)
         return False
-
 
 async def _send_via_smtp(to_email: str, subject: str, body: str) -> bool:
     msg = EmailMessage()
@@ -123,13 +96,11 @@ async def _send_via_smtp(to_email: str, subject: str, body: str) -> bool:
         )
         log.info("OTP email sent to %s via SMTP", to_email)
         return True
-    except Exception as e:  # noqa: BLE001 — any SMTP failure must not 500 the API
+    except Exception as e:
         log.error("Failed to send OTP email to %s via SMTP: %s", to_email, e)
         return False
 
-
 async def send_otp(to_email: str, code: str, purpose: str) -> bool:
-    """Deliver a one-time code. True on success, False when not configured/failed."""
     subject = _SUBJECTS.get(purpose, _SUBJECTS["signup"])
     body = _BODIES.get(purpose, _BODIES["signup"]).format(code=code, ttl=settings.OTP_TTL_MINUTES)
 

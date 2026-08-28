@@ -1,10 +1,3 @@
-"""
-forecast.repositories
-─────────────────────
-Everything that talks to the outside world: the upstream weather API, the model
-artifacts on disk, and Supabase. Services depend on this; this depends on
-nothing above it.
-"""
 from __future__ import annotations
 
 import asyncio
@@ -26,18 +19,7 @@ from forecast.utils import DISTRICT_COORDS
 
 log = logging.getLogger("trip_smart.forecast.repo")
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# 1. The model — loaded ONCE, lazily
-# ──────────────────────────────────────────────────────────────────────────────
-
 class ModelRepository:
-    """Holds the Keras model and the fitted scaler.
-
-    Loading is lazy and cached: TensorFlow costs seconds and hundreds of MB, so
-    we refuse to pay that at import time (it would slow every worker boot, even
-    ones that never forecast). The first request pays; the rest are free.
-    """
 
     _model = None
     _scaler = None
@@ -45,14 +27,12 @@ class ModelRepository:
     @classmethod
     def get_model(cls):
         if cls._model is None:
-            import tensorflow as tf  # imported here, not at module top, on purpose
+            import tensorflow as tf
 
             path = settings.MODEL_PATH
             log.info("Loading GRU forecaster from %s ...", path)
             cls._model = tf.keras.models.load_model(path)
 
-            # Warm-up pass: the first predict() otherwise pays graph-compilation
-            # cost, which would land on an unlucky user instead of on startup.
             dummy = np.zeros((1, settings.INPUT_WINDOW, 12), dtype=np.float32)
             cls._model.predict(dummy, verbose=0)
             log.info("Model ready. Input shape: %s", cls._model.input_shape)
@@ -81,15 +61,7 @@ class ModelRepository:
 
         return os.path.exists(settings.MODEL_PATH) and os.path.exists(settings.SCALER_PATH)
 
-
 class Rain24hRepository:
-    """Holds the 24h-total rain hurdle model, its scaler, and its residual
-    calibration (for range predictions). Same lazy-load discipline as
-    ModelRepository: nothing loads until the first request needs it.
-
-    compile=False on load: the model was saved with a custom weighted-BCE
-    loss function that isn't registered for Keras deserialization, and
-    compiling isn't needed for inference-only use anyway."""
 
     _model = None
     _scaler = None
@@ -132,9 +104,6 @@ class Rain24hRepository:
 
     @classmethod
     def get_calibration(cls) -> dict:
-        """Residual quantiles (predicted - actual, mm) from a real held-out
-        validation run — used to turn one point prediction into an honest
-        range instead of a falsely precise single number."""
         if cls._calibration is None:
             import json
 
@@ -152,30 +121,13 @@ class Rain24hRepository:
             and os.path.exists(settings.RAIN24H_CALIBRATION_PATH)
         )
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# 2. Upstream observations — WeatherAPI.com
-# ──────────────────────────────────────────────────────────────────────────────
-
 class WeatherRepository:
-    """Fetches the 168-hour context window the model needs to see."""
 
-    # WeatherAPI.com's free/standard plans don't expose solar irradiance
-    # (W/m2) the way Open-Meteo did, so DaylightScore is approximated from the
-    # UV index instead: uv/MAX_UV_INDEX while the sun's up, 0.0 at night. 11
-    # is a "very high" tropical UV reading, which Sri Lanka regularly sees
-    # around midday — close enough to the model's original 0-1 daylight signal
-    # without inventing a fake W/m2 number.
     MAX_UV_INDEX = 11.0
 
-    # district -> (fetched_at, flat list of WeatherAPI "hour" objects). Reusing
-    # a just-fetched window across forecast/weekly (which both want "the last
-    # 168 hours" for the same district within moments of each other) cuts
-    # real-world call volume, since upstream data only changes once an hour.
     _window_cache: Dict[str, tuple] = {}
 
     async def _get_with_retry(self, path: str, params: dict) -> dict:
-        """GET against WeatherAPI.com, retrying 429/5xx with backoff before giving up."""
         url = f"{settings.WEATHERAPI_BASE_URL}/{path}"
         params = {**params, "key": settings.WEATHERAPI_KEY}
         delay = settings.WEATHERAPI_RETRY_BASE_SECONDS
@@ -194,7 +146,6 @@ class WeatherRepository:
 
                     last_error = f"WeatherAPI returned {response.status_code}: {response.text[:200]}"
                     if response.status_code != 429 and response.status_code < 500:
-                        # Not a transient failure (bad key, bad query, etc.) — retrying won't help.
                         raise RuntimeError(last_error)
 
                     retry_after = response.headers.get("retry-after")
@@ -211,19 +162,6 @@ class WeatherRepository:
         raise RuntimeError(last_error or "WeatherAPI request failed")
 
     async def fetch_context_window(self, district: str) -> pd.DataFrame:
-        """The last 168 consecutive hours of RECORDED weather for a district.
-
-        WeatherAPI.com has no single "past N days" call like Open-Meteo did.
-        Today (+ tomorrow, so there's always a full 24h of WeatherAPI's own
-        forecast available regardless of what time "now" is) comes from
-        `forecast.json` (whose hour rows are real observations for every hour
-        already elapsed, and forecast for the rest — the not-yet-elapsed rows
-        get trimmed off the *context* below, but stay available via
-        `get_future_forecast()`). Each of the 7 days before today needs its
-        own `history.json` call, since a date *range* in one call needs a
-        paid plan. All 9 calls run concurrently so this costs one
-        round-trip's worth of latency, not nine sequential ones.
-        """
         if district not in DISTRICT_COORDS:
             raise ValueError(f"Unknown district: '{district}'")
 
@@ -247,10 +185,6 @@ class WeatherRepository:
                 ],
             )
         except RuntimeError as e:
-            # Upstream is down/rate-limited even after retries. A slightly
-            # stale window (same district, up to a cache-window old) beats a
-            # hard failure — the model's own accuracy degrades far more
-            # gently than "the user sees an error and can't get a forecast."
             if cached:
                 log.warning("WeatherAPI unavailable for %s; serving stale window from %s", district, cached[0])
                 return self._context_from_frame(self._frame_from_hours(cached[1]))
@@ -265,19 +199,12 @@ class WeatherRepository:
         return self._context_from_frame(self._frame_from_hours(hours))
 
     def get_future_forecast(self, district: str, horizon: int) -> Optional[pd.DataFrame]:
-        """WeatherAPI's own forecast for the next `horizon` hours — reuses the
-        window `fetch_context_window` already cached for this district (it's
-        always called first in the request flow), no extra API call. Returns
-        None if there's no cached window yet for this district."""
         cached = self._window_cache.get(district)
         if not cached:
             return None
         return self._future_from_frame(self._frame_from_hours(cached[1]), horizon)
 
     def _frame_from_hours(self, hours: List[dict]) -> pd.DataFrame:
-        """Raw frame from WeatherAPI hour objects — deduped, sorted, feature
-        columns computed. Not yet trimmed to context or future; both
-        `_context_from_frame` and `_future_from_frame` slice this."""
         df = pd.DataFrame({
             "datetime": pd.to_datetime([h["time"] for h in hours]),
             "Temperature_C": [h["temp_c"] for h in hours],
@@ -291,8 +218,6 @@ class WeatherRepository:
             ],
         })
 
-        # The 9 upstream calls are independent requests, not one contiguous
-        # feed — de-dupe defensively before trusting the hour boundaries.
         df = df.drop_duplicates(subset="datetime").sort_values("datetime").reset_index(drop=True)
         df["DaylightScore"] = df["DaylightScore"].clip(0.0, 1.0)
         df["Hour"] = df["datetime"].dt.hour
@@ -300,10 +225,6 @@ class WeatherRepository:
         return df
 
     def _context_from_frame(self, df: pd.DataFrame) -> pd.DataFrame:
-        """The model's 168h input: everything at or before the current hour.
-        Anything at/after "now" is a WeatherAPI forecast, not an observation —
-        feeding that to the model as if it already happened would quietly
-        corrupt the context."""
         now = pd.Timestamp.now(tz="Asia/Colombo").tz_localize(None)
         context = df[df["datetime"] <= now].tail(settings.INPUT_WINDOW).reset_index(drop=True)
 
@@ -313,20 +234,13 @@ class WeatherRepository:
                 f"{settings.INPUT_WINDOW} are required."
             )
 
-        # Upstream gaps would become NaNs and poison the whole window.
         return context.ffill().bfill()
 
     def _future_from_frame(self, df: pd.DataFrame, horizon: int) -> pd.DataFrame:
-        """WeatherAPI's own forecast rows — strictly after "now", used as an
-        independent second opinion for rain (see ForecastService._rain_range)."""
         now = pd.Timestamp.now(tz="Asia/Colombo").tz_localize(None)
         return df[df["datetime"] > now].head(horizon).reset_index(drop=True)
 
     async def fetch_current(self, district: str) -> Dict[str, Any]:
-        """A live snapshot for right now — no model involved, straight from
-        WeatherAPI's `current` block. Used by the district comparer's
-        "current conditions" mode, where the ask is what a traveler would see
-        by checking a weather app at this exact moment."""
         if district not in DISTRICT_COORDS:
             raise ValueError(f"Unknown district: '{district}'")
 
@@ -336,13 +250,7 @@ class WeatherRepository:
         data = await self._get_with_retry("current.json", params)
         return data["current"]
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# 3. Persistence — Supabase Postgres via SQLAlchemy (optional)
-# ──────────────────────────────────────────────────────────────────────────────
-
 class DistrictLookup:
-    """Name → UUID map for the seeded districts table, loaded once."""
 
     _ids: Optional[Dict[str, Any]] = None
 
@@ -359,19 +267,13 @@ class DistrictLookup:
                 return None
         return cls._ids.get(district)
 
-
 class ObservationRepository:
-    """Persists the fetched context windows into weather_observations, one row
-    per district-hour. The unique (district_id, observed_at) constraint makes
-    every save an idempotent top-up: overlapping windows skip existing hours."""
 
     def save_window(self, district: str, frame: pd.DataFrame) -> None:
         district_id = DistrictLookup.id_for(district)
         if district_id is None:
             return
 
-        # WeatherAPI timestamps arrive naive in Asia/Colombo; observed_at is
-        # timestamptz, so localise before insert or hours would shift by 5:30.
         observed = pd.DatetimeIndex(frame["datetime"]).tz_localize("Asia/Colombo")
 
         rows = [
@@ -395,18 +297,11 @@ class ObservationRepository:
                 stmt = stmt.on_conflict_do_nothing(constraint="uq_district_hour")
                 session.execute(stmt)
         except Exception as e:
-            # Observation history is a nice-to-have; the forecast must not fail
-            # because a write did.
             log.warning("Could not persist observations for %s: %s", district, e)
 
-
 class ForecastRepository:
-    """Stores completed runs so we can serve repeats without re-running the GRU."""
 
     def get_fresh(self, district: str) -> Optional[dict]:
-        """The most recent run for this district, if it's still within the cache
-        window. Upstream data is hourly — re-running the model sooner produces the
-        same answer at the cost of a few hundred ms of CPU."""
         district_id = DistrictLookup.id_for(district)
         if district_id is None:
             return None
@@ -429,9 +324,6 @@ class ForecastRepository:
             return None
 
     def get_stale(self, district: str) -> Optional[dict]:
-        """The most recent run regardless of age — a last resort when WeatherAPI
-        is unreachable even after retries. An hours-old forecast beats a hard
-        error; the payload is marked `stale` so the UI can say so."""
         district_id = DistrictLookup.id_for(district)
         if district_id is None:
             return None
@@ -460,8 +352,6 @@ class ForecastRepository:
                     payload=payload,
                 ))
         except Exception as e:
-            # A failed cache write must never fail the request — the user has
-            # their forecast; persistence is our problem, not theirs.
             log.warning("Could not persist forecast run: %s", e)
 
     def history(self, district: str, limit: int = 10) -> List[dict]:

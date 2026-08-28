@@ -1,7 +1,3 @@
-/**
- * constants/countries.ts — every UN member state plus common travel origins,
- * for the signup country dropdown.
- */
 export const countries: string[] = [
   'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda',
   'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain',

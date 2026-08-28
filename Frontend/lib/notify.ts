@@ -1,28 +1,3 @@
-/**
- * lib/notify.ts — location-triggered district notifications.
- *
- * When GPS places the user in a new district:
- *   1. Any facts still scheduled for the previous district are cancelled.
- *   2. An immediate "Entering X" notification fires, led by the district's
- *      most severe rule.
- *   3. A second immediate notification fires for that district's live ground
- *      reports ONLY — crossing into another district notifies about that
- *      new district's reports instead, never a mix of two districts.
- *   4. One fact — alternating local specialties (food, crafts, gems…) and
- *      laws/customs — is scheduled every 30 minutes. These are OS-level
- *      scheduled notifications, so they land in the phone's notification
- *      panel even if the app is backgrounded.
- * Re-fixes inside the same district are ignored, so the 30-minute cycle keeps
- * its rhythm until the user actually crosses into another district.
- *
- * Every notification this module fires is also appended to a small in-app
- * history (AsyncStorage) so the bell button can show "what did I just get
- * notified about" even on web/Expo Go, where the OS tray isn't reliable.
- *
- * Everything is guarded so web (where expo-notifications has no support) and
- * denied permissions degrade silently — the Culture tab still shows the same
- * information.
- */
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
@@ -32,16 +7,12 @@ import { Specialty, specialtiesForDistrict } from '../constants/specialties';
 import { districtByKey } from '../constants/districts';
 import { fetchGroundReports, subscribeDistrictPush } from './api';
 
-const FACT_INTERVAL_S = 30 * 60; // one fact per 30 minutes
-const MAX_SCHEDULED_FACTS = 16;  // 8 hours of facts; iOS caps pending notifications at 64
+const FACT_INTERVAL_S = 30 * 60;
+const MAX_SCHEDULED_FACTS = 16;
 
 let configured = false;
 let lastNotifiedDistrict: string | null = null;
 
-// ── user-controlled on/off switch (Settings screen) ─────────────────────────
-// Off by default = still ON: this key only exists once the user has actually
-// touched the toggle, so a fresh install keeps notifications working exactly
-// as before this setting existed.
 const NOTIFICATIONS_PREF_KEY = 'settings:notifications_enabled';
 
 export async function getNotificationsEnabled(): Promise<boolean> {
@@ -57,13 +28,11 @@ export async function setNotificationsEnabled(enabled: boolean): Promise<void> {
   try {
     await AsyncStorage.setItem(NOTIFICATIONS_PREF_KEY, enabled ? '1' : '0');
   } catch {
-    // Best-effort — worst case the toggle doesn't stick across a restart.
   }
   if (!enabled) {
     try {
       await Notifications.cancelAllScheduledNotificationsAsync();
     } catch {
-      // Nothing pending, or no OS support (web) — either way, nothing to do.
     }
   }
 }
@@ -98,14 +67,6 @@ async function ensureSetup(): Promise<boolean> {
   }
 }
 
-// ── district-scoped ground-report push (cross-device) ───────────────────────
-//
-// Any device showing a district (GPS-detected or manually picked) subscribes
-// itself to that district's ground-report alerts. When someone else posts a
-// report there, the backend pushes every OTHER subscribed device — see
-// reports.push / reports.routers.create_report on the backend, and
-// subscribeDistrictPush() in lib/api.ts.
-
 let cachedPushToken: string | null = null;
 let lastSubscribedDistrict: string | null = null;
 
@@ -119,29 +80,21 @@ async function getPushToken(): Promise<string | null> {
     cachedPushToken = data;
     return data;
   } catch {
-    return null; // simulator, no network, etc. — subscribing just no-ops
+    return null;
   }
 }
 
-/** The current device's Expo push token, if one could be obtained — used to
- * exclude your own device when you post a report (see postGroundReport). */
 export async function getCachedPushToken(): Promise<string | null> {
   return getPushToken();
 }
 
-/**
- * Registers this device for ground-report push alerts in `districtKey`'s
- * district, replacing any previous subscription. Call this whenever the
- * app's active district changes — GPS fix or manual pick alike, since a
- * device only ever cares about the district it's currently showing.
- */
 export async function subscribeDistrictAlerts(districtKey: string): Promise<void> {
   if (districtKey === lastSubscribedDistrict) return;
   const district = districtByKey(districtKey);
   if (!district) return;
 
   const osReady = await ensureSetup();
-  if (!osReady) return; // no permission / web — nothing to subscribe
+  if (!osReady) return;
 
   const token = await getPushToken();
   if (!token) return;
@@ -150,19 +103,9 @@ export async function subscribeDistrictAlerts(districtKey: string): Promise<void
     await subscribeDistrictPush(token, districtKey);
     lastSubscribedDistrict = districtKey;
   } catch {
-    // Best-effort — a failed subscribe just means this device won't get this
-    // district's report alerts until the next district change retries.
   }
 }
 
-/**
- * Registers the listener that turns an incoming REMOTE push (someone else's
- * ground report in your district) into an in-app history entry, same as the
- * local district-entry notifications. Only pushes carrying `remote: true`
- * are recorded here — the district-entry/fact notifications already record
- * themselves directly, so this must not double them up. Call once, e.g. from
- * the root layout.
- */
 export function initRemoteReportListener(): () => void {
   const sub = Notifications.addNotificationReceivedListener((event) => {
     const data = event.request.content.data as
@@ -181,8 +124,6 @@ export function initRemoteReportListener(): () => void {
   return () => sub.remove();
 }
 
-// ── in-app notification history — what the bell button shows ────────────────
-
 export type NotificationKind = 'district' | 'report';
 
 export type NotificationEntry = {
@@ -191,7 +132,7 @@ export type NotificationEntry = {
   title: string;
   body: string;
   districtKey: string;
-  at: number; // epoch ms, when it fired
+  at: number;
   read: boolean;
 };
 
@@ -200,7 +141,6 @@ const MAX_HISTORY = 150;
 
 let historyListeners: Array<(entries: NotificationEntry[]) => void> = [];
 
-/** Subscribe to live history updates (used by the bell badge + inbox). Returns an unsubscribe fn. */
 export function subscribeNotificationHistory(
   fn: (entries: NotificationEntry[]) => void,
 ): () => void {
@@ -223,7 +163,6 @@ async function saveHistory(entries: NotificationEntry[]): Promise<void> {
   try {
     await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
   } catch {
-    // History is a nice-to-have; losing it must never break notifications.
   }
   historyListeners.forEach((fn) => fn(entries));
 }

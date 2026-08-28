@@ -48,7 +48,7 @@ export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
   const pick = (key: string) => {
     if (picking === 'left') setLeft(key);
     else setRight(key);
-    setResult(null); // a new pair needs a new comparison
+    setResult(null);
     setError(null);
   };
 
@@ -60,7 +60,7 @@ export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
   };
 
   const compare = async () => {
-    if (!gate()) return; // comparisons need an account
+    if (!gate()) return;
     setLoading(true);
     setError(null);
     setResult(null);
@@ -72,9 +72,6 @@ export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
         ]);
         setResult({ kind: 'now', a, b });
       } else {
-        // Same pipeline as the Forecast tab: 7 days of observations up to this
-        // minute feed the GRU, which predicts the next 24 hours. Sequential on
-        // purpose — parallel runs contend for the model on the server.
         const a = await fetchForecastBundle(left, { refresh: true });
         const b = await fetchForecastBundle(right, { refresh: true });
         cacheForecast(left, a);
@@ -97,7 +94,7 @@ export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
 
   return (
     <View>
-      {/* ── pick the two districts ─────────────────────────────────────── */}
+      {}
       <View style={styles.picker}>
         <Pressable style={styles.slot} onPress={() => setPicking('left')}>
           <Text style={styles.slotEyebrow}>DESTINATION 1</Text>
@@ -124,7 +121,7 @@ export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
         </Pressable>
       </View>
 
-      {/* ── choose what to compare ─────────────────────────────────────── */}
+      {}
       <View style={styles.modes}>
         <Pressable
           style={[styles.mode, mode === 'now' && styles.modeOn]}
@@ -195,7 +192,7 @@ export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
         </View>
       ) : null}
 
-      {/* ── results ────────────────────────────────────────────────────── */}
+      {}
       {result?.kind === 'now' ? (
         <NowComparison a={result.a} b={result.b} leftName={leftName} rightName={rightName} />
       ) : null}
@@ -239,8 +236,6 @@ export function Comparer({ profileKey }: { profileKey: ProfileKey }) {
     </View>
   );
 }
-
-/* ── current-conditions comparison table ──────────────────────────────── */
 
 function NowComparison({
   a,

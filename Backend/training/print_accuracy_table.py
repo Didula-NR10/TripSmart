@@ -1,20 +1,3 @@
-"""
-training.print_accuracy_table
-─────────────────────────────────
-Reads the reports already produced by baseline_report.py (and, if present,
-train_rain_hurdle.py) and renders them as:
-  1. A table printed to the terminal.
-  2. A plain-text table file.
-  3. A PNG table image.
-
-All three land in training/output/. This does NOT re-run any evaluation —
-it only presents numbers that were already honestly measured against real
-held-out data. If baseline_report.json doesn't exist yet, run
-`python -m training.baseline_report` first.
-
-Usage (from Backend/):
-    python -m training.print_accuracy_table
-"""
 from __future__ import annotations
 
 import json
@@ -28,10 +11,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("trip_smart.training.print_accuracy_table")
 
-
 def _fmt(v, digits=3):
     return f"{v:.{digits}f}" if isinstance(v, (int, float)) else str(v)
-
 
 def build_rows(baseline: dict) -> list[list[str]]:
     m = baseline["metrics"]
@@ -47,7 +28,6 @@ def build_rows(baseline: dict) -> list[list[str]]:
         ["Rain (zero-floored)", "RMSE (mm)", _fmt(m["rain_rmse_floored"])],
         ["Rain (zero-floored)", "R²", _fmt(m["rain_r2_floored"])],
     ]
-
 
 def render_text(baseline: dict, rain_hurdle: dict | None) -> str:
     rows = build_rows(baseline)
@@ -92,7 +72,6 @@ def render_text(baseline: dict, rain_hurdle: dict | None) -> str:
 
     return "\n".join(lines)
 
-
 def render_image(baseline: dict, rain_hurdle: dict | None, out_path):
     import matplotlib
     matplotlib.use("Agg")
@@ -117,8 +96,6 @@ def render_image(baseline: dict, rain_hurdle: dict | None, out_path):
 
     table_rows = rows.copy()
     row_colors = ["#EAF4F4"] * len(rows)
-    # Highlight the rain-R² row (the weak, expected-weak channel) so it reads
-    # as flagged rather than buried among the strong temp/humidity numbers.
     for i, r in enumerate(table_rows):
         if r[0].startswith("Rain") and r[1] == "R²":
             row_colors[i] = "#FBE4DD"
@@ -163,7 +140,6 @@ def render_image(baseline: dict, rain_hurdle: dict | None, out_path):
     fig.savefig(out_path, dpi=200, bbox_inches="tight")
     plt.close(fig)
 
-
 def main() -> int:
     from training import config as tcfg
 
@@ -188,7 +164,6 @@ def main() -> int:
     log.info("Table image saved to %s", image_path)
 
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

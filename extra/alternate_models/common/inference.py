@@ -1,12 +1,3 @@
-"""
-alternate_models/common/inference.py
-───────────────────────────────────────
-Loads whichever kind of trained model lives in a given artifacts/ folder
-(a deep Keras model, or the LightGBM 3-model trio) and predicts the next
-24 hours from a live context window, uniformly — run_forecast.py and
-compare_with_openmeteo.py don't need to know which architecture they're
-talking to.
-"""
 from __future__ import annotations
 
 import json
@@ -19,7 +10,6 @@ import pandas as pd
 import data_prep
 import scaling
 from config import TARGET_COLS, TARGET_HORIZON
-
 
 def load_trained_model(model_dir: str | Path) -> dict[str, Any]:
     model_dir = Path(model_dir)
@@ -56,12 +46,8 @@ def load_trained_model(model_dir: str | Path) -> dict[str, Any]:
         f"or model_temperature.pkl) — has train.py been run in {model_dir}?"
     )
 
-
 def _gbm_inference_rows(origin_row: pd.Series, tabular_feature_cols: list[str],
                           horizon: int = TARGET_HORIZON) -> pd.DataFrame:
-    """Same feature construction as features_gbm.build_supervised_table, but
-    for a single live origin with no known future targets — just the
-    horizon x lead-hour feature rows to predict for."""
     h_arr = np.arange(1, horizon + 1)
     table = pd.DataFrame([origin_row[tabular_feature_cols].to_dict()] * horizon)
     table["lead_hour"] = h_arr
@@ -78,13 +64,7 @@ def _gbm_inference_rows(origin_row: pd.Series, tabular_feature_cols: list[str],
     table["target_month_cos"] = np.cos(2 * np.pi * target_month / 12.0)
     return table
 
-
 def predict_next_24h(loaded: dict[str, Any], context_df: pd.DataFrame) -> np.ndarray:
-    """context_df: >=168 rows (>= INPUT_WINDOW + a little slack for lag
-    features) of raw per-hour observations for ONE district, in the same
-    raw-column format data_prep.load_raw_table produces (must include a
-    'district' column, even if there's only one). Returns (24, 3) real-unit
-    predictions [temperature, precipitation, humidity]."""
     if loaded["kind"] == "deep":
         from config import INPUT_WINDOW
 

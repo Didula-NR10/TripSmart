@@ -1,25 +1,3 @@
-"""
-training.train_rain_extended
-────────────────────────────────
-Item 3 of the improvement plan: trains a FRESH, standalone rain model on the
-extended feature set (pressure, dew point, wind direction, rain lags,
-rolling rain totals — see extended_features.py) instead of the production
-12-feature contract. This is a genuinely new model, not a fine-tune, because
-the wider input shape can't reuse the shipped model's encoder.
-
-Fits its own MinMaxScaler on the extended features (the production scaler
-was fit on 12 columns and can't be reused for 22). Uses the same
-class-weighted occurrence loss + validation-tuned threshold as
-train_rain_hurdle.py (see rain_hurdle.py) — this script's entire point is to
-isolate "did better FEATURES help", so everything else about the training
-recipe is held constant.
-
-NEVER touches Backend/models/ — saves its candidate model, its own scaler,
-and its report to training/output/ only.
-
-Usage (from Backend/):
-    TRAINING_ARCHIVE_LOOKBACK_DAYS=180 python -m training.train_rain_extended
-"""
 from __future__ import annotations
 
 import json
@@ -31,7 +9,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("trip_smart.training.train_rain_extended")
-
 
 def main() -> int:
     import joblib
@@ -73,8 +50,6 @@ def main() -> int:
     X_base, y_base, dt_base, dist_base = build_base_windows(district_frames)
     split_base = base_chronological_split(X_base, y_base, dt_base, dist_base)
 
-    # Fit a NEW scaler on the extended features — the production scaler.pkl
-    # was fit on 12 columns and structurally can't transform 22.
     scaler_ext = MinMaxScaler(feature_range=(0, 1))
     n, w, f = split_ext["train"]["X"].shape
     scaler_ext.fit(split_ext["train"]["X"].reshape(-1, f))
@@ -170,7 +145,6 @@ def main() -> int:
     log.info("Candidate model + its scaler saved to %s (NOT deployed).", tcfg.OUTPUT_DIR)
 
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

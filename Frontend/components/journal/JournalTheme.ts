@@ -1,10 +1,3 @@
-/**
- * JournalTheme — the pirate/travel-journal palette and type scale. Deliberately
- * separate from constants/trip-theme (the app's teal design system): this
- * screen is meant to feel like a different physical object — an old leather
- * diary — not another app screen, so it gets its own aged-paper colors and
- * handwriting/serif fonts (Caveat, Playfair Display; loaded in app/_layout.tsx).
- */
 export const JournalPalette = {
   parchment: '#F1E2BE',
   parchmentDeep: '#E4CE9C',

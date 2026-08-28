@@ -1,23 +1,3 @@
-"""
-plot_ground_truth_comparison.py
-─────────────────────────────────
-compare_with_openmeteo.py shows GRU vs Open-Meteo's *forecast* — a proxy,
-since that hasn't happened yet either. This script shows GRU vs what
-ACTUALLY HAPPENED: it picks the most recent 168h context window whose next
-24h have already elapsed, runs the model (both raw and with the shipped
-per-district correction applied, exactly as production would), and plots
-both against Open-Meteo's historical archive (real recorded weather) for
-that same window.
-
-Note: Open-Meteo doesn't archive its own past forecasts, so a true 3-way
-"GRU vs Open-Meteo's forecast vs ground truth" chart for the same past
-window isn't possible from public data. This chart answers the more
-important question anyway: how close is the model to reality.
-
-Usage:
-    python plot_ground_truth_comparison.py                # Colombo
-    python plot_ground_truth_comparison.py Kandy
-"""
 from __future__ import annotations
 
 import sys
@@ -44,14 +24,13 @@ from model_pipeline import (
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 ARCHIVE_LAG_DAYS = 3
 
-COLOR_RAW = "#2a78d6"        # slot 1 blue
-COLOR_TRUTH = "#eb6834"      # slot 2 orange
-COLOR_CORRECTED = "#1baf7a"  # slot 3 aqua
+COLOR_RAW = "#2a78d6"
+COLOR_TRUTH = "#eb6834"
+COLOR_CORRECTED = "#1baf7a"
 COLOR_GRID = "#e1e0d9"
 COLOR_AXIS = "#c3c2b7"
 COLOR_TEXT = "#0b0b0b"
 COLOR_TEXT_MUTED = "#898781"
-
 
 def build_comparison(district: str):
     end = datetime.now() - timedelta(days=ARCHIVE_LAG_DAYS)
@@ -61,14 +40,14 @@ def build_comparison(district: str):
     df = df.reset_index(drop=True)
     n = len(df)
 
-    o = n - 1 - TARGET_HORIZON  # most recent origin with a full 24h of ground truth after it
+    o = n - 1 - TARGET_HORIZON
     if o < INPUT_WINDOW - 1:
         raise RuntimeError("Not enough archive history fetched — widen the date range.")
 
     context = df.iloc[o - INPUT_WINDOW + 1: o + 1].reset_index(drop=True)
     future = df.iloc[o + 1: o + 1 + TARGET_HORIZON].reset_index(drop=True)
 
-    real = run_model(context)  # raw (24, 3)
+    real = run_model(context)
     last_obs = context["datetime"].iloc[-1]
 
     rows = []
@@ -86,7 +65,6 @@ def build_comparison(district: str):
         })
     return pd.DataFrame(rows), last_obs
 
-
 def style_axis(ax, ylabel: str) -> None:
     ax.set_ylabel(ylabel, color=COLOR_TEXT, fontsize=10)
     ax.tick_params(colors=COLOR_TEXT_MUTED, labelsize=9)
@@ -96,7 +74,6 @@ def style_axis(ax, ylabel: str) -> None:
     for side in ("left", "bottom"):
         ax.spines[side].set_color(COLOR_AXIS)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-
 
 def plot(merged: pd.DataFrame, district: str) -> Path:
     fig, axes = plt.subplots(3, 1, figsize=(10, 11), sharex=True)
@@ -133,10 +110,8 @@ def plot(merged: pd.DataFrame, district: str) -> Path:
     plt.close(fig)
     return out_path
 
-
 def mae(a, b) -> float:
     return float(np.mean(np.abs(np.array(a) - np.array(b))))
-
 
 def print_summary(merged: pd.DataFrame, district: str, last_obs) -> None:
     print(f"\n{district} — window ending {last_obs} (Colombo time), vs real ground truth:")
@@ -146,7 +121,6 @@ def print_summary(merged: pd.DataFrame, district: str, last_obs) -> None:
           f"corrected {mae(merged.cor_rain_mm, merged.truth_rain_mm):.3f} mm")
     print(f"  Humidity MAE:      raw {mae(merged.raw_hum_pct, merged.truth_hum_pct):.3f} %   "
           f"corrected {mae(merged.cor_hum_pct, merged.truth_hum_pct):.3f} %")
-
 
 def main() -> None:
     district = sys.argv[1] if len(sys.argv) > 1 else "Colombo"
@@ -159,7 +133,6 @@ def main() -> None:
     print_summary(merged, district, last_obs)
     out_path = plot(merged, district)
     print(f"\nChart saved to: {out_path}")
-
 
 if __name__ == "__main__":
     main()

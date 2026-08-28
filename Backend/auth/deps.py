@@ -1,9 +1,3 @@
-"""
-auth.deps — FastAPI dependencies for protected endpoints.
-
-`get_current_user` turns `Authorization: Bearer <token>` into a User row or a
-401. Endpoints that need login just declare it as a dependency.
-"""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -13,7 +7,6 @@ from fastapi import Header, HTTPException, status
 
 from core.database import db_available, get_session
 from core.models import AuthToken, User
-
 
 def get_current_user(authorization: Optional[str] = Header(default=None)) -> User:
     if not authorization or not authorization.lower().startswith("bearer "):
@@ -32,7 +25,7 @@ def get_current_user(authorization: Optional[str] = Header(default=None)) -> Use
         row = session.query(AuthToken).filter(AuthToken.token == token).first()
         if row is None or row.expires_at < datetime.now(timezone.utc):
             if row is not None:
-                session.delete(row)  # expired tokens are garbage-collected on sight
+                session.delete(row)
             raise HTTPException(
                 status.HTTP_401_UNAUTHORIZED, detail="Session expired. Log in again.",
             )

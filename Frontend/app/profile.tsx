@@ -36,8 +36,6 @@ export default function ProfileScreen() {
     );
   }, []);
 
-  // There is no gamification backend — these are honest, derived reads of
-  // the traveller's own notebook, not server-tracked stats.
   const stats = useMemo(() => {
     const places = new Set(
       notes.map((n) => n.place.trim().toLowerCase()).filter(Boolean),

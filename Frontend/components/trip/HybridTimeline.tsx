@@ -25,7 +25,6 @@ export function HybridTimeline({ district }: { district: District }) {
   const [error, setError] = useState<string | null>(null);
   const loadedFor = useRef<string | null>(null);
 
-  // A new district invalidates the previous outlook.
   useEffect(() => {
     if (loadedFor.current && loadedFor.current !== district.key) {
       setDays(null);
@@ -35,7 +34,7 @@ export function HybridTimeline({ district }: { district: District }) {
   }, [district.key]);
 
   const run = async () => {
-    if (!gate()) return; // week-ahead predictions need an account
+    if (!gate()) return;
     setLoading(true);
     setError(null);
     try {

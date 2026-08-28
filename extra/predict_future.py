@@ -1,22 +1,3 @@
-"""
-predict_future.py
-────────────────────
-Step 1 of a live 3-way prediction-vs-reality check: fetches context, gets the
-GRU model's prediction for the next N hours (default 8), Open-Meteo's own
-forecast, and WeatherAPI's own forecast for those same hours — plots the
-3-line "prediction only" chart and LOGS everything to disk so
-verify_future.py can add a 4th line (what actually happened) once those
-hours have passed.
-
-Nobody archives their own past forecasts, so the only honest way to get
-"X predicted this, reality was that" is to start now and wait for time to
-pass. Run this now, then come back after the horizon elapses and run
-verify_future.py.
-
-Usage:
-    python predict_future.py Colombo
-    python predict_future.py Kandy --hours 6
-"""
 from __future__ import annotations
 
 import argparse
@@ -51,7 +32,6 @@ COLOR_AXIS = "#c3c2b7"
 COLOR_TEXT = "#0b0b0b"
 COLOR_TEXT_MUTED = "#898781"
 
-
 def style_axis(ax, ylabel: str) -> None:
     ax.set_ylabel(ylabel, color=COLOR_TEXT, fontsize=10)
     ax.tick_params(colors=COLOR_TEXT_MUTED, labelsize=9)
@@ -61,7 +41,6 @@ def style_axis(ax, ylabel: str) -> None:
     for side in ("left", "bottom"):
         ax.spines[side].set_color(COLOR_AXIS)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -168,7 +147,6 @@ def main() -> None:
     print(f"\nNo line has been checked against reality yet.")
     print(f"Come back after {ready_at:%Y-%m-%d %H:%M} and run:")
     print(f"  python verify_future.py {args.district}")
-
 
 if __name__ == "__main__":
     main()

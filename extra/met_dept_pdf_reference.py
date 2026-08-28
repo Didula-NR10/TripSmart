@@ -1,27 +1,3 @@
-"""
-met_dept_pdf_reference.py
-────────────────────────────
-Transcribes the Sri Lanka Department of Meteorology's official Weather
-Report (extra/twentyfour_pdf.pdf) into the same workbook the open_meteo.py
-and weatherapi.py scripts write to, so all three sources sit side by side
-for the supervisor-requested verification.
-
-Source: Department of Meteorology, Sri Lanka - Weather Report for the
-24-hour period ending 0830 SLT on 2026-08-20 (i.e. 2026-08-19 08:30 to
-2026-08-20 08:30). Values below are transcribed by hand from the PDF table;
-not fetched from any API.
-
-Met stations are mapped onto TripSmart's 25 model districts where the
-mapping is unambiguous (e.g. a station physically inside that district).
-Districts with no reporting station nearby (Kalutara, Matale, Matara,
-Kilinochchi, Kegalle) are left out — there is nothing in the PDF to compare
-them against.
-
-Writes results to extra/weather_verification.xlsx, sheet "MetDept_PDF".
-
-Usage:
-    python met_dept_pdf_reference.py
-"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -31,7 +7,6 @@ import pandas as pd
 BASE_DIR = Path(__file__).resolve().parent
 OUT_PATH = BASE_DIR / "weather_verification.xlsx"
 
-# station: (max_temp_c, min_temp_c, rainfall_mm) - transcribed from the PDF table.
 STATION_READINGS: dict[str, tuple[float, float, float]] = {
     "Anuradhapura": (35.0, 26.2, 0.0),
     "Badulla": (32.8, 19.6, 0.0),
@@ -55,7 +30,6 @@ STATION_READINGS: dict[str, tuple[float, float, float]] = {
     "Mullaitivu": (36.6, 27.0, 0.0),
 }
 
-# station -> matching TripSmart district (extra/model_pipeline.py DISTRICT_COORDS)
 STATION_TO_DISTRICT: dict[str, str] = {
     "Anuradhapura": "Anuradhapura",
     "Badulla": "Badulla",
@@ -65,20 +39,19 @@ STATION_TO_DISTRICT: dict[str, str] = {
     "Hambanthota": "Hambantota",
     "Jaffna": "Jaffna",
     "Monaragala": "Monaragala",
-    "Katugasthota": "Kandy",        # station sits inside Kandy district
-    "Katunayake": "Gampaha",        # station sits inside Gampaha district
+    "Katugasthota": "Kandy",
+    "Katunayake": "Gampaha",
     "Kurunagala": "Kurunegala",
     "Mannar": "Mannar",
     "Polonnaruwa": "Polonnaruwa",
     "Nuwara Eliya": "NuwaraEliya",
-    "Pothuvil": "Ampara",           # station sits inside Ampara district
+    "Pothuvil": "Ampara",
     "Puttalam": "Puttalam",
     "Rathnapura": "Ratnapura",
     "Trincomalee": "Trincomalee",
     "Vavuniya": "Vavuniya",
     "Mullaitivu": "Mullaitivu",
 }
-
 
 def main() -> None:
     rows = []
@@ -100,7 +73,6 @@ def main() -> None:
         result.to_excel(writer, sheet_name="MetDept_PDF", index=False)
 
     print(f"\nSaved to {OUT_PATH} (sheet: MetDept_PDF)")
-
 
 if __name__ == "__main__":
     main()

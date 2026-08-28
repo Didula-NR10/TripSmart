@@ -10,10 +10,6 @@ const skin = (level: AdvisoryLevel) =>
     AVOID: { bg: Palette.dangerSoft, fg: '#7E2A20', rule: Palette.danger, icon: 'umbrella' as const },
   })[level];
 
-// Day type: from temp/humidity 24h TREND + rain range, not rain amount
-// alone — see Backend/forecast/rain24h.py classify_day_type. Distinct
-// palette from the advisory skin above since this describes the day's
-// character, not a safety call.
 const DAY_TYPE_LABEL: Record<DayType, string> = {
   RAINY: 'Rainy day',
   SUNNY: 'Sunny & clear',

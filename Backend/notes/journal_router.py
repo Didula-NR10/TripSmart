@@ -1,13 +1,3 @@
-"""
-notes.journal_router — the pirate-journal feature: books of up to
-MAX_PAGES_PER_BOOK pages, each page one location with a photo. Login
-required throughout; every query is scoped to the authenticated user.
-
-A "page" is a TravelNote row with journal_id + page_number set (see
-core.models.TravelNote) — the plain notebook (notes.routers) and the journal
-share the same table, so a traveller's stats (places visited, notes written)
-count both without needing to know about books at all.
-"""
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -21,7 +11,6 @@ router = APIRouter(prefix="/api/v1/journals", tags=["Travel Journal"])
 
 MAX_PAGES_PER_BOOK = 10
 
-
 def _require_db() -> None:
     if not db_available():
         raise HTTPException(
@@ -29,10 +18,8 @@ def _require_db() -> None:
             detail="The journal needs the database; SUPABASE_DB_URL is not configured.",
         )
 
-
 class JournalCreate(BaseModel):
     title: Optional[str] = Field(None, max_length=80)
-
 
 class PageCreate(BaseModel):
     place: str = Field(..., max_length=120, description="Where you went")
@@ -47,7 +34,6 @@ class PageCreate(BaseModel):
             raise ValueError("must not be blank")
         return v
 
-
 class PageOut(BaseModel):
     id: str
     page_number: int
@@ -56,17 +42,14 @@ class PageOut(BaseModel):
     photo_url: str
     created_at: str
 
-
 class JournalOut(BaseModel):
     id: str
     title: str
     created_at: str
     page_count: int
 
-
 class JournalDetail(JournalOut):
     pages: List[PageOut]
-
 
 def _page_dict(n: TravelNote) -> dict:
     return {
@@ -78,7 +61,6 @@ def _page_dict(n: TravelNote) -> dict:
         "created_at": n.created_at.isoformat(),
     }
 
-
 def _book_dict(b: TravelJournal, page_count: int) -> dict:
     return {
         "id": str(b.id),
@@ -86,7 +68,6 @@ def _book_dict(b: TravelJournal, page_count: int) -> dict:
         "created_at": b.created_at.isoformat(),
         "page_count": page_count,
     }
-
 
 @router.get("", response_model=List[JournalOut])
 def list_journals(user: User = Depends(get_current_user)):
@@ -105,7 +86,6 @@ def list_journals(user: User = Depends(get_current_user)):
         }
         return [_book_dict(b, counts[b.id]) for b in books]
 
-
 @router.post("", response_model=JournalOut, status_code=status.HTTP_201_CREATED)
 def create_journal(payload: JournalCreate, user: User = Depends(get_current_user)):
     """Start a new book. Untitled books are auto-numbered ('Book 1', 'Book 2', ...)."""
@@ -120,7 +100,6 @@ def create_journal(payload: JournalCreate, user: User = Depends(get_current_user
         session.flush()
         session.refresh(book)
         return _book_dict(book, 0)
-
 
 @router.get("/{journal_id}", response_model=JournalDetail)
 def get_journal(journal_id: str, user: User = Depends(get_current_user)):
@@ -141,7 +120,6 @@ def get_journal(journal_id: str, user: User = Depends(get_current_user)):
             .all()
         )
         return {**_book_dict(book, len(pages)), "pages": [_page_dict(p) for p in pages]}
-
 
 @router.post("/{journal_id}/pages", response_model=PageOut, status_code=status.HTTP_201_CREATED)
 def create_page(journal_id: str, payload: PageCreate, user: User = Depends(get_current_user)):
@@ -174,7 +152,6 @@ def create_page(journal_id: str, payload: PageCreate, user: User = Depends(get_c
         session.refresh(note)
         return _page_dict(note)
 
-
 @router.delete("/{journal_id}/pages/{page_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_page(journal_id: str, page_id: str, user: User = Depends(get_current_user)):
     """Tear out one page. Later pages shift down so the book stays gapless."""
@@ -202,7 +179,6 @@ def delete_page(journal_id: str, page_id: str, user: User = Depends(get_current_
         )
         for p in later_pages:
             p.page_number -= 1
-
 
 @router.delete("/{journal_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_journal(journal_id: str, user: User = Depends(get_current_user)):
