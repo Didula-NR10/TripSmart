@@ -1,61 +1,74 @@
 # TripSmart — Essential Files
 
-This folder is a self-contained bundle of the two trained forecasting models
-(scripts + the actual trained artifacts) and the app's user manual, pulled
-out of the main repo for easy handoff. Everything here is a **copy** — the
-originals still live in their normal places in the repo (`extra/output/Gru/`,
-`extra/output/24_hour_rainfall/`, `Backend/models/`), nothing was moved out
-of them.
-
 ## What's in here
 
 | Folder / file | What it is |
 |---|---|
-| `Train 1/` | The **hourly forecast model** (GRU) — predicts temperature, humidity and rain for the next 24 hours, one value per hour. Training scripts (`1_prepare_forecast.py`, `2_train_forecast.py`, `train.py`) plus the actual deployed model (`best_checkpoint.keras`, `scaler.pkl`). |
-| `Train 2/` | The **24-hour total rainfall model** — a separate hurdle model (occurrence + amount) that predicts one number: total rain expected over the next 24 hours. Training scripts (`config.py`, `data_prep.py`, `model.py`, `train_colab.py`), the deployed model (`rain24h_model.keras`, `rain24h_scaler.pkl`, `rain24h_calibration.json`), an alternate training run (`rain24h_model1.keras` / `Rainfall24/`), and the real evaluation charts (training curves, confusion matrix, ROC curve, calibration curve, accuracy table). |
-| `TripSmart_User_Manual.docx` | The end-user guide to the app itself — not a training document. |
+| `Train 1/` | Hourly forecast model (GRU). Scripts: `1_prepare_forecast.py`, `2_train_forecast.py`, `train.py`. Model: `best_checkpoint.keras`, `scaler.pkl`. |
+| `Train 2/` | 24-hour rainfall model (hurdle). Scripts: `config.py`, `data_prep.py`, `model.py`, `train_colab.py`. Model: `rain24h_model.keras`, `rain24h_scaler.pkl`, `rain24h_calibration.json`. |
+| `TripSmart_User_Manual.docx` | End-user app guide. |
 
-Both `Train 1` and `Train 2` are one model each, trained independently, and
-both feed the same live app: `Train 1`'s model handles temperature and
-humidity everywhere plus a rough hourly rain signal; `Train 2`'s model is
-what actually produces the daily rain total shown to users, since rain is
-far more predictable as a 24-hour total than as a single hour.
+---
 
-## Setting up TripSmart locally
+## 1. Install prerequisites
 
-The trained models above are already the ones the live app uses — you do
-**not** need to retrain anything just to run the app. Retraining
-instructions are in the second half of this file, only needed if you want
-to reproduce or improve the models themselves.
+### Python 3.12
 
-### 1. Prerequisites
+- Windows: `winget install Python.Python.3.12`
+- Mac: `brew install python@3.12`
+- Linux: `sudo apt install python3.12 python3.12-venv`
+- Manual: https://www.python.org/downloads/
 
-- Python 3.12
-- Node.js (LTS) with npm
-- A free [Supabase](https://supabase.com) project (Postgres database)
-- A free [WeatherAPI](https://www.weatherapi.com/signup.aspx) key
-- A free [SendGrid](https://signup.sendgrid.com/) account (for signup/reset emails)
-- A Google Cloud API key with the Geocoding API enabled (for destination search)
-- Expo Go app on your phone, or an Android/iOS emulator, to run the frontend
+Verify:
+```bash
+python --version
+```
 
-### 2. Backend
+### Node.js (LTS) + npm
+
+- Windows: `winget install OpenJS.NodeJS.LTS`
+- Mac: `brew install node`
+- Linux: `sudo apt install nodejs npm`
+- Manual: https://nodejs.org/
+
+Verify:
+```bash
+node --version
+npm --version
+```
+
+### Expo Go (to run the app on a phone)
+
+- Install "Expo Go" from the Play Store (Android) or App Store (iOS).
+- Alternative: Android Studio emulator or Xcode iOS simulator.
+
+### Accounts / keys needed
+
+- [Supabase](https://supabase.com) — free project, Postgres database
+- [WeatherAPI](https://www.weatherapi.com/signup.aspx) — free API key
+- [SendGrid](https://signup.sendgrid.com/) — free account, for signup/reset emails
+- Google Cloud — API key with Geocoding API enabled, for destination search
+
+---
+
+## 2. Run the backend
 
 ```bash
 cd Backend
 pip install -r requirements.txt
 ```
 
-Copy `.env.example` to `.env` and fill in the real values — every variable
-is explained inline in that file (where to find it, which are required vs
-optional). At minimum you need `SUPABASE_DB_URL`, `WEATHERAPI_KEY`, and a
-`JWT_SECRET` (generate one with
-`python -c "import secrets; print(secrets.token_hex(32))"`). Email and
-geocoding features degrade gracefully without their keys — the rest of the
-app still runs.
+Copy `.env.example` to `.env`, then fill in:
 
-Make sure the model files are in place (they already are, copied from this
-`Esential` bundle originally in `Backend/models/`):
+| Variable | Required |
+|---|---|
+| `SUPABASE_DB_URL` | Yes |
+| `WEATHERAPI_KEY` | Yes |
+| `JWT_SECRET` | Yes — generate with `python -c "import secrets; print(secrets.token_hex(32))"` |
+| `SENDGRID_API_KEY`, `SMTP_FROM_EMAIL` | No — signup/reset emails print to the console instead |
+| `GOOGLE_MAPS_API_KEY` | No — destination search disabled without it |
 
+Model files must be present at:
 ```
 Backend/models/best_checkpoint.keras
 Backend/models/scaler.pkl
@@ -63,21 +76,18 @@ Backend/models/rain24h_model.keras
 Backend/models/rain24h_scaler.pkl
 Backend/models/rain24h_calibration.json
 ```
+If missing, copy them from `Train 1/` and `Train 2/` in this folder.
 
-If you're setting up a fresh checkout that's missing them, copy them there
-from `Train 1/` and `Train 2/` in this folder.
-
-Run the API:
-
+Start the server:
 ```bash
 uvicorn main:app --reload --port 8000
 ```
 
-Check `http://localhost:8000/api/v1/forecast/health` — `model_loaded: true`
-confirms both models loaded correctly. Database tables are created
-automatically on first startup; nothing to run by hand in Supabase.
+Check: `http://localhost:8000/api/v1/forecast/health` → `model_loaded: true`.
 
-### 3. Frontend
+---
+
+## 3. Run the frontend
 
 ```bash
 cd Frontend
@@ -85,26 +95,23 @@ npm install
 npm start
 ```
 
-This opens the Expo dev server — scan the QR code with Expo Go on your
-phone, or press `a` for an Android emulator / `i` for an iOS simulator.
-Point the app at your local backend by setting the API base URL in
-`Frontend/lib/config.ts` to `http://<your-machine-IP>:8000` (not
-`localhost` — a physical phone can't resolve your computer's `localhost`).
+Scan the QR code with Expo Go, or press `a` (Android emulator) / `i` (iOS simulator).
 
-### 4. Retraining a model (optional)
+Set the backend URL in `Frontend/lib/config.ts`:
+```
+http://<your-machine-IP>:8000
+```
+Use your machine's LAN IP, not `localhost` — a physical phone can't resolve `localhost` as your computer.
 
-Both `Train 1/` and `Train 2/` are meant to be run in Google Colab (free
-GPU tier) rather than locally — training uses several GB of windowed data
-that a laptop CPU will be very slow at. Upload the folder plus the source
-weather dataset (`sri_lanka_labeled_extended.parquet`) to a Colab notebook,
-then:
+---
 
-- **Train 1**: run `1_prepare_forecast.py` first (builds the windowed
-  `.npy` tensors), then `2_train_forecast.py` (trains and saves
-  `best_checkpoint.keras` + `scaler.pkl`).
-- **Train 2**: run `train_colab.py` directly — it calls `data_prep.py` and
-  `model.py` internally, and saves `rain24h_model.keras` +
-  `rain24h_scaler.pkl` + a full evaluation report.
+## 4. Retrain a model (optional)
 
-Once a new model file is produced, drop it into `Backend/models/` (matching
-the filenames above) to have the running backend pick it up.
+Not required to run the app — the models above are already the ones deployed.
+
+Run in Google Colab (free GPU tier), not locally — training needs several GB of windowed data. Upload the folder plus `sri_lanka_labeled_extended.parquet`.
+
+- **Train 1**: run `1_prepare_forecast.py`, then `2_train_forecast.py`.
+- **Train 2**: run `train_colab.py` directly.
+
+Drop the resulting model file into `Backend/models/` (same filenames as above) to use it.
