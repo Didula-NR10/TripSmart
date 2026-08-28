@@ -51,6 +51,7 @@ async def create_report(payload: ReportCreate, user: User = Depends(get_current_
             title=payload.title,
             body=payload.body,
             author=user.username,
+            posted_by_id=user.id,
         )
     except RuntimeError as e:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
@@ -101,7 +102,7 @@ def delete_report(report_id: str, user: User = Depends(get_current_user)):
     someone else's report — the response doesn't distinguish "not found"
     from "not yours" so it never confirms another user's report exists."""
     try:
-        deleted = repo.delete(report_id, author=user.username)
+        deleted = repo.delete(report_id, user_id=user.id, author=user.username)
     except RuntimeError as e:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
     if not deleted:

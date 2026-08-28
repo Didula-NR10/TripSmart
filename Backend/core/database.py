@@ -82,6 +82,11 @@ def init_db() -> None:
             "ADD COLUMN IF NOT EXISTS author TEXT NOT NULL DEFAULT ''"
         ))
         conn.execute(text(
+            "ALTER TABLE public.ground_reports "
+            "ADD COLUMN IF NOT EXISTS posted_by_id UUID NULL "
+            "REFERENCES public.users(id) ON DELETE SET NULL"
+        ))
+        conn.execute(text(
             "ALTER TABLE public.users "
             "ADD COLUMN IF NOT EXISTS avatar_url TEXT NOT NULL DEFAULT ''"
         ))

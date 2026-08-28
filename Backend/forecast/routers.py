@@ -81,7 +81,7 @@ async def reverse_geocode(
     return await service.reverse_geocode(lat, lon)
 
 
-@router.get("/{district}", response_model=ForecastResponse)
+@router.get("/{district}", response_model=ForecastResponse) 
 async def forecast_district(
     district: str,
     refresh: bool = Query(default=False, description="Bypass the cache and re-run the model"),

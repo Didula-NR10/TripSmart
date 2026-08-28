@@ -7,11 +7,16 @@
 ' (same source of truth as database_erd.puml, the UML-class-style version
 ' kept alongside this one) -- PK attributes are bold + underlined.
 '
-' Two independent clusters (no FK between them): Districts-owned tables on
-' the left, User-owned tables + EmailOtp on the right. Each cluster is
-' forced into its own vertical staircase (hidden layout edges) so 10
-' entities and ~70 attributes stay readable in one image instead of
-' collapsing into one unreadable wide row or tall column.
+' Two clusters, mostly independent: Districts-owned tables on the left,
+' User-owned tables + EmailOtp on the right. One real cross-cluster FK
+' exists -- GroundReport.posted_by_id -> users.id, nullable, ON DELETE
+' SET NULL -- the stable ownership link used for delete authorization and
+' avatar lookup; GroundReport.author stays a deliberately un-linked
+' display-name snapshot so a report still shows who posted it even after
+' that account is deleted. Each cluster is otherwise forced into its own
+' vertical staircase (hidden layout edges) so 10 entities and ~70
+' attributes stay readable in one image instead of collapsing into one
+' unreadable wide row or tall column.
 '==============================================================================
 
 skinparam backgroundColor White
@@ -77,6 +82,7 @@ usecase "location" as g_location
 usecase "title" as g_title
 usecase "body" as g_body
 usecase "author" as g_author
+usecase "posted_by_id (FK, nullable)" as g_postedby
 usecase "created_at" as g_created
 ground -- g_id
 ground -- g_district
@@ -84,6 +90,7 @@ ground -- g_location
 ground -- g_title
 ground -- g_body
 ground -- g_author
+ground -- g_postedby
 ground -- g_created
 
 rectangle "ForecastRun" as runs <<entity>>
@@ -203,6 +210,7 @@ users "1" -- "N" tokens   : owns
 users "1" -- "N" journals : owns
 users "1" -- "N" notes    : owns
 journals "1" -- "0..N" notes : contains
+users "0..1" -- "N" ground : posted (SET NULL on delete)
 
 note bottom of otps
   No FK to users -- an OTP can exist

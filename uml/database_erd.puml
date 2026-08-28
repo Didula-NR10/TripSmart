@@ -87,11 +87,16 @@ entity "ground_reports" as ground_reports {
   * title : TEXT
   body : TEXT
   author : TEXT
+  posted_by_id : UUID <<FK>>
   * created_at : TIMESTAMPTZ
 }
 note bottom of ground_reports
   Default: body = '' , author = ''
   FK district_id -> districts.id  ON DELETE CASCADE
+  FK posted_by_id -> users.id     ON DELETE SET NULL
+  author is a display-name snapshot (un-linked on purpose, survives
+  account deletion); posted_by_id is the real ownership link, used
+  for delete authorization and avatar lookup, and survives a rename.
   INDEX (district_id, created_at) -- "ground_reports_district_created_idx"
   INDEX (created_at)              -- "ground_reports_created_idx"
   Ephemeral: rows older than 24h are purged by the app.
@@ -232,6 +237,7 @@ districts       ||--o{ push_subscriptions   : "district_id"
 users           ||--o{ auth_tokens          : "user_id"
 users           ||--o{ travel_journals      : "user_id"
 users           ||--o{ travel_notes         : "user_id"
+users           |o--o{ ground_reports       : "posted_by_id (nullable)"
 
 travel_journals |o--o{ travel_notes         : "journal_id (nullable)"
 

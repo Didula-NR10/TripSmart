@@ -83,7 +83,14 @@ class WeatherObservation(Base):
 class GroundReport(Base):
     """A traveller's live report of conditions on the ground. Reports are
     ephemeral by design: anything older than 24 hours is purged from the
-    database — yesterday's trail mud is not information, it's noise."""
+    database — yesterday's trail mud is not information, it's noise.
+
+    `author` is a display-name snapshot, kept deliberately un-linked (no FK)
+    so a report still shows who posted it even after that account is
+    deleted. `posted_by_id` is the real, stable ownership link — used for
+    delete authorization and avatar lookup, and survives the poster
+    renaming their username (author would not). ON DELETE SET NULL rather
+    than CASCADE: deleting the account must not delete the report."""
 
     __tablename__ = "ground_reports"
     __table_args__ = (
@@ -104,6 +111,11 @@ class GroundReport(Base):
     title: Mapped[str] = mapped_column(Text, nullable=False)      # the main purpose, one line
     body: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
     author: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
+    posted_by_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
     created_at = mapped_column(
         TIMESTAMP(timezone=True), server_default=UTC_NOW, nullable=False
     )

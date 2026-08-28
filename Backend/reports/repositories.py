@@ -9,9 +9,10 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timedelta, timezone
+import uuid
 from typing import List, Optional
 
-from sqlalchemy import or_
+from sqlalchemy import and_, or_
 
 from core.database import db_available, get_session
 from core.models import District, GroundReport, PushSubscription, User
@@ -33,7 +34,13 @@ class ReportRepository:
         return session.query(District).filter(District.name == name).first()
 
     def create(
-        self, district: str, location: str, title: str, body: str, author: str = ""
+        self,
+        district: str,
+        location: str,
+        title: str,
+        body: str,
+        author: str = "",
+        posted_by_id: Optional[uuid.UUID] = None,
     ) -> Optional[dict]:
         """Returns the stored report, or None when the district is unknown."""
         if not db_available():
@@ -44,7 +51,12 @@ class ReportRepository:
             if d is None:
                 return None
             report = GroundReport(
-                district_id=d.id, location=location, title=title, body=body, author=author
+                district_id=d.id,
+                location=location,
+                title=title,
+                body=body,
+                author=author,
+                posted_by_id=posted_by_id,
             )
             session.add(report)
             session.flush()          # server defaults (id, created_at) come back
@@ -79,29 +91,55 @@ class ReportRepository:
                 )
             rows = query.order_by(GroundReport.created_at.desc()).limit(100).all()
 
-            # One lookup for every reporter's profile picture.
-            authors = {r.author for r, _ in rows if r.author}
-            avatars: dict = {}
-            if authors:
-                avatars = dict(
+            # Avatar lookup: prefer the stable posted_by_id link, which
+            # survives the poster renaming their username; fall back to a
+            # username-text match only for legacy rows that predate that
+            # column (posted_by_id is NULL).
+            user_ids = {r.posted_by_id for r, _ in rows if r.posted_by_id}
+            avatars_by_id: dict = {}
+            if user_ids:
+                avatars_by_id = dict(
+                    session.query(User.id, User.avatar_url)
+                    .filter(User.id.in_(user_ids))
+                    .all()
+                )
+            legacy_authors = {r.author for r, _ in rows if r.author and not r.posted_by_id}
+            avatars_by_name: dict = {}
+            if legacy_authors:
+                avatars_by_name = dict(
                     session.query(User.username, User.avatar_url)
-                    .filter(User.username.in_(authors))
+                    .filter(User.username.in_(legacy_authors))
                     .all()
                 )
             return [
-                self._to_dict(r, name, avatars.get(r.author, "")) for r, name in rows
+                self._to_dict(
+                    r, name, avatars_by_id.get(r.posted_by_id) or avatars_by_name.get(r.author, "")
+                )
+                for r, name in rows
             ]
 
-    def delete(self, report_id: str, author: str) -> bool:
-        """Delete a report — only its own author may remove it. Returns
-        whether a row was actually deleted (False = not found / not yours)."""
+    def delete(self, report_id: str, user_id: uuid.UUID, author: str) -> bool:
+        """Delete a report — only its own poster may remove it. Authorizes on
+        the stable posted_by_id when the row has one; falls back to the
+        author-name match only for legacy rows without it (posted before
+        posted_by_id existed). Returns whether a row was actually deleted
+        (False = not found / not yours)."""
         if not db_available():
             raise RuntimeError("Database is not configured.")
         with get_session() as session:
             self._purge_expired(session)
             deleted = (
                 session.query(GroundReport)
-                .filter(GroundReport.id == report_id, GroundReport.author == author)
+                .filter(
+                    GroundReport.id == report_id,
+                    or_(
+                        GroundReport.posted_by_id == user_id,
+                        and_(
+                            GroundReport.posted_by_id.is_(None),
+                            GroundReport.author == author,
+                        ),
+                    ),
+                )
                 .delete(synchronize_session=False)
             )
             return bool(deleted)
