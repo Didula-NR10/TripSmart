@@ -1,0 +1,159 @@
+@startuml TripSmart_UseCase
+'==============================================================================
+' TripSmart — Use Case Diagram, current system state.
+'
+' This REPLACES the "1. Use Case Diagram" block in PLANTUML_DIAGRAMS.md,
+' which has gone stale in three real ways since it was written:
+'   1. Email is SendGrid over HTTPS in production (Gmail SMTP is now only a
+'      local-dev fallback) -- was drawn as "Gmail SMTP".
+'   2. Destination search/geocoding is Google's Geocoding API, not
+'      OpenStreetMap/Nominatim -- was drawn as "OSM / Nominatim".
+'   3. Missing entirely: Google Sign-In, Change Username, Delete Account,
+'      notification/cache preferences (Settings screen), and Subscribe to
+'      Ground Report Alerts (confirmed anonymous-allowed in
+'      reports/routers.py -- no Depends(get_current_user) on that route).
+' Also corrected: Open-Meteo is a training/backtesting-time data source, not
+' a live per-request external call any real use case below triggers -- the
+' live external source for current conditions/forecast context is WeatherAPI
+' (confirmed directly in the app's own UI copy: "Live observations from
+' WeatherAPI"). Every actor, use case and route below matches
+' Backend/auth/routers.py, Backend/notes/routers.py,
+' Backend/notes/journal_router.py, Backend/reports/routers.py and
+' Backend/forecast/routers.py as they exist now.
+'==============================================================================
+left to right direction
+skinparam packageStyle rect
+
+actor "Anonymous Tourist" as Anon
+actor "Registered Traveller" as Trav
+Trav --|> Anon
+
+actor "WeatherAPI" as WeatherAPI <<external>>
+actor "Google Maps\nGeocoding API" as GoogleGeo <<external>>
+actor "Google Sign-In" as GoogleAuth <<external>>
+actor "SendGrid" as SendGrid <<external>>
+actor "Cloudinary" as Cloudinary <<external>>
+
+rectangle "Trip Smart" {
+
+  ' ---- Forecast & Route Intelligence (public) ----
+  usecase "View 24h Forecast" as UC1
+  usecase "View 7-day Outlook" as UC2
+  usecase "View Current Conditions" as UC3
+  usecase "Compare Two Districts" as UC4
+  usecase "Search / Pick District on Map" as UC4b
+
+  ' ---- Local Guide (public) ----
+  usecase "View District Laws & Advisories" as UC5
+  usecase "View District Specialties" as UC6
+
+  ' ---- Ground Reports (mixed) ----
+  usecase "Browse Ground Reports" as UC7
+  usecase "Subscribe to Ground Report Alerts" as UC7b
+  usecase "Post Ground Report" as UC17
+  usecase "Delete Own Ground Report" as UC18
+
+  ' ---- Account lifecycle (public) ----
+  usecase "Sign Up" as UC9
+  usecase "Verify Email (OTP)" as UC10
+  usecase "Resend OTP Code" as UC24
+  usecase "Log In" as UC11
+  usecase "Sign In with Google" as UC11b
+  usecase "Forgot Password" as UC13
+  usecase "Reset Password" as UC14
+
+  ' ---- Settings (public, local device preference) ----
+  usecase "Manage Notification Preference" as UC25
+  usecase "Clear Cached Forecast Data" as UC26
+
+  usecase "Authenticate Session" as UCAuth
+
+  ' ---- Account management (requires session) ----
+  usecase "Log Out" as UC12
+  usecase "Change Password" as UC15
+  usecase "Change Username" as UC15b
+  usecase "Upload Profile Picture" as UC16
+  usecase "Delete Account" as UC16b
+
+  ' ---- Notebook & Journal (requires session) ----
+  usecase "Write Travel Note" as UC19
+  usecase "View My Notes" as UC19b
+  usecase "Delete Travel Note" as UC20
+  usecase "Create Journal Book" as UC21
+  usecase "View Journal Book" as UC21b
+  usecase "Write Journal Page" as UC22
+  usecase "Delete Journal Page" as UC23
+  usecase "Delete Journal Book" as UC23b
+}
+
+' ---- Anonymous Tourist: everything requiring no session ----
+Anon --> UC1
+Anon --> UC2
+Anon --> UC3
+Anon --> UC4
+Anon --> UC4b
+Anon --> UC5
+Anon --> UC6
+Anon --> UC7
+Anon --> UC7b
+Anon --> UC9
+Anon --> UC10
+Anon --> UC24
+Anon --> UC11
+Anon --> UC11b
+Anon --> UC13
+Anon --> UC14
+Anon --> UC25
+Anon --> UC26
+
+' ---- Registered Traveller: adds every session-gated action ----
+Trav --> UC12
+Trav --> UC15
+Trav --> UC15b
+Trav --> UC16
+Trav --> UC16b
+Trav --> UC17
+Trav --> UC18
+Trav --> UC19
+Trav --> UC19b
+Trav --> UC20
+Trav --> UC21
+Trav --> UC21b
+Trav --> UC22
+Trav --> UC23
+Trav --> UC23b
+
+UC12  ..> UCAuth : <<include>>
+UC15  ..> UCAuth : <<include>>
+UC15b ..> UCAuth : <<include>>
+UC16  ..> UCAuth : <<include>>
+UC16b ..> UCAuth : <<include>>
+UC17  ..> UCAuth : <<include>>
+UC18  ..> UCAuth : <<include>>
+UC19  ..> UCAuth : <<include>>
+UC19b ..> UCAuth : <<include>>
+UC20  ..> UCAuth : <<include>>
+UC21  ..> UCAuth : <<include>>
+UC21b ..> UCAuth : <<include>>
+UC22  ..> UCAuth : <<include>>
+UC23  ..> UCAuth : <<include>>
+UC23b ..> UCAuth : <<include>>
+
+UC24 ..> UC9  : <<extend>>
+UC24 ..> UC13 : <<extend>>
+
+' ---- External systems, only on the use cases that actually call them ----
+UC1  -- WeatherAPI
+UC2  -- WeatherAPI
+UC3  -- WeatherAPI
+UC4  -- WeatherAPI
+UC4b -- GoogleGeo
+UC9  -- SendGrid
+UC13 -- SendGrid
+UC15 -- SendGrid
+UC11b -- GoogleAuth
+UC16 -- Cloudinary
+UC19 -- Cloudinary
+UC22 -- Cloudinary
+
+@enduml

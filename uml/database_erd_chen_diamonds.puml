@@ -1,0 +1,247 @@
+@startuml TripSmart_ER_Diamonds
+allowmixing
+'==============================================================================
+' TripSmart — classic Chen ER diagram: rectangle entities, ellipse attributes,
+' diamond relationships, cardinality labeled on each connecting line. Same
+' visual convention as database_erd_chen.puml, but with real relationship
+' diamonds added (that file uses plain labeled lines instead — this is the
+' more traditional Chen style, matching the reference image style).
+'
+' Every entity/attribute/relationship transcribed directly from
+' Backend/core/models.py — nothing invented. Split into the same two
+' clusters as database_erd_chen.puml (Districts-owned / User-owned) for the
+' same reason: 10 entities with full attribute ellipses is too wide for one
+' unbroken row. One real cross-cluster relationship exists: User posts
+' GroundReport (posted_by_id, nullable, ON DELETE SET NULL).
+'==============================================================================
+
+skinparam backgroundColor White
+skinparam shadowing false
+skinparam nodesep 30
+skinparam ranksep 55
+
+skinparam rectangle<<entity>> {
+  BackgroundColor #6699EE
+  BorderColor #4472C4
+  FontColor White
+  FontStyle Bold
+  FontSize 14
+}
+skinparam usecase {
+  BackgroundColor #A9E4A2
+  BorderColor #6FAE68
+  FontSize 11
+}
+skinparam diamond {
+  BackgroundColor #2B2B2B
+  BorderColor #1A1A1A
+  FontColor White
+  FontStyle Bold
+  FontSize 12
+}
+
+' ══════════════════════ CLUSTER 1: Districts ═══════════════════════════
+
+rectangle "Districts" as districts <<entity>>
+usecase "<b><u>id</u></b>" as d_id
+usecase "name" as d_name
+usecase "lat" as d_lat
+usecase "lon" as d_lon
+usecase "created_at" as d_created
+districts -- d_id
+districts -- d_name
+districts -- d_lat
+districts -- d_lon
+districts -- d_created
+
+rectangle "WeatherObservation" as weather <<entity>>
+usecase "<b><u>id</u></b>" as w_id
+usecase "observed_at" as w_observed
+usecase "temperature_c" as w_temp
+usecase "precipitation_mm" as w_precip
+usecase "humidity_pct" as w_hum
+usecase "cloud_cover_pct" as w_cloud
+usecase "wind_speed_kmh" as w_wind
+usecase "wind_gusts_kmh" as w_gusts
+usecase "daylight_score" as w_daylight
+usecase "created_at" as w_created
+weather -- w_id
+weather -- w_observed
+weather -- w_temp
+weather -- w_precip
+weather -- w_hum
+weather -- w_cloud
+weather -- w_wind
+weather -- w_gusts
+weather -- w_daylight
+weather -- w_created
+
+rectangle "GroundReport" as ground <<entity>>
+usecase "<b><u>id</u></b>" as g_id
+usecase "location" as g_location
+usecase "title" as g_title
+usecase "body" as g_body
+usecase "author" as g_author
+usecase "created_at" as g_created
+ground -- g_id
+ground -- g_location
+ground -- g_title
+ground -- g_body
+ground -- g_author
+ground -- g_created
+
+rectangle "ForecastRun" as runs <<entity>>
+usecase "<b><u>id</u></b>" as r_id
+usecase "forecast_origin" as r_origin
+usecase "payload" as r_payload
+usecase "created_at" as r_created
+runs -- r_id
+runs -- r_origin
+runs -- r_payload
+runs -- r_created
+
+rectangle "PushSubscription" as pushsub <<entity>>
+usecase "<b><u>expo_token</u></b>" as p_token
+usecase "updated_at" as p_updated
+pushsub -- p_token
+pushsub -- p_updated
+
+' Relationship diamonds, District's side.
+' NOTE: PlantUML (tested 1.2024.7 and latest) silently drops a diamond
+' shape's OWN label whenever `allowmixing` is active alongside rectangle/
+' usecase elements -- confirmed with an isolated minimal test, not a typo
+' here. Workaround: label the connecting LINE instead of the diamond node;
+' the diamond still renders as the relationship marker, the verb still
+' shows, cardinalities still show on both ends.
+diamond rel_records
+diamond rel_reports
+diamond rel_generates
+diamond rel_watched
+
+districts "1" -- rel_records : Records
+rel_records -- "N" weather
+
+districts "1" -- rel_reports : Reports At
+rel_reports -- "N" ground
+
+districts "1" -- rel_generates : Generates
+rel_generates -- "N" runs
+
+districts "1" -- rel_watched : Watched By
+rel_watched -- "N" pushsub
+
+' Layout-only hidden edges: stack the 4 owned entities in a staircase.
+weather -[hidden]d- ground
+ground -[hidden]d- runs
+runs -[hidden]d- pushsub
+
+' ══════════════════════ CLUSTER 2: User ════════════════════════════════
+
+rectangle "User" as users <<entity>>
+usecase "<b><u>id</u></b>" as u_id
+usecase "full_name" as u_name
+usecase "username" as u_username
+usecase "email" as u_email
+usecase "country" as u_country
+usecase "password_hash" as u_pwhash
+usecase "avatar_url" as u_avatar
+usecase "email_verified" as u_verified
+usecase "google_sub" as u_google
+usecase "created_at" as u_created
+usecase "updated_at" as u_updated
+usecase "last_login_at" as u_lastlogin
+users -- u_id
+users -- u_name
+users -- u_username
+users -- u_email
+users -- u_country
+users -- u_pwhash
+users -- u_avatar
+users -- u_verified
+users -- u_google
+users -- u_created
+users -- u_updated
+users -- u_lastlogin
+
+rectangle "AuthToken" as tokens <<entity>>
+usecase "<b><u>token</u></b>" as t_token
+usecase "created_at" as t_created
+usecase "expires_at" as t_expires
+tokens -- t_token
+tokens -- t_created
+tokens -- t_expires
+
+rectangle "TravelJournal" as journals <<entity>>
+usecase "<b><u>id</u></b>" as j_id
+usecase "title" as j_title
+usecase "created_at" as j_created
+journals -- j_id
+journals -- j_title
+journals -- j_created
+
+rectangle "TravelNote" as notes <<entity>>
+usecase "<b><u>id</u></b>" as n_id
+usecase "place" as n_place
+usecase "body" as n_body
+usecase "photo_url" as n_photo
+usecase "page_number" as n_page
+usecase "created_at" as n_created
+notes -- n_id
+notes -- n_place
+notes -- n_body
+notes -- n_photo
+notes -- n_page
+notes -- n_created
+
+rectangle "EmailOtp" as otps <<entity>>
+usecase "<b><u>id</u></b>" as o_id
+usecase "email" as o_email
+usecase "code" as o_code
+usecase "purpose" as o_purpose
+usecase "attempts" as o_attempts
+usecase "expires_at" as o_expires
+usecase "created_at" as o_created
+otps -- o_id
+otps -- o_email
+otps -- o_code
+otps -- o_purpose
+otps -- o_attempts
+otps -- o_expires
+otps -- o_created
+
+' Relationship diamonds, User's side. Same line-label workaround as the
+' District cluster above.
+diamond rel_auth
+diamond rel_owns
+diamond rel_writes
+diamond rel_contains
+diamond rel_posts
+
+users "1" -- rel_auth : Authenticates
+rel_auth -- "N" tokens
+
+users "1" -- rel_owns : Owns
+rel_owns -- "N" journals
+
+users "1" -- rel_writes : Writes
+rel_writes -- "N" notes
+
+journals "1" -- rel_contains : Contains
+rel_contains -- "0..N" notes
+
+' The one real cross-cluster relationship: nullable, ON DELETE SET NULL --
+' author survives independently as a display-name snapshot even when this
+' link is absent or later cleared.
+users "0..1" -- rel_posts : Posts
+rel_posts -- "N" ground
+
+' Layout-only hidden edges: same staircase technique as cluster 1.
+tokens -[hidden]d- journals
+journals -[hidden]d- notes
+notes -[hidden]d- otps
+
+' Pins cluster 2 to start below cluster 1 -- combined side-by-side width
+' blows past PlantUML's render cap, same reasoning as database_erd_chen.puml.
+districts -[hidden]d- users
+
+@enduml

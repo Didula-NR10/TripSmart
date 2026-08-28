@@ -96,6 +96,7 @@ export default function RootLayout() {
           <Tabs.Screen name="trips" options={{ href: null }} />
           <Tabs.Screen name="search" options={{ href: null }} />
           <Tabs.Screen name="journal" options={{ href: null }} />
+          <Tabs.Screen name="settings" options={{ href: null }} />
         </Tabs>
       </TripProvider>
       </AuthProvider>
